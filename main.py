@@ -43,6 +43,28 @@ app.include_router(good_conduct_certificate_apis.router)
 app.include_router(niradhar_certificate_apis.router)
 app.include_router(property_record_response.router, prefix="/namuna8/recordresponses")
 
+# --- Auto-register routers in E-gram submodules ---
+import importlib
+import pkgutil
+import sys
+
+api_packages = [
+    "namuna8",
+    "namuna9",
+    "certificates"
+]
+
+for package_name in api_packages:
+    try:
+        package = importlib.import_module(package_name)
+        for _, modname, _ in pkgutil.iter_modules(package.__path__):
+            module = importlib.import_module(f"{package_name}.{modname}")
+            if hasattr(module, "router"):
+                print(f"[Auto-register] Including router from {package_name}.{modname}")
+                app.include_router(module.router)
+    except Exception as e:
+        print(f"[Auto-register] Skipped {package_name}: {e}")
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to E-gram Panchayat API"}

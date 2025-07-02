@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import database
 from namuna9 import namuna9_model, namuna9_schemas
+from namuna9.namuna9settings import Namuna9Settings
+from namuna9.namuna9_schemas import Namuna9SettingsCreate, Namuna9SettingsRead, Namuna9SettingsUpdate
 
 router = APIRouter(
     prefix="/namuna9",
@@ -61,4 +63,35 @@ def delete_namuna9_year_setup(village: str, year: str, db: Session = Depends(dat
     
     db.delete(db_setup)
     db.commit()
-    return {"message": f"Setup for village '{village}' and year '{year}' deleted successfully."} 
+    return {"message": f"Setup for village '{village}' and year '{year}' deleted successfully."}
+
+@router.post("/settings", response_model=Namuna9SettingsRead, status_code=status.HTTP_201_CREATED)
+def create_namuna9_settings(settings: Namuna9SettingsCreate, db: Session = Depends(database.get_db)):
+    db_settings = Namuna9Settings(**settings.dict())
+    db.add(db_settings)
+    db.commit()
+    db.refresh(db_settings)
+    return db_settings
+
+@router.get("/settings/{settings_id}", response_model=Namuna9SettingsRead)
+def get_namuna9_settings(settings_id: str, db: Session = Depends(database.get_db)):
+    db_settings = db.query(Namuna9Settings).filter(Namuna9Settings.id == settings_id).first()
+    if not db_settings:
+        raise HTTPException(status_code=404, detail="Settings not found")
+    return db_settings
+
+@router.put("/settings/{settings_id}", response_model=Namuna9SettingsRead)
+def update_namuna9_settings(settings_id: str, settings: Namuna9SettingsUpdate, db: Session = Depends(database.get_db)):
+    db_settings = db.query(Namuna9Settings).filter(Namuna9Settings.id == settings_id).first()
+    if not db_settings:
+        # Create new row if not found (upsert)
+        new_settings = Namuna9Settings(id=settings_id, **settings.dict(exclude_unset=True))
+        db.add(new_settings)
+        db.commit()
+        db.refresh(new_settings)
+        return new_settings
+    for field, value in settings.dict(exclude_unset=True).items():
+        setattr(db_settings, field, value)
+    db.commit()
+    db.refresh(db_settings)
+    return db_settings 
