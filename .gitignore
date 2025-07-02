@@ -1,0 +1,21 @@
+# Python specific ignores
+__pycache__/
+*.pyc
+*.pyo
+venv/   # If you use a virtual environment, typically named 'venv' or 'env'
+env/    # Another common virtual environment name
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+# Or specifically:
+# grampanchayat.db
+# test.db
+
+# Node.js specific ignores
+node_modules/
+
+# OS-specific temporary files
+.DS_Store # macOS specific
+Thumbs.db # Windows specific
