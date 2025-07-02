@@ -12,6 +12,7 @@ from database import engine, Base
 from namuna8 import namuna8_model
 from namuna9 import namuna9_model
 from certificates import birth_certificate_model
+from namuna8.ReportCreationUsingJinja import namuna8Print
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -42,6 +43,7 @@ app.include_router(life_certificate_apis.router)
 app.include_router(good_conduct_certificate_apis.router)
 app.include_router(niradhar_certificate_apis.router)
 app.include_router(property_record_response.router, prefix="/namuna8/recordresponses")
+app.include_router(namuna8Print.router , prefix="/namuna8/print")
 
 @app.get("/")
 def read_root():
