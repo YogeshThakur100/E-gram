@@ -23,3 +23,27 @@ class Namuna9CarryForward(BaseModel):
     from_year: str
     to_year: str
     carry_forward_option: str # e.g., "मागील एकूण चे" ~
+
+class Namuna9SettingsBase(BaseModel):
+    penalty_percentage: int
+    notice_fee: int
+    warrant_fee: int
+    notes: Optional[str] = None
+    keep_namuna9_date: bool = False
+    keep_notice_date: bool = False
+
+class Namuna9SettingsCreate(Namuna9SettingsBase):
+    pass
+
+class Namuna9SettingsRead(Namuna9SettingsBase):
+    id: str
+    class Config:
+        orm_mode = True
+
+class Namuna9SettingsUpdate(BaseModel):
+    penalty_percentage: Optional[int] = None
+    notice_fee: Optional[int] = None
+    warrant_fee: Optional[int] = None
+    notes: Optional[str] = None
+    keep_namuna9_date: Optional[bool] = None
+    keep_notice_date: Optional[bool] = None
