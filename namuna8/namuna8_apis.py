@@ -87,25 +87,15 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
         else:
             return getattr(settings, field + 'Above700', 0) or 0
     total_area = db_property.totalAreaSqFt or 0
-    # Debug print statements
-    print(f"[DEBUG] total_area: {total_area}")
-    diva_kar = get_tax_by_area(total_area, 'light') if property_data.divaArogyaKar else 0
-    aarogya_kar = get_tax_by_area(total_area, 'health') if property_data.divaArogyaKar else 0
-    cleaning_tax = get_tax_by_area(total_area, 'cleaning') if property_data.safaiKar else 0
-    toilet_tax = 0.0
-    if property_data.shauchalayKar or property_data.toilet == 'आहे':
-        toilet_tax = float(get_tax_by_area(total_area, 'bathroom'))
-    print(f"[DEBUG] divaKar: {diva_kar}, aarogyaKar: {aarogya_kar}, cleaningTax: {cleaning_tax}, toiletTax: {toilet_tax}")
-    # Assign taxes
-    db_property.divaKar = diva_kar
-    db_property.aarogyaKar = aarogya_kar
-    db_property.cleaningTax = cleaning_tax
-    if property_data.toilet == 'आहे':
-        db_property.toilet = 'आहे'
-        db_property.toiletTax = toilet_tax
-    else:
-        db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
-        db_property.toiletTax = 0.0
+    # Assign taxes strictly based on booleans
+    db_property.divaKar = get_tax_by_area(total_area, 'light') if property_data.divaArogyaKar else 0
+    db_property.aarogyaKar = get_tax_by_area(total_area, 'health') if property_data.divaArogyaKar else 0
+    db_property.cleaningTax = get_tax_by_area(total_area, 'cleaning') if property_data.safaiKar else 0
+    db_property.toiletTax = get_tax_by_area(total_area, 'bathroom') if property_data.shauchalayKar else 0.0
+    db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
+    db_property.safaiKar = bool(property_data.safaiKar)
+    db_property.shauchalayKar = bool(property_data.shauchalayKar)
+    db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
     db.commit()
     db.refresh(db_property)
     # Calculate total area if not provided
@@ -160,11 +150,22 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
             # Ensure owner_data is a Pydantic model
             if isinstance(owner_data, dict):
                 owner_data = schemas.OwnerCreate(**owner_data)
+            owner_id = getattr(owner_data, 'id', None)
             owner = None
-            if owner_data.aadhaarNumber:
-                owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == owner_data.aadhaarNumber).first()
-
-            if not owner:
+            if owner_id is not None:
+                owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+            if owner:
+                # Update existing owner
+                owner.name = owner_data.name
+                if owner_data.mobileNumber is not None:
+                    owner.mobileNumber = owner_data.mobileNumber
+                if owner_data.wifeName is not None:
+                    owner.wifeName = owner_data.wifeName
+                if owner_data.occupantName is not None:
+                    owner.occupantName = owner_data.occupantName
+                db.commit()
+            else:
+                # Create new owner only if id is not present or does not exist
                 owner = models.Owner(
                     name=owner_data.name,
                     aadhaarNumber=owner_data.aadhaarNumber,
@@ -177,16 +178,6 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
                 db.add(owner)
                 db.commit()
                 db.refresh(owner)
-            else:
-                owner.name = owner_data.name
-                if owner_data.mobileNumber is not None:
-                    owner.mobileNumber = owner_data.mobileNumber
-                if owner_data.wifeName is not None:
-                    owner.wifeName = owner_data.wifeName
-                if owner_data.occupantName is not None:
-                    owner.occupantName = owner_data.occupantName
-                db.commit()
-
             new_owners.append(owner)
         db_property.owners = new_owners
 
@@ -211,7 +202,11 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
         db_property.constructions = new_constructions
     # --- END FIX ---
 
-    # Set taxes based on area and boolean fields using Namuna8SettingTax
+    # Set boolean fields explicitly (default to False if not provided)
+    db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
+    db_property.safaiKar = bool(property_data.safaiKar)
+    db_property.shauchalayKar = bool(property_data.shauchalayKar)
+    # Set taxes strictly based on booleans
     settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
     def get_tax_by_area(area, field):
         if not settings:
@@ -225,25 +220,11 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
         else:
             return getattr(settings, field + 'Above700', 0) or 0
     total_area = db_property.totalAreaSqFt or 0
-    # Debug print statements
-    print(f"[DEBUG] total_area: {total_area}")
-    diva_kar = get_tax_by_area(total_area, 'light') if property_data.divaArogyaKar else 0
-    aarogya_kar = get_tax_by_area(total_area, 'health') if property_data.divaArogyaKar else 0
-    cleaning_tax = get_tax_by_area(total_area, 'cleaning') if property_data.safaiKar else 0
-    toilet_tax = 0.0
-    if property_data.shauchalayKar or property_data.toilet == 'आहे':
-        toilet_tax = float(get_tax_by_area(total_area, 'bathroom'))
-    print(f"[DEBUG] divaKar: {diva_kar}, aarogyaKar: {aarogya_kar}, cleaningTax: {cleaning_tax}, toiletTax: {toilet_tax}")
-    # Assign taxes
-    db_property.divaKar = diva_kar
-    db_property.aarogyaKar = aarogya_kar
-    db_property.cleaningTax = cleaning_tax
-    if property_data.toilet == 'आहे':
-        db_property.toilet = 'आहे'
-        db_property.toiletTax = toilet_tax
-    else:
-        db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
-        db_property.toiletTax = 0.0
+    db_property.divaKar = get_tax_by_area(total_area, 'light') if db_property.divaArogyaKar else 0
+    db_property.aarogyaKar = get_tax_by_area(total_area, 'health') if db_property.divaArogyaKar else 0
+    db_property.cleaningTax = get_tax_by_area(total_area, 'cleaning') if db_property.safaiKar else 0
+    db_property.toiletTax = get_tax_by_area(total_area, 'bathroom') if db_property.shauchalayKar else 0.0
+    db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
 
     db.commit()
     db.refresh(db_property)
@@ -966,10 +947,8 @@ def recalculate_all_property_taxes(db: Session = Depends(database.get_db)):
         prop.divaKar = get_tax_by_area(total_area, 'light') if prop.divaArogyaKar else 0
         prop.aarogyaKar = get_tax_by_area(total_area, 'health') if prop.divaArogyaKar else 0
         prop.cleaningTax = get_tax_by_area(total_area, 'cleaning') if prop.safaiKar else 0
-        if prop.toilet == 'आहे':
-            prop.toiletTax = float(get_tax_by_area(total_area, 'bathroom'))
-        else:
-            prop.toiletTax = 0.0
+        toilet_tax = get_tax_by_area(total_area, 'bathroom') if prop.shauchalayKar else 0.0
+        prop.toiletTax = toilet_tax
     db.commit()
     return {"detail": "All property taxes recalculated and updated."}
     
