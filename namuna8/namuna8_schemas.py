@@ -49,7 +49,7 @@ class Construction(BaseModel):
 class PropertyBase(BaseModel):
     village_id: int
     anuKramank: int
-    malmattaKramank: int
+    malmattaKramank: str
     streetName: Optional[str] = None
     citySurveyOrGatNumber: Optional[str] = None
     length: Optional[float] = None
@@ -92,13 +92,13 @@ class PropertyRead(PropertyBase):
 
 # --- Schema for the property list on the side ---
 class PropertyList(BaseModel):
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     anuKramank: int
 
 class BulkEditPropertyRow(BaseModel):
     serial_no: int
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     occupant: str  # always 'स्वतः' for now
     gharKar: float
