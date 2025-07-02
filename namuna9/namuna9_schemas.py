@@ -22,4 +22,4 @@ class Namuna9CarryForward(BaseModel):
     village: str
     from_year: str
     to_year: str
-    carry_forward_option: str # e.g., "मागील एकूण चे" 
+    carry_forward_option: str # e.g., "मागील एकूण चे" ~

@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from namuna8 import namuna8_apis
 from namuna9 import namuna9_apis
 from certificates import birth_certificate_apis, death_certificate_apis, birthdeath_unavailability_apis, resident_certificate_apis, family_certificate_apis, toilet_certificate_apis, no_objection_certificate_apis, no_benefit_certificate_apis, life_certificate_apis, good_conduct_certificate_apis, niradhar_certificate_apis
+from namuna8.recordresponses import property_record_response
 
 # Import database components and models
 from database import engine, Base
@@ -40,6 +41,7 @@ app.include_router(no_benefit_certificate_apis.router)
 app.include_router(life_certificate_apis.router)
 app.include_router(good_conduct_certificate_apis.router)
 app.include_router(niradhar_certificate_apis.router)
+app.include_router(property_record_response.router, prefix="/namuna8/recordresponses")
 
 @app.get("/")
 def read_root():
