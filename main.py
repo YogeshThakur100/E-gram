@@ -13,12 +13,14 @@ from namuna8 import namuna8_model
 from namuna9 import namuna9_model
 from certificates import birth_certificate_model
 from namuna8.ReportCreationUsingJinja import namuna8Print
+from fastapi.staticfiles import StaticFiles
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 # CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
