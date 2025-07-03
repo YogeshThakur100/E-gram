@@ -56,3 +56,250 @@ def singlePrint():
                 "data": {}
             }
         )
+    
+@router.post('/single_printP1')
+def singlePrint():
+    try:
+        # Load template
+        template = env.get_template('singlePrintP1.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
+@router.post('/single_printP2')
+def singlePrint():
+    try:
+        # Load template
+        template = env.get_template('singlePrintP2.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
+@router.post('/single_print_range')
+def singlePrint():
+    try:
+        # Load template
+        template = env.get_template('singlePrintRange.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
+@router.post('/single_print_form')
+def singlePrint():
+    try:
+        # Load template
+        template = env.get_template('singlePrintForm.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
+@router.post('/single_print_vishesh_pani')
+def singlePrint():
+    try:
+        # Load template
+        template = env.get_template('singlePrintVishehPani.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
+@router.post('/single_print_vishesh_pani_range')
+def singlePrint():
+    try:
+        # Load template
+        template = env.get_template('singlePrintVishehPaniRange.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
