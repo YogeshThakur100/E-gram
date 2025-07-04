@@ -155,7 +155,7 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
             if owner_id is not None:
                 owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
             if owner:
-                # Update existing owner
+                # Optionally update fields if needed
                 owner.name = owner_data.name
                 if owner_data.mobileNumber is not None:
                     owner.mobileNumber = owner_data.mobileNumber
@@ -289,19 +289,11 @@ def bulk_update_properties(update: schemas.BulkEditUpdateRequest, db: Session = 
                 prop.waterFacility2 = update.waterFacility2
             else:
                 continue  # skip invalid value
-        # Set sapanikar and vpanikar based on water facilities, only if the field is being updated
-        if update.waterFacility1 is not None:
-            if update.waterFacility1 in ["घरगुती नळ", "व्यावसायिक नळ"]:
-                prop.sapanikar = 100
-            else:
-                prop.sapanikar = 0
-        # else: do not change sapanikar
-        if update.waterFacility2 is not None:
-            if update.waterFacility2 in ["घरगुती नळ", "व्यावसायिक नळ"]:
-                prop.vpanikar = 100
-            else:
-                prop.vpanikar = 0
-        # else: do not change vpanikar
+        # Directly assign sapanikar and vpanikar from payload
+        if hasattr(update, 'waterFacility1Price') and update.waterFacility1Price is not None:
+            prop.sapanikar = update.waterFacility1Price
+        if hasattr(update, 'waterFacility2Price') and update.waterFacility2Price is not None:
+            prop.vpanikar = update.waterFacility2Price
         if update.toilet is not None:
             prop.toilet = update.toilet
         if update.house is not None:
@@ -576,6 +568,17 @@ def delete_tax(id: str, db: Session = Depends(database.get_db)):
     db.commit()
     return {"detail": "Deleted"}
 
+@router.get("/settings/tax/waterslab/fields", response_model=dict)
+def get_water_slab_fields(db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    if not obj:
+        return {"generalWaterUpto300": 0, "generalWater301_700": 0, "generalWaterAbove700": 0}
+    return {
+        "generalWaterUpto300": obj.generalWaterUpto300,
+        "generalWater301_700": obj.generalWater301_700,
+        "generalWaterAbove700": obj.generalWaterAbove700
+    }
+
 # --- Namuna8WaterTaxSettings CRUD ---
 @router.post("/settings/watertax/save", response_model=schemas.Namuna8WaterTaxSettingsRead)
 def create_watertax(data: schemas.Namuna8WaterTaxSettingsCreate, db: Session = Depends(database.get_db)):
@@ -770,16 +773,30 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
     if request.watertaxslab:
         watertaxslab_data = request.watertaxslab.dict(exclude_unset=True)
         watertaxslab_data.pop('id', None)
-        watertaxslab_obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.id == 'namuna8').first()
-        if watertaxslab_obj:
-            for k, v in watertaxslab_data.items():
-                setattr(watertaxslab_obj, k, v)
+        # Update Namuna8SettingTax fields instead of Namuna8GeneralWaterTaxSlabSettings
+        settingtax_obj = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+        if settingtax_obj:
+            if 'rateUpto300' in watertaxslab_data:
+                settingtax_obj.generalWaterUpto300 = watertaxslab_data['rateUpto300']
+            if 'rate301To700' in watertaxslab_data:
+                settingtax_obj.generalWater301_700 = watertaxslab_data['rate301To700']
+            if 'rateAbove700' in watertaxslab_data:
+                settingtax_obj.generalWaterAbove700 = watertaxslab_data['rateAbove700']
+            db.commit()
+            db.refresh(settingtax_obj)
+            result['watertaxslab'] = settingtax_obj
         else:
-            watertaxslab_obj = models.Namuna8GeneralWaterTaxSlabSettings(id='namuna8', **watertaxslab_data)
-            db.add(watertaxslab_obj)
-        db.commit()
-        db.refresh(watertaxslab_obj)
-        result['watertaxslab'] = watertaxslab_obj
+            # If not found, create with only these fields
+            settingtax_obj = models.Namuna8SettingTax(
+                id='namuna8',
+                generalWaterUpto300=watertaxslab_data.get('rateUpto300', 0),
+                generalWater301_700=watertaxslab_data.get('rate301To700', 0),
+                generalWaterAbove700=watertaxslab_data.get('rateAbove700', 0)
+            )
+            db.add(settingtax_obj)
+            db.commit()
+            db.refresh(settingtax_obj)
+            result['watertaxslab'] = settingtax_obj
     # Construction Types bulk upsert
     if request.construction_types:
         result_construction_types = []
@@ -951,4 +968,8 @@ def recalculate_all_property_taxes(db: Session = Depends(database.get_db)):
         prop.toiletTax = toilet_tax
     db.commit()
     return {"detail": "All property taxes recalculated and updated."}
+
+@router.get("/all_properties/")
+def get_all_properties(db: Session = Depends(database.get_db)):
+    return db.query(models.Property).all()
     

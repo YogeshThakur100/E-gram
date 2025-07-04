@@ -111,7 +111,7 @@ class BulkEditPropertyRow(BaseModel):
         orm_mode = True
 
 class BulkEditUpdateRequest(BaseModel):
-    property_ids: list[int]
+    property_ids: list[str]
     waterFacility1: Optional[str] = None
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None
@@ -120,6 +120,8 @@ class BulkEditUpdateRequest(BaseModel):
     safaiKar: Optional[bool] = None
     shauchalayKar: Optional[bool] = None
     karLaguNahi: Optional[bool] = None
+    waterFacility1Price: Optional[float] = None
+    waterFacility2Price: Optional[float] = None
     # Add more fields as needed
 
 class PropertyReportDTO(BaseModel):

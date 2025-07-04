@@ -14,6 +14,7 @@ from namuna9 import namuna9_model
 from certificates import birth_certificate_model
 from namuna8.ReportCreationUsingJinja import namuna8Print
 from fastapi.staticfiles import StaticFiles
+from namuna8.mastertab.mastertabapis import router as mastertab_router
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -46,7 +47,7 @@ app.include_router(good_conduct_certificate_apis.router)
 app.include_router(niradhar_certificate_apis.router)
 app.include_router(property_record_response.router, prefix="/namuna8/recordresponses")
 app.include_router(namuna8Print.router , prefix="/namuna8/print")
-
+app.include_router(mastertab_router)
 # --- Auto-register routers in E-gram submodules ---
 import importlib
 import pkgutil
