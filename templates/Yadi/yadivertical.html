@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>नमुना ८</title>
+    <style>
+        body { font-family: 'Mangal', Arial, sans-serif; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; }
+        .header-table td { border: none; padding: 2px 4px; }
+        .center { text-align: center; }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; vertical-align: middle; }
+        th { background: #f0f0f0; }
+        .footer-summary {
+            border: 3px solid #000;
+            border-top: none;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding: 2px 8px;
+            display: inline-block;
+            background: #fff;
+        }
+        tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        .nested-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .nested-table tr, .nested-table td {
+            height: 100%;
+            vertical-align: stretch;
+            padding: 0;
+            text-align: center;
+            word-break: break-word;
+        }
+        @media print {
+            @page {
+                size: A4 landscape;
+            }
+            #toolbar {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+        <!-- Left: Icon Buttons & Navigation -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+            <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+            <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+            <span style="font-size: 14px; color: #888;"></span>
+            <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+            <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+            <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+            <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+            <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+        </div>
+        <!-- Right: Print & Exit Buttons -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+            <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+        </div>
+    </div>
+    <script>
+        let zoomLevel = 1.0;
+        const minZoom = 0.5;
+        const maxZoom = 2.0;
+        const zoomStep = 0.1;
+        let currentPage = 1;
+        const recordsPerPage = 10; // Show 10 records per page
+        let totalPages = 0;
+
+        function updateZoom() {
+            document.getElementById('mainContent').style.zoom = zoomLevel;
+            document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
+        }
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                zoomLevel = Math.min(maxZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                zoomLevel = Math.max(minZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function showPage(page) {
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            totalPages = Math.ceil(records.length / recordsPerPage);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageTotal').innerText = '/' + totalPages;
+        }
+        function nextPage() { showPage(currentPage + 1); }
+        function prevPage() { showPage(currentPage - 1); }
+        function firstPage() { showPage(1); }
+        function lastPage() { showPage(totalPages); }
+        function printPage() {
+            // Show only current page's records before printing, then restore
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            const prevStates = records.map(el => el.style.display);
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    records.forEach((el, idx) => {
+                        el.style.display = prevStates[idx];
+                    });
+                }, 100);
+            }, 50);
+        }
+        function exitPage() {
+            window.close();
+        }
+        window.onload = function() {
+            updateZoom();
+            showPage(1);
+            // Wire up navigation buttons
+            document.querySelector('button[title="First Page"]').onclick = firstPage;
+            document.querySelector('button[title="Previous Page"]').onclick = prevPage;
+            document.querySelector('button[title="Next Page"]').onclick = nextPage;
+            document.querySelector('button[title="Last Page"]').onclick = lastPage;
+        };
+    </script>
+    <div id="mainContent">
+    <!-- Main Data Table -->
+    <table class="main-table" style="margin-top:0; width:95%; margin-left:auto; margin-right:auto;">
+        <!-- Page Header - Repeats on every page -->
+        <thead class="page-header">
+            <tr>
+                <td colspan="21" style="border:none; padding:0;">
+                    <table class="header-table" style="width:100%; margin:0;">
+                        <tr>
+                            <td class="left" style="width:33%">ग्रामपंचायत : {{gramPanchayat}} <br>एकूण संख्या : {{totalCount}} </td>
+                            <td class="center bold" style="font-size:22px; width:34%">मालमत्ता धारकांची यादी<br><span style="font-size:15px; font-weight:normal;">सन {{yearFrom}} <b>ते</b> {{yearTo}} </span></td>
+                            <td class="right" style="width:33%">तालुका : {{taluka}} <br>जिल्हा : {{jilha}} </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <th>अ.क्र.</th>
+                <th>गाव / मोहोल्ला</th>
+                <th>मालमत्ता क्रमांक</th>
+                <th>मालमत्तेचे वर्णन</th>
+                <th>मालमत्ता धारकाचे नाव</th>
+                <th>एकूण कर रुपये</th>
+            </tr>
+        </thead>
+        
+        <!-- Page Footer - Repeats on every page -->
+        <tfoot class="page-footer">
+            <tr>
+                <td class="right" colspan="21" style="border:none; padding:0;">
+                    <div class="footer-summary">
+                        एकूण : 9088.00
+                    </div>
+                </td>
+            </tr>
+            <tr >
+                <td  style="border:none;" >दिनांक </td>
+                <td  style="border:none;padding-left: 80px;" >ग्रामपंचायत चा शिक्का</td>
+                <td  style="border:none;padding-left: 80px;" >सचिव/सरपंच</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            {% for row in data %}
+            <tr class="record-row">
+                <td>{{ row.srNo }}</td>
+                <td>{{ row.village }}</td>
+                <td>{{ row.propertyNumber }}</td>
+                <td>{{ row.propertyDescription }}</td>
+                <td>{{ row.propertyDescription }}</td>
+                <td>{{ row.totaltax }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
