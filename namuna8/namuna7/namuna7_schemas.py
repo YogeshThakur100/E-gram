@@ -29,3 +29,13 @@ class Namuna7Read(Namuna7Base):
 
     class Config:
         orm_mode = True 
+
+class Namuna7PrintResponse(BaseModel):
+    grampanchayat: str
+    receiptNumber: int
+    receiptBookNumber: int
+    village: str
+    ownername: str
+    reason: str
+    receivedMoney: int
+    currentDate: str 
