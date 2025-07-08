@@ -100,6 +100,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     owner = prop.owners[0] if prop.owners else None
     # Fetch Namuna8SettingTax row
     settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
+    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
     def get_tax_by_area(area, field):
         if not settings:
             return 0
@@ -111,6 +113,26 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             return getattr(settings, field + '301_700', 0) or 0
         else:
             return getattr(settings, field + 'Above700', 0) or 0
+    def get_water_facility_price(facility):
+        if not facility:
+            return 0
+        if not water_settings or not water_slab_settings:
+            return 0
+        if facility == 'सामान्य पाणिकर':
+            return getattr(water_settings, 'generalWater', 0)
+        elif facility == 'घरगुती नळ':
+            return getattr(water_settings, 'houseTax', 0)
+        elif facility == 'व्यावसायिक नळ':
+            return getattr(water_settings, 'commercialTax', 0)
+        elif facility == 'कारस पात्र नसलेली इमारत':
+            return getattr(water_settings, 'exemptRate', 0)
+        elif facility == 'सामान्य पाणिकर १ ते ३०० ची फु.':
+            return getattr(water_slab_settings, 'generalWaterUpto300', 0)
+        elif facility == 'सामान्य पाणिकर ३०१ ते ७०० ची फु.':
+            return getattr(water_slab_settings, 'generalWater301_700', 0)
+        elif facility == 'सामान्य पाणिकर ७०० ची फु. वरील':
+            return getattr(water_slab_settings, 'generalWaterAbove700', 0)
+        return 0
     total_area = prop.totalAreaSqFt or 0
     response = {
         "id": str(prop.anuKramank),
@@ -159,6 +181,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "waterTax": 0,  # Not specified in Namuna8SettingTax
         "cleaningTax": get_tax_by_area(total_area, 'cleaning') if prop.safaiKar else 0,
         "toiletTax": get_tax_by_area(total_area, 'bathroom') if prop.shauchalayKar else 0,
+        "sapanikar": get_water_facility_price(prop.waterFacility1),
+        "vpanikar": get_water_facility_price(prop.waterFacility2),
         "totaltax": 0,
         "userId": owner_ids,
         "villageId": str(prop.village_id),

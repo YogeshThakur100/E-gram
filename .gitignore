@@ -9,6 +9,7 @@ env/    # Another common virtual environment name
 *.db
 *.sqlite
 *.sqlite3
+static/output.html
 # Or specifically:
 # grampanchayat.db
 # test.db

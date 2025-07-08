@@ -31,14 +31,14 @@ def get_all_general_settings(db: Session = Depends(get_db)):
     return db.query(GeneralSetting).all()
 
 @router.get("/{setting_id}", response_model=GeneralSettingRead)
-def get_general_setting(setting_id: UUID, db: Session = Depends(get_db)):
+def get_general_setting(setting_id: str, db: Session = Depends(get_db)):
     setting = db.query(GeneralSetting).filter(GeneralSetting.id == setting_id).first()
     if not setting:
         raise HTTPException(status_code=404, detail="GeneralSetting not found")
     return setting
 
 @router.put("/{setting_id}", response_model=GeneralSettingRead)
-def update_general_setting(setting_id: UUID, update: GeneralSettingCreate, db: Session = Depends(get_db)):
+def update_general_setting(setting_id: str, update: GeneralSettingCreate, db: Session = Depends(get_db)):
     setting = db.query(GeneralSetting).filter(GeneralSetting.id == setting_id).first()
     if not setting:
         raise HTTPException(status_code=404, detail="GeneralSetting not found")
@@ -49,7 +49,7 @@ def update_general_setting(setting_id: UUID, update: GeneralSettingCreate, db: S
     return setting
 
 @router.delete("/{setting_id}")
-def delete_general_setting(setting_id: UUID, db: Session = Depends(get_db)):
+def delete_general_setting(setting_id: str, db: Session = Depends(get_db)):
     setting = db.query(GeneralSetting).filter(GeneralSetting.id == setting_id).first()
     if not setting:
         raise HTTPException(status_code=404, detail="GeneralSetting not found")
