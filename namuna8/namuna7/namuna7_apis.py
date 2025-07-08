@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from .namuna7_model import Namuna7
-from .namuna7_schemas import Namuna7Create, Namuna7Read, Namuna7Update
+from .namuna7_schemas import Namuna7Create, Namuna7Read, Namuna7Update, Namuna7PrintResponse
 from typing import List
 from database import get_db
 from uuid import UUID
 from datetime import datetime, timedelta
-from ..namuna8_model import Owner
+from ..namuna8_model import Owner, Village
 
 router = APIRouter(prefix="/namuna7", tags=["Namuna7"])
 
@@ -76,3 +76,24 @@ def get_namuna7_by_date(
         for n7, owner in results
     ]
     return response 
+
+@router.get("/prints/get/{item_id}", response_model=Namuna7PrintResponse)
+def get_namuna7_print(item_id: int, db: Session = Depends(get_db)):
+    item = db.query(Namuna7).filter(Namuna7.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Namuna7 not found")
+    owner = db.query(Owner).filter(Owner.id == item.userId).first()
+    village = db.query(Village).filter(Village.id == item.villageId).first()
+    grampanchayat = village.name if village else ""
+    ownername = owner.name if owner else ""
+    currentDate = datetime.now().strftime("%d/%m/%Y")
+    return Namuna7PrintResponse(
+        grampanchayat=grampanchayat,
+        receiptNumber=int(item.__dict__["receiptNumber"]),
+        receiptBookNumber=int(item.__dict__["receiptBookNumber"]),
+        village=grampanchayat,
+        ownername=ownername,
+        reason=str(item.__dict__["reason"]) if item.__dict__["reason"] is not None else "",
+        receivedMoney=int(item.__dict__["receivedMoney"]),
+        currentDate=currentDate
+    ) 
