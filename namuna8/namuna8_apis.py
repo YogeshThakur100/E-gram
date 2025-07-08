@@ -9,6 +9,7 @@ from typing import List, Optional
 from datetime import datetime
 from sqlalchemy import select
 from namuna8.namuna8_model import Namuna8SettingTax
+from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter(
     prefix="/namuna8",
@@ -17,80 +18,87 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.PropertyRead, status_code=status.HTTP_201_CREATED)
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
-    owners = []
-    for owner_data in property_data.owners:
-        # Convert dict to Pydantic model if needed
-        if isinstance(owner_data, dict):
-            owner_data = schemas.OwnerCreate(**owner_data)
-        db_owner = None
-        if owner_data.aadhaarNumber:
-            db_owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == owner_data.aadhaarNumber).first()
-        if db_owner:
-            # Optionally update fields if needed
-            db_owner.name = owner_data.name
-            if owner_data.mobileNumber is not None:
-                db_owner.mobileNumber = owner_data.mobileNumber
-            if owner_data.wifeName is not None:
-                db_owner.wifeName = owner_data.wifeName
-            if owner_data.occupantName is not None:
-                db_owner.occupantName = owner_data.occupantName
-            db.commit()
-            owners.append(db_owner)
-        else:
-            new_owner = models.Owner(
-                name=owner_data.name,
-                aadhaarNumber=owner_data.aadhaarNumber,
-                mobileNumber=owner_data.mobileNumber,
-                wifeName=owner_data.wifeName,
-                occupantName=owner_data.occupantName,
-                ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
-                village_id=owner_data.village_id
-            )
-            db.add(new_owner)
-            db.commit()
-            db.refresh(new_owner)
-            owners.append(new_owner)
+    try:
+        with db.begin():
+            owners = []
+            for owner_data in property_data.owners:
+                # Convert dict to Pydantic model if needed
+                if isinstance(owner_data, dict):
+                    owner_data = schemas.OwnerCreate(**owner_data)
+                db_owner = None
+                owner_id = getattr(owner_data, 'id', None)
+                if owner_id:
+                    db_owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+                elif owner_data.aadhaarNumber:
+                    db_owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == owner_data.aadhaarNumber).first()
+                if db_owner:
+                    # Optionally update fields if needed
+                    db_owner.name = owner_data.name
+                    if owner_data.mobileNumber is not None:
+                        db_owner.mobileNumber = owner_data.mobileNumber
+                    if owner_data.wifeName is not None:
+                        db_owner.wifeName = owner_data.wifeName
+                    if owner_data.occupantName is not None:
+                        db_owner.occupantName = owner_data.occupantName
+                    db.flush()
+                    owners.append(db_owner)
+                else:
+                    new_owner = models.Owner(
+                        name=owner_data.name,
+                        aadhaarNumber=owner_data.aadhaarNumber,
+                        mobileNumber=owner_data.mobileNumber,
+                        wifeName=owner_data.wifeName,
+                        occupantName=owner_data.occupantName,
+                        ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
+                        village_id=owner_data.village_id
+                    )
+                    db.add(new_owner)
+                    db.flush()
+                    owners.append(new_owner)
 
-    # --- FIX: Convert constructions dicts to model instances ---
-    constructions = []
-    for construction_data in property_data.constructions:
-        if isinstance(construction_data, dict):
-            construction_data = schemas.ConstructionCreate(**construction_data)
-        construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
-        if not construction_type:
-            raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
-        new_construction = models.Construction(
-            construction_type_id=construction_type.id,
-            length=construction_data.length,
-            width=construction_data.width,
-            constructionYear=construction_data.constructionYear,
-            floor=construction_data.floor,
-            bharank=construction_data.bharank,
-        )
-        constructions.append(new_construction)
-    # --- END FIX ---
+            # --- FIX: Convert constructions dicts to model instances ---
+            constructions = []
+            for construction_data in property_data.constructions:
+                if isinstance(construction_data, dict):
+                    construction_data = schemas.ConstructionCreate(**construction_data)
+                construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
+                if not construction_type:
+                    raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
+                new_construction = models.Construction(
+                    construction_type_id=construction_type.id,
+                    length=construction_data.length,
+                    width=construction_data.width,
+                    constructionYear=construction_data.constructionYear,
+                    floor=construction_data.floor,
+                    bharank=construction_data.bharank,
+                )
+                constructions.append(new_construction)
+            # --- END FIX ---
 
-    property_dict = property_data.dict(exclude={"owners", "constructions"})
-    db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
-    db.add(db_property)
-    # Only set boolean fields and toilet (not calculated tax fields)
-    db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
-    db_property.safaiKar = bool(property_data.safaiKar)
-    db_property.shauchalayKar = bool(property_data.shauchalayKar)
-    db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
-    db.commit()
-    db.refresh(db_property)
-    # Calculate total area if not provided
-    if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
-        east = db_property.eastLength or 0
-        west = db_property.westLength or 0
-        north = db_property.northLength or 0
-        south = db_property.southLength or 0
-        avg_length = (east + west) / 2 if (east or west) else 0
-        avg_width = (north + south) / 2 if (north or south) else 0
-        db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
-    # Build response with constructionType name
-    return build_property_response(db_property, db)
+            property_dict = property_data.dict(exclude={"owners", "constructions"})
+            db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
+            db.add(db_property)
+            # Only set boolean fields and toilet (not calculated tax fields)
+            db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
+            db_property.safaiKar = bool(property_data.safaiKar)
+            db_property.shauchalayKar = bool(property_data.shauchalayKar)
+            db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
+            db.flush()
+            db.refresh(db_property)
+            # Calculate total area if not provided
+            if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
+                east = db_property.eastLength or 0
+                west = db_property.westLength or 0
+                north = db_property.northLength or 0
+                south = db_property.southLength or 0
+                avg_length = (east + west) / 2 if (east or west) else 0
+                avg_width = (north + south) / 2 if (north or south) else 0
+                db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+            # Build response with constructionType name
+            return build_property_response(db_property, db)
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save property and owners: " + str(e))
 
 @router.get("/property_list/", response_model=list[schemas.PropertyList])
 def get_property_list(village: str, db: Session = Depends(database.get_db)):
@@ -1036,7 +1044,11 @@ def delete_property(anu_kramank: int, db: Session = Depends(database.get_db)):
     # Remove associations with owners (many-to-many)
     prop.owners = []
     db.commit()
-    # Delete the property (constructions will be deleted via cascade)
+    # Explicitly delete all constructions associated with this property
+    for construction in list(prop.constructions):
+        db.delete(construction)
+    db.commit()
+    # Delete the property
     db.delete(prop)
     db.commit()
     return {"message": f"Property {anu_kramank} deleted successfully."}

@@ -12,7 +12,7 @@ class OwnerBase(BaseModel):
     village_id: int
 
 class OwnerCreate(OwnerBase):
-    pass
+    id: Optional[int] = None
 
 class Owner(OwnerBase):
     id: int
