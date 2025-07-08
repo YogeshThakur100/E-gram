@@ -12,13 +12,16 @@ class OwnerBase(BaseModel):
     village_id: int
 
 class OwnerCreate(OwnerBase):
-    pass
+    id: Optional[int] = None
 
 class Owner(OwnerBase):
     id: int
 
     class Config:
         from_attributes = True
+
+class OwnerUpdate(OwnerBase):
+    id: Optional[int] = None
 
 # --- Construction Schemas ---
 class ConstructionBase(BaseModel):
@@ -49,7 +52,7 @@ class Construction(BaseModel):
 class PropertyBase(BaseModel):
     village_id: int
     anuKramank: int
-    malmattaKramank: str
+    malmattaKramank: int
     streetName: Optional[str] = None
     citySurveyOrGatNumber: Optional[str] = None
     length: Optional[float] = None
@@ -77,7 +80,6 @@ class PropertyBase(BaseModel):
     northLength: Optional[float] = None
     southLength: Optional[float] = None
     areaUnit: Optional[str] = None
-    cleaningTax: Optional[float] = None
 
 class PropertyCreate(PropertyBase):
     owners: List[OwnerCreate]
@@ -86,19 +88,29 @@ class PropertyCreate(PropertyBase):
 class PropertyRead(PropertyBase):
     owners: List[Owner] = []
     constructions: List[Construction] = []
+    divaKar: Optional[float] = None
+    aarogyaKar: Optional[float] = None
+    cleaningTax: Optional[float] = None
+    toiletTax: Optional[float] = None
+    sapanikar: Optional[float] = None
+    vpanikar: Optional[float] = None
 
     class Config:
         from_attributes = True
 
+class PropertyUpdate(PropertyBase):
+    owners: List[OwnerUpdate]
+    constructions: List[ConstructionCreate]
+
 # --- Schema for the property list on the side ---
 class PropertyList(BaseModel):
-    malmattaKramank: str
+    malmattaKramank: int
     ownerName: str
     anuKramank: int
 
 class BulkEditPropertyRow(BaseModel):
     serial_no: int
-    malmattaKramank: str
+    malmattaKramank: int
     ownerName: str
     occupant: str  # always 'स्वतः' for now
     gharKar: float
@@ -116,6 +128,7 @@ class BulkEditUpdateRequest(BaseModel):
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None
     house: Optional[str] = None
+    roofType: Optional[str] = None
     divaArogyaKar: Optional[bool] = None
     safaiKar: Optional[bool] = None
     shauchalayKar: Optional[bool] = None
