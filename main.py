@@ -6,6 +6,7 @@ from namuna8 import namuna8_apis
 from namuna9 import namuna9_apis
 from certificates import birth_certificate_apis, death_certificate_apis, birthdeath_unavailability_apis, resident_certificate_apis, family_certificate_apis, toilet_certificate_apis, no_objection_certificate_apis, no_benefit_certificate_apis, life_certificate_apis, good_conduct_certificate_apis, niradhar_certificate_apis
 from namuna8.recordresponses import property_record_response
+from namuna8.namuna7 import namuna7_apis
 
 # Import database components and models
 from database import engine, Base
@@ -16,6 +17,7 @@ from namuna8.ReportCreationUsingJinja import namuna8Print
 from namuna9.ReportCreationUsingJinja import namuna9Print
 from Yadi.ReportCreationUsingJinja import yadiPrint
 from fastapi.staticfiles import StaticFiles
+from namuna8.mastertab.mastertabapis import router as mastertab_router
 
 # Create all tables
 Base.metadata.create_all(bind=engine)

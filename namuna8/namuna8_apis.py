@@ -9,6 +9,7 @@ from typing import List, Optional
 from datetime import datetime
 from sqlalchemy import select
 from namuna8.namuna8_model import Namuna8SettingTax
+from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter(
     prefix="/namuna8",
@@ -17,98 +18,87 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.PropertyRead, status_code=status.HTTP_201_CREATED)
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
-    owners = []
-    for owner_data in property_data.owners:
-        # Convert dict to Pydantic model if needed
-        if isinstance(owner_data, dict):
-            owner_data = schemas.OwnerCreate(**owner_data)
-        db_owner = None
-        if owner_data.aadhaarNumber:
-            db_owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == owner_data.aadhaarNumber).first()
-        if db_owner:
-            # Optionally update fields if needed
-            db_owner.name = owner_data.name
-            if owner_data.mobileNumber is not None:
-                db_owner.mobileNumber = owner_data.mobileNumber
-            if owner_data.wifeName is not None:
-                db_owner.wifeName = owner_data.wifeName
-            if owner_data.occupantName is not None:
-                db_owner.occupantName = owner_data.occupantName
-            db.commit()
-            owners.append(db_owner)
-        else:
-            new_owner = models.Owner(
-                name=owner_data.name,
-                aadhaarNumber=owner_data.aadhaarNumber,
-                mobileNumber=owner_data.mobileNumber,
-                wifeName=owner_data.wifeName,
-                occupantName=owner_data.occupantName,
-                ownerPhoto=getattr(owner_data, 'ownerPhoto', None),
-                village_id=owner_data.village_id
-            )
-            db.add(new_owner)
-            db.commit()
-            db.refresh(new_owner)
-            owners.append(new_owner)
+    try:
+        with db.begin():
+            owners = []
+            for owner_data in property_data.owners:
+                # Convert dict to Pydantic model if needed
+                if isinstance(owner_data, dict):
+                    owner_data = schemas.OwnerCreate(**owner_data)
+                db_owner = None
+                owner_id = getattr(owner_data, 'id', None)
+                if owner_id:
+                    db_owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+                elif owner_data.aadhaarNumber:
+                    db_owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == owner_data.aadhaarNumber).first()
+                if db_owner:
+                    # Optionally update fields if needed
+                    db_owner.name = owner_data.name
+                    if owner_data.mobileNumber is not None:
+                        db_owner.mobileNumber = owner_data.mobileNumber
+                    if owner_data.wifeName is not None:
+                        db_owner.wifeName = owner_data.wifeName
+                    if owner_data.occupantName is not None:
+                        db_owner.occupantName = owner_data.occupantName
+                    db.flush()
+                    owners.append(db_owner)
+                else:
+                    new_owner = models.Owner(
+                        name=owner_data.name,
+                        aadhaarNumber=owner_data.aadhaarNumber,
+                        mobileNumber=owner_data.mobileNumber,
+                        wifeName=owner_data.wifeName,
+                        occupantName=owner_data.occupantName,
+                        ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
+                        village_id=owner_data.village_id
+                    )
+                    db.add(new_owner)
+                    db.flush()
+                    owners.append(new_owner)
 
-    # --- FIX: Convert constructions dicts to model instances ---
-    constructions = []
-    for construction_data in property_data.constructions:
-        if isinstance(construction_data, dict):
-            construction_data = schemas.ConstructionCreate(**construction_data)
-        construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
-        if not construction_type:
-            raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
-        new_construction = models.Construction(
-            construction_type_id=construction_type.id,
-            length=construction_data.length,
-            width=construction_data.width,
-            constructionYear=construction_data.constructionYear,
-            floor=construction_data.floor,
-            bharank=construction_data.bharank,
-        )
-        constructions.append(new_construction)
-    # --- END FIX ---
+            # --- FIX: Convert constructions dicts to model instances ---
+            constructions = []
+            for construction_data in property_data.constructions:
+                if isinstance(construction_data, dict):
+                    construction_data = schemas.ConstructionCreate(**construction_data)
+                construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
+                if not construction_type:
+                    raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
+                new_construction = models.Construction(
+                    construction_type_id=construction_type.id,
+                    length=construction_data.length,
+                    width=construction_data.width,
+                    constructionYear=construction_data.constructionYear,
+                    floor=construction_data.floor,
+                    bharank=construction_data.bharank,
+                )
+                constructions.append(new_construction)
+            # --- END FIX ---
 
-    property_dict = property_data.dict(exclude={"owners", "constructions"})
-    db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
-    db.add(db_property)
-    # Set taxes based on area and boolean fields using Namuna8SettingTax
-    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
-    def get_tax_by_area(area, field):
-        if not settings:
-            return 0
-        if area is None:
-            area = 0
-        if area <= 300:
-            return getattr(settings, field + 'Upto300', 0) or 0
-        elif 301 <= area <= 700:
-            return getattr(settings, field + '301_700', 0) or 0
-        else:
-            return getattr(settings, field + 'Above700', 0) or 0
-    total_area = db_property.totalAreaSqFt or 0
-    # Assign taxes strictly based on booleans
-    db_property.divaKar = get_tax_by_area(total_area, 'light') if property_data.divaArogyaKar else 0
-    db_property.aarogyaKar = get_tax_by_area(total_area, 'health') if property_data.divaArogyaKar else 0
-    db_property.cleaningTax = get_tax_by_area(total_area, 'cleaning') if property_data.safaiKar else 0
-    db_property.toiletTax = get_tax_by_area(total_area, 'bathroom') if property_data.shauchalayKar else 0.0
-    db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
-    db_property.safaiKar = bool(property_data.safaiKar)
-    db_property.shauchalayKar = bool(property_data.shauchalayKar)
-    db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
-    db.commit()
-    db.refresh(db_property)
-    # Calculate total area if not provided
-    if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
-        east = db_property.eastLength or 0
-        west = db_property.westLength or 0
-        north = db_property.northLength or 0
-        south = db_property.southLength or 0
-        avg_length = (east + west) / 2 if (east or west) else 0
-        avg_width = (north + south) / 2 if (north or south) else 0
-        db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
-    # Build response with constructionType name
-    return build_property_response(db_property, db)
+            property_dict = property_data.dict(exclude={"owners", "constructions"})
+            db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
+            db.add(db_property)
+            # Only set boolean fields and toilet (not calculated tax fields)
+            db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
+            db_property.safaiKar = bool(property_data.safaiKar)
+            db_property.shauchalayKar = bool(property_data.shauchalayKar)
+            db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
+            db.flush()
+            db.refresh(db_property)
+            # Calculate total area if not provided
+            if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
+                east = db_property.eastLength or 0
+                west = db_property.westLength or 0
+                north = db_property.northLength or 0
+                south = db_property.southLength or 0
+                avg_length = (east + west) / 2 if (east or west) else 0
+                avg_width = (north + south) / 2 if (north or south) else 0
+                db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+            # Build response with constructionType name
+            return build_property_response(db_property, db)
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to save property and owners: " + str(e))
 
 @router.get("/property_list/", response_model=list[schemas.PropertyList])
 def get_property_list(village: str, db: Session = Depends(database.get_db)):
@@ -135,7 +125,7 @@ def get_property_details(anu_kramank: int, db: Session = Depends(database.get_db
     return build_property_response(db_property, db)
 
 @router.put("/{anu_kramank}", response_model=schemas.PropertyRead)
-def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
+def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate, db: Session = Depends(database.get_db)):
     db_property = db.query(models.Property).filter(models.Property.anuKramank == anu_kramank).first()
     if not db_property:
         raise HTTPException(status_code=404, detail="Property not found")
@@ -147,38 +137,51 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
     if property_data.owners:
         new_owners = []
         for owner_data in property_data.owners:
-            # Ensure owner_data is a Pydantic model
+            # Accept dict or Pydantic model
             if isinstance(owner_data, dict):
-                owner_data = schemas.OwnerCreate(**owner_data)
+                owner_data = schemas.OwnerUpdate(**owner_data)
             owner_id = getattr(owner_data, 'id', None)
             owner = None
             if owner_id is not None:
+                # Ensure owner_id is an integer for matching
+                if isinstance(owner_id, str) and owner_id.isdigit():
+                    owner_id = int(owner_id)
+                elif isinstance(owner_id, float):
+                    owner_id = int(owner_id)
                 owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
             if owner:
-                # Update existing owner
+                # Update existing owner fields
                 owner.name = owner_data.name
+                if owner_data.aadhaarNumber is not None:
+                    owner.aadhaarNumber = owner_data.aadhaarNumber
                 if owner_data.mobileNumber is not None:
                     owner.mobileNumber = owner_data.mobileNumber
                 if owner_data.wifeName is not None:
                     owner.wifeName = owner_data.wifeName
                 if owner_data.occupantName is not None:
                     owner.occupantName = owner_data.occupantName
+                owner_photo_val = getattr(owner_data, 'ownerPhoto', None)
+                if owner_photo_val is not None and isinstance(owner_photo_val, str) and owner_photo_val != '':
+                    owner.ownerPhoto = owner_photo_val
+                if owner_data.village_id is not None:
+                    owner.village_id = owner_data.village_id
                 db.commit()
+                new_owners.append(owner)
             else:
-                # Create new owner only if id is not present or does not exist
+                # Always create new owner if id is null or does not match
                 owner = models.Owner(
                     name=owner_data.name,
                     aadhaarNumber=owner_data.aadhaarNumber,
                     mobileNumber=owner_data.mobileNumber,
                     wifeName=owner_data.wifeName,
                     occupantName=owner_data.occupantName,
-                    ownerPhoto=getattr(owner_data, 'ownerPhoto', None),
+                    ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
                     village_id=owner_data.village_id
                 )
                 db.add(owner)
                 db.commit()
                 db.refresh(owner)
-            new_owners.append(owner)
+                new_owners.append(owner)
         db_property.owners = new_owners
 
     # --- FIX: Convert constructions dicts to model instances ---
@@ -202,28 +205,9 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyCreate
         db_property.constructions = new_constructions
     # --- END FIX ---
 
-    # Set boolean fields explicitly (default to False if not provided)
     db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
     db_property.safaiKar = bool(property_data.safaiKar)
     db_property.shauchalayKar = bool(property_data.shauchalayKar)
-    # Set taxes strictly based on booleans
-    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
-    def get_tax_by_area(area, field):
-        if not settings:
-            return 0
-        if area is None:
-            area = 0
-        if area <= 300:
-            return getattr(settings, field + 'Upto300', 0) or 0
-        elif 301 <= area <= 700:
-            return getattr(settings, field + '301_700', 0) or 0
-        else:
-            return getattr(settings, field + 'Above700', 0) or 0
-    total_area = db_property.totalAreaSqFt or 0
-    db_property.divaKar = get_tax_by_area(total_area, 'light') if db_property.divaArogyaKar else 0
-    db_property.aarogyaKar = get_tax_by_area(total_area, 'health') if db_property.divaArogyaKar else 0
-    db_property.cleaningTax = get_tax_by_area(total_area, 'cleaning') if db_property.safaiKar else 0
-    db_property.toiletTax = get_tax_by_area(total_area, 'bathroom') if db_property.shauchalayKar else 0.0
     db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
 
     db.commit()
@@ -245,19 +229,56 @@ def get_bulk_edit_property_list(village: str, db: Session = Depends(database.get
     if not village_obj:
         return []
     properties = db.query(models.Property).filter(models.Property.village_id == village_obj.id).order_by(models.Property.malmattaKramank).all()
+    # Prepare settings for tax and water calculations
+    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
+    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    def get_tax_by_area(area, field):
+        if not settings:
+            return 0
+        if area is None:
+            area = 0
+        if area <= 300:
+            return getattr(settings, field + 'Upto300', 0) or 0
+        elif 301 <= area <= 700:
+            return getattr(settings, field + '301_700', 0) or 0
+        else:
+            return getattr(settings, field + 'Above700', 0) or 0
+    def get_water_facility_price(facility):
+        if not facility:
+            return 0
+        if not water_settings or not water_slab_settings:
+            return 0
+        if facility == 'सामान्य पाणिकर':
+            return getattr(water_settings, 'generalWater', 0)
+        elif facility == 'घरगुती नळ':
+            return getattr(water_settings, 'houseTax', 0)
+        elif facility == 'व्यावसायिक नळ':
+            return getattr(water_settings, 'commercialTax', 0)
+        elif facility == 'कारस पात्र नसलेली इमारत':
+            return getattr(water_settings, 'exemptRate', 0)
+        elif facility == 'सामान्य पाणिकर १ ते ३०० ची फु.':
+            return getattr(water_slab_settings, 'generalWaterUpto300', 0)
+        elif facility == 'सामान्य पाणिकर ३०१ ते ७०० ची फु.':
+            return getattr(water_slab_settings, 'generalWater301_700', 0)
+        elif facility == 'सामान्य पाणिकर ७०० ची फु. वरील':
+            return getattr(water_slab_settings, 'generalWaterAbove700', 0)
+        return 0
     result = []
     for idx, p in enumerate(properties, start=1):
         owner_name = p.owners[0].name if p.owners else ""
+        total_area = p.totalAreaSqFt or 0
+        divaArogyaKar = bool(getattr(p, 'divaArogyaKar', False))
         result.append(schemas.BulkEditPropertyRow(
             serial_no=idx,
             malmattaKramank=p.malmattaKramank,
             ownerName=owner_name,
             occupant="स्वतः",  # Always 'self' for now
             gharKar=getattr(p, 'gharKar', 0),
-            divaKar=getattr(p, 'divaKar', 0),
-            aarogyaKar=getattr(p, 'aarogyaKar', 0),
-            sapanikar=getattr(p, 'sapanikar', 0),
-            vpanikar=getattr(p, 'vpanikar', 0),
+            divaKar=get_tax_by_area(total_area, 'light') if divaArogyaKar else 0,
+            aarogyaKar=get_tax_by_area(total_area, 'health') if divaArogyaKar else 0,
+            sapanikar=get_water_facility_price(getattr(p, 'waterFacility1', None)),
+            vpanikar=get_water_facility_price(getattr(p, 'waterFacility2', None)),
         ))
     return result
 
@@ -289,21 +310,10 @@ def bulk_update_properties(update: schemas.BulkEditUpdateRequest, db: Session = 
                 prop.waterFacility2 = update.waterFacility2
             else:
                 continue  # skip invalid value
-        # Set sapanikar and vpanikar based on water facilities, only if the field is being updated
-        if update.waterFacility1 is not None:
-            if update.waterFacility1 in ["घरगुती नळ", "व्यावसायिक नळ"]:
-                prop.sapanikar = 100
-            else:
-                prop.sapanikar = 0
-        # else: do not change sapanikar
-        if update.waterFacility2 is not None:
-            if update.waterFacility2 in ["घरगुती नळ", "व्यावसायिक नळ"]:
-                prop.vpanikar = 100
-            else:
-                prop.vpanikar = 0
-        # else: do not change vpanikar
         if update.toilet is not None:
             prop.toilet = update.toilet
+        if update.roofType is not None:
+            prop.roofType = update.roofType
         if update.house is not None:
             prop.house = update.house
         if update.divaArogyaKar is not None:
@@ -376,22 +386,23 @@ def create_construction_type(construction_type_data: schemas.ConstructionTypeCre
 @router.post("/owner", status_code=status.HTTP_201_CREATED)
 def create_owner(
     name: str = Body(...),
-    aadhaarNumber: str = Body(...),
+    aadhaarNumber: str = Body(None),
     mobileNumber: str = Body(...),
-    villageOrMoholla: str = Body(...),
+    village_id: int = Body(...),
     wifeName: str = Body(None),
     db: Session = Depends(database.get_db)
 ):
-    # Check if owner with same aadhaarNumber exists
-    existing_owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == aadhaarNumber).first()
-    if existing_owner:
-        return {"detail": "Owner with this Aadhaar number already exists."}
+    # Check if owner with same aadhaarNumber exists, only if aadhaarNumber is provided
+    if aadhaarNumber not in (None, ""):
+        existing_owner = db.query(models.Owner).filter(models.Owner.aadhaarNumber == aadhaarNumber).first()
+        if existing_owner:
+            return {"detail": "Owner with this Aadhaar number already exists."}
     new_owner = models.Owner(
         name=name,
         aadhaarNumber=aadhaarNumber,
         mobileNumber=mobileNumber,
         wifeName=wifeName,
-        villageOrMoholla=villageOrMoholla
+        village_id=village_id
     )
     db.add(new_owner)
     db.commit()
@@ -402,7 +413,7 @@ def create_owner(
         "aadhaarNumber": new_owner.aadhaarNumber,
         "mobileNumber": new_owner.mobileNumber,
         "wifeName": new_owner.wifeName,
-        "villageOrMoholla": new_owner.villageOrMoholla
+        "village_id": new_owner.village_id
     }
 
 def build_property_response(db_property, db):
@@ -431,11 +442,55 @@ def build_property_response(db_property, db):
             "ownerPhoto": o.ownerPhoto,
             "village_id": o.village_id,
         })
-    # Build the property dict
+    # Calculate taxes and water charges on the fly
+    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
+    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    def get_tax_by_area(area, field):
+        if not settings:
+            return 0
+        if area is None:
+            area = 0
+        if area <= 300:
+            return getattr(settings, field + 'Upto300', 0) or 0
+        elif 301 <= area <= 700:
+            return getattr(settings, field + '301_700', 0) or 0
+        else:
+            return getattr(settings, field + 'Above700', 0) or 0
+    def get_water_facility_price(facility):
+        if not facility:
+            return 0
+        if not water_settings or not water_slab_settings:
+            return 0
+        if facility == 'सामान्य पाणिकर':
+            return getattr(water_settings, 'generalWater', 0)
+        elif facility == 'घरगुती नळ':
+            return getattr(water_settings, 'houseTax', 0)
+        elif facility == 'व्यावसायिक नळ':
+            return getattr(water_settings, 'commercialTax', 0)
+        elif facility == 'कारस पात्र नसलेली इमारत':
+            return getattr(water_settings, 'exemptRate', 0)
+        elif facility == 'सामान्य पाणिकर १ ते ३०० ची फु.':
+            return getattr(water_slab_settings, 'generalWaterUpto300', 0)
+        elif facility == 'सामान्य पाणिकर ३०१ ते ७०० ची फु.':
+            return getattr(water_slab_settings, 'generalWater301_700', 0)
+        elif facility == 'सामान्य पाणिकर ७०० ची फु. वरील':
+            return getattr(water_slab_settings, 'generalWaterAbove700', 0)
+        return 0
+    total_area = db_property.totalAreaSqFt or 0
+    divaArogyaKar = bool(getattr(db_property, 'divaArogyaKar', False))
+    safaiKar = bool(getattr(db_property, 'safaiKar', False))
+    shauchalayKar = bool(getattr(db_property, 'shauchalayKar', False))
     property_dict = {
         **{k: getattr(db_property, k) for k in schemas.PropertyBase.__fields__.keys()},
         "owners": owners,
         "constructions": constructions,
+        "divaKar": get_tax_by_area(total_area, 'light') if divaArogyaKar else 0,
+        "aarogyaKar": get_tax_by_area(total_area, 'health') if divaArogyaKar else 0,
+        "cleaningTax": get_tax_by_area(total_area, 'cleaning') if safaiKar else 0,
+        "toiletTax": get_tax_by_area(total_area, 'bathroom') if shauchalayKar else 0,
+        "sapanikar": get_water_facility_price(getattr(db_property, 'waterFacility1', None)),
+        "vpanikar": get_water_facility_price(getattr(db_property, 'waterFacility2', None)),
     }
     return property_dict
 
@@ -575,6 +630,17 @@ def delete_tax(id: str, db: Session = Depends(database.get_db)):
     db.delete(obj)
     db.commit()
     return {"detail": "Deleted"}
+
+@router.get("/settings/tax/waterslab/fields", response_model=dict)
+def get_water_slab_fields(db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    if not obj:
+        return {"generalWaterUpto300": 0, "generalWater301_700": 0, "generalWaterAbove700": 0}
+    return {
+        "generalWaterUpto300": obj.generalWaterUpto300,
+        "generalWater301_700": obj.generalWater301_700,
+        "generalWaterAbove700": obj.generalWaterAbove700
+    }
 
 # --- Namuna8WaterTaxSettings CRUD ---
 @router.post("/settings/watertax/save", response_model=schemas.Namuna8WaterTaxSettingsRead)
@@ -770,16 +836,30 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
     if request.watertaxslab:
         watertaxslab_data = request.watertaxslab.dict(exclude_unset=True)
         watertaxslab_data.pop('id', None)
-        watertaxslab_obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.id == 'namuna8').first()
-        if watertaxslab_obj:
-            for k, v in watertaxslab_data.items():
-                setattr(watertaxslab_obj, k, v)
+        # Update Namuna8SettingTax fields instead of Namuna8GeneralWaterTaxSlabSettings
+        settingtax_obj = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+        if settingtax_obj:
+            if 'rateUpto300' in watertaxslab_data:
+                settingtax_obj.generalWaterUpto300 = watertaxslab_data['rateUpto300']
+            if 'rate301To700' in watertaxslab_data:
+                settingtax_obj.generalWater301_700 = watertaxslab_data['rate301To700']
+            if 'rateAbove700' in watertaxslab_data:
+                settingtax_obj.generalWaterAbove700 = watertaxslab_data['rateAbove700']
+            db.commit()
+            db.refresh(settingtax_obj)
+            result['watertaxslab'] = settingtax_obj
         else:
-            watertaxslab_obj = models.Namuna8GeneralWaterTaxSlabSettings(id='namuna8', **watertaxslab_data)
-            db.add(watertaxslab_obj)
-        db.commit()
-        db.refresh(watertaxslab_obj)
-        result['watertaxslab'] = watertaxslab_obj
+            # If not found, create with only these fields
+            settingtax_obj = models.Namuna8SettingTax(
+                id='namuna8',
+                generalWaterUpto300=watertaxslab_data.get('rateUpto300', 0),
+                generalWater301_700=watertaxslab_data.get('rate301To700', 0),
+                generalWaterAbove700=watertaxslab_data.get('rateAbove700', 0)
+            )
+            db.add(settingtax_obj)
+            db.commit()
+            db.refresh(settingtax_obj)
+            result['watertaxslab'] = settingtax_obj
     # Construction Types bulk upsert
     if request.construction_types:
         result_construction_types = []
@@ -951,4 +1031,25 @@ def recalculate_all_property_taxes(db: Session = Depends(database.get_db)):
         prop.toiletTax = toilet_tax
     db.commit()
     return {"detail": "All property taxes recalculated and updated."}
+
+@router.get("/all_properties/")
+def get_all_properties(db: Session = Depends(database.get_db)):
+    return db.query(models.Property).all()
+
+@router.delete("/{anu_kramank}", status_code=200)
+def delete_property(anu_kramank: int, db: Session = Depends(database.get_db)):
+    prop = db.query(models.Property).filter(models.Property.anuKramank == anu_kramank).first()
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found")
+    # Remove associations with owners (many-to-many)
+    prop.owners = []
+    db.commit()
+    # Explicitly delete all constructions associated with this property
+    for construction in list(prop.constructions):
+        db.delete(construction)
+    db.commit()
+    # Delete the property
+    db.delete(prop)
+    db.commit()
+    return {"message": f"Property {anu_kramank} deleted successfully."}
     
