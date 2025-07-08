@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>नमुना ९</title>
+    <style>
+        body { font-family: 'Mangal', Arial, sans-serif; }
+        .report-top {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .report-top td {
+            border: none;
+            font-size: 15px;
+            padding: 2px 4px;
+        }
+        .center { text-align: center; }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        .main-table, .main-table th, .main-table td {
+            border: 1px solid #000;
+        }
+        .main-table {
+            border-collapse: collapse;
+        }
+        @media print {
+            @page {
+                size: A4 landscape;
+            }
+            #toolbar {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+        <!-- Left: Icon Buttons & Navigation -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+            <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+            <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+            <span id="pageTotal" style="font-size: 14px; color: #888;"></span>
+            <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+            <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+            <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+            <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+            <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+        </div>
+        <!-- Right: Print & Exit Buttons -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+            <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+        </div>
+    </div>
+    <script>
+        let zoomLevel = 1.0;
+        const minZoom = 0.5;
+        const maxZoom = 2.0;
+        const zoomStep = 0.1;
+        let currentPage = 1;
+        const recordsPerPage = 10; // Show 10 records per page
+        let totalPages = 0;
+
+        function updateZoom() {
+            document.getElementById('mainContent').style.zoom = zoomLevel;
+            document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
+        }
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                zoomLevel = Math.min(maxZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                zoomLevel = Math.max(minZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function showPage(page) {
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            totalPages = Math.ceil(records.length / recordsPerPage);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageTotal').innerText = '/' + totalPages;
+        }
+        function nextPage() { showPage(currentPage + 1); }
+        function prevPage() { showPage(currentPage - 1); }
+        function firstPage() { showPage(1); }
+        function lastPage() { showPage(totalPages); }
+        function printPage() {
+            // Show all records before printing, then restore current page
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            const prevStates = records.map(el => el.style.display);
+            records.forEach(el => el.style.display = '');
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    records.forEach((el, idx) => {
+                        const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                        el.style.display = (pageIdx === currentPage) ? '' : 'none';
+                    });
+                }, 100);
+            }, 50);
+        }
+        function exitPage() {
+            window.close();
+        }
+        window.onload = function() {
+            updateZoom();
+            showPage(1);
+            // Wire up navigation buttons
+            document.querySelector('button[title="First Page"]').onclick = firstPage;
+            document.querySelector('button[title="Previous Page"]').onclick = prevPage;
+            document.querySelector('button[title="Next Page"]').onclick = nextPage;
+            document.querySelector('button[title="Last Page"]').onclick = lastPage;
+        };
+    </script>
+    <div id="mainContent">
+    <!-- Top section to repeat on every page -->
+    <table class="report-top">
+        <tr>
+            <td colspan="3" class="center bold" style="font-size:22px;">नमुना ९</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="center" style="font-size:15px;">नियम 22 (9), 32 (4), 5 (6) व ( 7 ) पाहा</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="center" style="font-size:15px;">सन {{selectedYear}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
+        </tr>
+        <tr>
+            <td  style="width:10%">ग्रामपंचायत : वाडी ( बु. )</td>
+            <td  style="width:34%">गाव/मोहल्ला : {{village}} </td>
+        </tr>
+    </table>
+    <!-- Main Table Header -->
+    <table class="main-table" style= "width:100%; border-collapse:collapse; margin-top:8px; font-size:14px;">
+        <thead>
+            <tr>
+                <th colspan="19" style="min-width:32px;">वसुली</th>
+                <th rowspan="2" colspan="5" style="min-width:48px;">सुट</th>
+                <th rowspan="2" colspan="5" style="min-width:120px;">बाकी</th>
+                <th rowspan="3" >सुट मजुर करणा-या आदेशासह शेरा</th>
+            </tr>
+            <tr>
+                <th colspan="4">घरकर</th>
+                <th colspan="3">दिवाकर</th>
+                <th colspan="3">आरोग्यकर</th>
+                <th colspan="3">सफाई कर</th>
+                <th colspan="3">सामान्य पाणीकर</th>
+                <th colspan="3">विशेष पाणीकर</th>
+            </tr>
+            <tr>
+                <th>थकीत</th>
+                <th>दंड</th>
+                <th>चालु</th>
+                <th>एकुण</th>
+                <th>थकीत</th>
+                <th>चालु</th>
+                <th>एकुण</th>
+                <th>थकीत</th>
+                <th>चालु</th>
+                <th>एकुण</th>
+                <th>थकीत</th>
+                <th>चालु</th>
+                <th>एकुण</th>
+                <th>थकीत</th>
+                <th>चालु</th>
+                <th>एकुण</th>
+                <th>थकीत</th>
+                <th>चालु</th>
+                <th>एकुण</th>
+                <th>घर</th>
+                <th>दिवा</th>
+                <th>आरोग्य</th>
+                <th>पाणी</th>
+                <th>सफाई</th>
+                <th>घर</th>
+                <th>दिवा</th>
+                <th>आरोग्य</th>
+                <th>पाणी</th>
+                <th>सफाई</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for row in data %}
+            <tr class="record-row">
+                <td>{{ row.srNo }}</td>
+                <td>{{ row.propertyNumber }}</td>
+                <td>{{ row.ownerName }}</td>
+                <td>0</td><td>{{waterTax}} </td> <td>851</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor  %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"></td>
+                <td style="font-weight:normal; text-align:right;">गोषवारा</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+                <td style="font-weight:normal; text-align:center;"></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

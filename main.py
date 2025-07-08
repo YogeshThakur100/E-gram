@@ -13,6 +13,7 @@ from namuna8 import namuna8_model
 from namuna9 import namuna9_model
 from certificates import birth_certificate_model
 from namuna8.ReportCreationUsingJinja import namuna8Print
+from namuna9.ReportCreationUsingJinja import namuna9Print
 from Yadi.ReportCreationUsingJinja import yadiPrint
 from fastapi.staticfiles import StaticFiles
 
@@ -47,6 +48,7 @@ app.include_router(good_conduct_certificate_apis.router)
 app.include_router(niradhar_certificate_apis.router)
 app.include_router(property_record_response.router, prefix="/namuna8/recordresponses")
 app.include_router(namuna8Print.router , prefix="/namuna8/print")
+app.include_router(namuna9Print.router , prefix="/namuna9/print")
 app.include_router(yadiPrint.router , prefix="/yadi/print")
 
 # --- Auto-register routers in E-gram submodules ---
