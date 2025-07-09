@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>मालमत्ता धारकांची यादी</title>
+    <style>
+        @page {
+            size: A4 landscape;  /* Default portrait mode */
+            margin: 1cm;
+        }
+        body { font-family: 'Mangal', Arial, sans-serif; }
+        table { border-collapse: collapse; width: 95%; font-size: 13px; margin-left: auto; margin-right: auto; }
+        .header-table td { border: none; padding: 2px 4px; text-align: center; }
+        .center { text-align: center; }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; vertical-align: middle; }
+        th { background: #f0f0f0; }
+        .footer-summary {
+            border: 3px solid #000;
+            border-top: none;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding: 2px 8px;
+            display: inline-block;
+            background: #fff;
+        }
+        tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        .nested-table { width: 100%; border-collapse: collapse; }
+        .nested-table td { border: 1px solid #000; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <!-- Main Data Table -->
+    <table class="main-table" style="margin-top:0; width:95%; margin-left:auto; margin-right:auto;">
+        <!-- Page Header - Repeats on every page -->
+        <thead class="page-header">
+            <tr>
+                <td colspan="21" style="border:none; padding:0;">
+                    <table class="header-table" style="width:100%; margin:0;">
+                        <tr>
+                            <td class="left" style="width:33%">ग्रामपंचायत : वाडी ( बु. )<br>एकूण संख्या : 569 </td>
+                            <td class="center bold" style="font-size:22px; width:34%">मालमत्ता धारकांची यादी<br><span style="font-size:15px; font-weight:normal;">सन 2024-2025 <b>ते</b> 2027-2028</span></td>
+                            <td class="right" style="width:33%">तालुका : नांदेड<br>जिल्हा : नांदेड</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <th>अ.क्र.</th>
+                <th>गाव / मोहोल्ला</th>
+                <th>मालमत्ता क्रमांक</th>
+                <th>मालमत्तेचे वर्णन</th>
+                <th>मालमत्ता धारकाचे नाव</th>
+                <th>एकूण कर रुपये</th>
+            </tr>
+        </thead>
+        
+        <!-- Page Footer - Repeats on every page -->
+        <tfoot class="page-footer">
+            <tr>
+                <td class="right" colspan="21" style="border:none; padding:0;">
+                    <div class="footer-summary">
+                        एकूण : 9088.00
+                    </div>
+                </td>
+            </tr>
+            <tr >
+                <td  style="border:none;" >दिनांक </td>
+                <td  style="border:none;padding-left: 80px;" >ग्रामपंचायत चा शिक्का</td>
+                <td  style="border:none;padding-left: 80px;" >सचिव</td>
+                <td  style="border:none;padding-left: 80px;" >सरपंच</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row.sr_no }}</td>
+                <td>{{ row.village }}</td>
+                <td>{{ row.property_no }}</td>
+                <td>{{ row.description }}</td>
+                <td>{{ row.owner_name }}</td>
+                <td>{{ row.total_tax }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
