@@ -156,15 +156,15 @@
             (टीप :- * सदर मालमत्ताआकारणी नक्कल केवळ ग्रामपंचायत कर आकारणी बाबत असून इतर कोणत्याही हक्काबाबत हा दस्त कायदेशीर पुरावा सांगत नाही. ' नमूद मोजमापे तांत्रिक कृष्या प्रमाणित तथा प्रमाणबद्ध केलेली नाहीत) 
           </div>
           <div class="report-info" style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; flex-wrap: wrap;">
-            <span>ग्राम पंचायत : {{gramPanchayat}} </span>
-            <span> गाव/ मोहल्ला : {{village}} </span>
+            <span>ग्राम पंचायत : {{gramPanchayat|default('')}} </span>
+            <span> गाव/ मोहल्ला : {{village|default('')}} </span>
             <span style="color: green; font-weight: bold; font-size: 16px;">नमुना 8</span>
             <span>नियम 32 ( 1 ) </span>
-            <span> तालुका: {{taluka}} </span>
-            <span> जिल्हा : {{jilha}} </span>
+            <span> तालुका: {{taluka|default('')}} </span>
+            <span> जिल्हा : {{jilha|default('')}} </span>
           </div>
           <div class="fontSizeData " style="margin-top: 5px; font-size: 12px;text-align: center;">
-            <span>सन {{yearFrom}} ते {{yearTo}} </span>
+            <span>सन {{yearFrom|default('')}} ते {{yearTo|default('')}} </span>
             <span style="padding-left: 100px;">या वर्षासाठी कर आकारणी नोंदवही</span>
           </div>
         </div>
@@ -217,42 +217,42 @@
                                 <td>14</td>
                             </tr>
                             <tr>
-                                <td rowspan="2" > {{row.srNo}} </td>
-                                <td rowspan="2" style="text-align: left;"> {{row.roadName}} </td>
-                                <td rowspan="2"> {{row.cityWardGatNumber}} </td>
-                                <td rowspan="2"> {{row.propertyNumber}} </td>
+                                <td rowspan="2" > {{row.srNo|default('')}} </td>
+                                <td rowspan="2" style="text-align: left;"> {{row.roadName|default('')}} </td>
+                                <td rowspan="2"> {{row.cityWardGatNumber|default('')}} </td>
+                                <td rowspan="2"> {{row.propertyNumber|default('')}} </td>
                                 <td rowspan="2" style="text-align: left;">
-                                    {{row.ownerName}}
+                                    {{row.ownerName|default('')}}
                                 </td>
-                                <td rowspan="2"> {{row.occupantName}} </td>
+                                <td rowspan="2"> {{row.occupantName|default('')}} </td>
                                 <td rowspan="2" style="text-align: left;">
-                                    {{row.propertyDescription}}
+                                    {{row.propertyDescription|default('')}}
                                 </td>
-                                <td rowspan="2"> {{ row.constructionType[0].year }} <br> {{row.constructionType[1].year}} </td>
-                                <td rowspan="2">{{ row.areaEast }} x {{row.areaNorth}}</td>
-                                <td rowspan="2">{{ row.khaliJaga[0].rate }} - {{row.khaliJaga[0].totalkhalijagaareainfoot}} </td>
+                                <td rowspan="2"> {{ row.constructionType[0].year|default('') }} <br> {{row.constructionType[1].year|default('')}} </td>
+                                <td rowspan="2">{{ row.areaEast|default('') }} x {{row.areaNorth|default('')}}</td>
+                                <td rowspan="2">{{ row.khaliJaga[0].rate|default('') }} - {{row.khaliJaga[0].totalkhalijagaareainfoot|default('') }} </td>
                                 <td rowspan="2"></td>
                             </tr>
                             <tr>
-                                <td> {{row.constructionType[0].rate}}-{{row.constructionType[0].length}} x {{row.constructionType[0].width}} <br><br/> {{row.constructionType[1].rate}}-{{row.constructionType[1].length}} x {{row.constructionType[1].width}} </td>
-                                <td> {{ row.constructionType[0].depreciation_rate }} <br> {{row.constructionType[1].depreciation_rate}} </br> 0  </td>
-                                <td> {{ row.constructionType[0].usageBasedBuildingWeightageFactor }} <br>{{ row.constructionType[1].usageBasedBuildingWeightageFactor }}</br> {{row.khaliJaga[0].usageBasedBuildingWeightageFactor}} </td>
+                                <td> {{row.constructionType[0].rate|default('')}}-{{row.constructionType[0].length|default('')}} x {{row.constructionType[0].width|default('')}} <br><br/> {{row.constructionType[1].rate|default('')}}-{{row.constructionType[1].length|default('')}} x {{row.constructionType[1].width|default('')}} </td>
+                                <td> {{ row.constructionType[0].depreciation_rate|default('') }} <br> {{row.constructionType[1].depreciation_rate|default('')}} </br> 0  </td>
+                                <td> {{ row.constructionType[0].usageBasedBuildingWeightageFactor|default('') }} <br>{{ row.constructionType[1].usageBasedBuildingWeightageFactor|default('')}}</br> {{row.khaliJaga[0].usageBasedBuildingWeightageFactor|default('')}} </td>
                             </tr>
                             <tr>
                                 <td colspan="8" style="text-align: right; font-weight: bold;">एकूण चौरस फुट </td>
-                                <td> {{row.total_arearinfoot}} </td>
-                                <td> {{row.khaliJaga[0].totalkhalijagaareainfoot}} </td>
+                                <td> {{row.total_arearinfoot|default('')}} </td>
+                                <td> {{row.khaliJaga[0].totalkhalijagaareainfoot|default('')}} </td>
                                 <td></td>
-                                <td>{{row.totalConstruction}}</td>   
+                                <td>{{row.totalConstruction|default('')}}</td>   
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td colspan="8" style="text-align: right; font-weight: bold;">एकूण चौरस मीटर</td>
-                                <td> {{row.totalareainmeters}} </td>
-                                <td> {{row.khaliJaga[0].totalkhalijagaareainmeters}} </td>
+                                <td> {{row.totalareainmeters|default('')}} </td>
+                                <td> {{row.khaliJaga[0].totalkhalijagaareainmeters|default('')}} </td>
                                 <td></td>
-                                <td> {{row.totalConstruction}}  </td>
+                                <td> {{row.totalConstruction|default('')}}  </td>
                                 <td></td>
                                 <td></td>
                             </tr>
