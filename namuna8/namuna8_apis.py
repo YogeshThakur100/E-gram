@@ -10,6 +10,8 @@ from datetime import datetime
 from sqlalchemy import select
 from namuna8.namuna8_model import Namuna8SettingTax
 from sqlalchemy.exc import SQLAlchemyError
+from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
+
 
 router = APIRouter(
     prefix="/namuna8",
@@ -65,13 +67,22 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 if not construction_type:
                     raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
                 # Calculate capitalValue and houseTax as per user instruction
-                capital_value = 541133
-                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * 541133)
+                
+                #for capital_value calculation
+                AreaInMeter = construction_data.length * construction_data.width * 0.092903
+                AnnualLandValueRate = 1000
+                ConstructionRateAsPerConstruction = construction_type.bandhmastache_dar
+                depreciationRate = calculate_depreciation_rate(construction_data.constructionYear, construction_data.construction_type.name),
+                usageBasedBuildingWeightageFactor = 1
+                
+
+                capital_value = [( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction *  depreciationRate)] * usageBasedBuildingWeightageFactor
+                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value)
                 new_construction = models.Construction(
                     construction_type_id=construction_type.id,
                     length=construction_data.length,
                     width=construction_data.width,
-                    constructionYear=construction_data.constructionYear,
+                    constructionYear=construction_data.coमजलाnstructionYear,
                     floor=construction_data.floor,
                     bharank=construction_data.bharank,
                     capitalValue=capital_value,
