@@ -336,20 +336,20 @@
                 flex-wrap: wrap;
               "
             >
-              <span>ग्राम पंचायत : {{gramPanchayat}} </span>
-              <span> गाव/ मोहल्ला : {{village}} </span>
+              <span>ग्राम पंचायत : {{ gramPanchayat | default('') }} </span>
+              <span> गाव/ मोहल्ला : {{ village | default('') }} </span>
               <span style="color: green; font-weight: bold; font-size: 16px"
                 >नमुना 8</span
               >
               <span>नियम 32 ( 1 ) </span>
-              <span> तालुका: {{taluka}} </span>
-              <span> जिल्हा : {{jilha}} </span>
+              <span> तालुका: {{ taluka | default('') }} </span>
+              <span> जिल्हा : {{ jilha | default('') }} </span>
             </div>
             <div
               class="fontSizeData"
               style="margin-top: 5px; font-size: 12px; text-align: center"
             >
-              <span>सन {{yearFrom}} ते {{yearTo}} </span>
+              <span>सन {{ yearFrom | default('') }} ते {{ yearTo | default('') }} </span>
               <span style="padding-left: 100px"
                 >या वर्षासाठी कर आकारणी नोंदवही</span
               >
@@ -418,19 +418,19 @@
                     <td colspan="2">13</td>
                   </tr>
                   <tr>
-                    <td>{{row.totalCapitalValue}}</td>
+                    <td>{{ row.totalCapitalValue | default('') }}</td>
                     <td></td>
-                    <td>{{row.totalHouseTax}}</td>
-                    <td>{{row.totalLightingTax}}</td>
-                    <td>{{row.totalHealthTax}}</td>
-                    <td>{{row.totalWaterTax}}</td>
-                    <td>{{row.totaltax}}</td>
-                    <td></td>
-                    <td></td>
+                    <td>{{ row.totalHouseTax | default('') }}</td>
+                    <td>{{ row.totalLightingTax | default('') }}</td>
+                    <td>{{ row.totalHealthTax | default('') }}</td>
+                    <td>{{ row.totalWaterTax | default('') }}</td>
+                    <td>{{ row.totaltax | default('') }}</td>
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td style="text-align: left">शौचालय : {{row.toilet}}</td>
+                    <td></td>
+                    <td></td>
+                    <td style="text-align: left">शौचालय : {{ row.toilet | default('') }}</td>
                   </tr>
                 </table>
 
@@ -453,22 +453,22 @@
                         border-right: 1px solid #000;
                       "
                     >
-                      शेरा : {{row.shera}}
+                      शेरा : {{ row.shera | default('') }}
                     </td>
                     <td style="text-align: left; border-right: 1px solid #000">
                       चतुर्सिमा
                     </td>
                     <td style="text-align: left; border-right: 1px solid #000">
-                      पूर्व : {{row.boundaryEast}}
+                      पूर्व : {{ row.boundaryEast | default('') }}
                     </td>
                     <td style="text-align: left; border-right: 1px solid #000">
-                      पश्चिम : {{row.boundaryWest}}
+                      पश्चिम : {{ row.boundaryWest | default('') }}
                     </td>
                     <td style="text-align: left; border-right: 1px solid #000">
-                      उत्तर : {{row.boundaryNorth}}
+                      उत्तर : {{ row.boundaryNorth | default('') }}
                     </td>
                     <td style="text-align: left; border-right: 1px solid #000">
-                      दक्षिण : {{row.boundarySouth}}
+                      दक्षिण : {{ row.boundarySouth | default('') }}
                     </td>
                   </tr>
                 </table>
