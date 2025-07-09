@@ -23,7 +23,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -280,7 +280,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar2.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -637,7 +637,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar3.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -994,7 +994,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar4bhag1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1351,7 +1351,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar4bhag2.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1708,7 +1708,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar5bhag1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -2065,7 +2065,7 @@ def prakar1():
         template = env.get_template('namuna8Prakar5bhag2.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -2422,7 +2422,7 @@ def prakar1():
         template = env.get_template('namuna8VishehPaniPrakar1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -2779,7 +2779,7 @@ def prakar1():
         template = env.get_template('namuna8VishehPaniPrakar2.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3136,7 +3136,7 @@ def prakar1():
         template = env.get_template('namuna8VishehPaniPrakar3.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3493,7 +3493,7 @@ def singlePrint():
         template = env.get_template('singlePrint1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3534,7 +3534,7 @@ def singlePrint():
         template = env.get_template('singlePrintP1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3575,7 +3575,7 @@ def singlePrint():
         template = env.get_template('singlePrintP2.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3616,7 +3616,7 @@ def singlePrint():
         template = env.get_template('singlePrintRange.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3864,7 +3864,7 @@ def singlePrint():
         template = env.get_template('singlePrintForm.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3905,7 +3905,7 @@ def singlePrint():
         template = env.get_template('singlePrintVishehPani.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -3946,7 +3946,7 @@ def singlePrint():
         template = env.get_template('singlePrintVishehPaniRange.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/4')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
