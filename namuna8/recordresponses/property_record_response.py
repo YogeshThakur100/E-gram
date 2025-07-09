@@ -43,8 +43,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
                 "rate": bandhmastache_dar,
                 "floor": c.floor,
                 "usage": getattr(c, 'bharank', None),
-                "capitalValue": 541133,
-                "houseTax": round((khali_jaga_rate / 1000) * 541133),
+                "capitalValue": c.capitalValue,
+                "houseTax": c.houseTax,
                 "usageBasedBuildingWeightageFactor": 1,
                 "taxRates": khali_jaga_rate,
                 "totalkhalijagaareainfoot": area_foot,
@@ -58,10 +58,12 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             # Find the rate for 'खाली जागा' from constructionType (if any)
             khali_jaga_rate = None
             bandhmastache_dar = None
+            khali_jaga_construction = None
             for c in prop.constructions:
                 if c.construction_type.name.strip() == "खाली जागा":
                     khali_jaga_rate = getattr(c.construction_type, 'rate', 0)
                     bandhmastache_dar = getattr(c.construction_type, 'bandhmastache_dar', 0)
+                    khali_jaga_construction = c
                     break
             area_foot = khali_area * 1
             area_meter = round(area_foot * 0.092903, 2)
@@ -73,8 +75,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
                 "rate": bandhmastache_dar,
                 "floor": None,
                 "usage": None,
-                "capitalValue": 541133,
-                "houseTax": round((khali_jaga_rate or 0) / 1000 * 541133),
+                "capitalValue": khali_jaga_construction.capitalValue if khali_jaga_construction else None,
+                "houseTax": khali_jaga_construction.houseTax if khali_jaga_construction else None,
                 "usageBasedBuildingWeightageFactor": 1,
                 "taxRates": khali_jaga_rate,
                 "totalkhalijagaareainfoot": area_foot,
@@ -89,8 +91,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             "rate": getattr(c.construction_type, 'bandhmastache_dar', 0),
             "floor": c.floor,
             "usage": getattr(c, 'bharank', None),
-            "capitalValue": 541133,
-            "houseTax": round((getattr(c.construction_type, 'rate', 0) / 1000) * 541133),
+            "capitalValue": c.capitalValue,
+            "houseTax": c.houseTax,
             "depreciation_rate": calculate_depreciation_rate(c.constructionYear, c.construction_type.name),
             "usageBasedBuildingWeightageFactor": 1,
             "taxRates": getattr(c.construction_type, 'rate', 0),
@@ -134,6 +136,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             return getattr(water_slab_settings, 'generalWaterAbove700', 0)
         return 0
     total_area = prop.totalAreaSqFt or 0
+    # Calculate totalHouseTax as the sum of all houseTax in constructions
+    total_house_tax = sum([c.houseTax or 0 for c in prop.constructions])
     response = {
         "id": str(prop.anuKramank),
         "srNo": prop.anuKramank,
@@ -174,7 +178,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "toilet": str(prop.toilet) if prop.toilet is not None else "",
         "house": prop.roofType,
         "totalCapitalValue": 0,
-        "totalHouseTax": int(getattr(prop, 'gharKar', 0)),
+        "totalHouseTax": int(total_house_tax),
         "housingUnit": prop.areaUnit,
         "lightingTax": get_tax_by_area(total_area, 'light') if prop.divaArogyaKar else 0,
         "healthTax": get_tax_by_area(total_area, 'health') if prop.divaArogyaKar else 0,
