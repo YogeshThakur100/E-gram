@@ -123,7 +123,7 @@ class BulkEditPropertyRow(BaseModel):
         orm_mode = True
 
 class BulkEditUpdateRequest(BaseModel):
-    property_ids: list[str]
+    property_ids: list[int]
     waterFacility1: Optional[str] = None
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None

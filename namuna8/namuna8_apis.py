@@ -64,6 +64,9 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
                 if not construction_type:
                     raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
+                # Calculate capitalValue and houseTax as per user instruction
+                capital_value = 541133
+                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * 541133)
                 new_construction = models.Construction(
                     construction_type_id=construction_type.id,
                     length=construction_data.length,
@@ -71,6 +74,8 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     constructionYear=construction_data.constructionYear,
                     floor=construction_data.floor,
                     bharank=construction_data.bharank,
+                    capitalValue=capital_value,
+                    houseTax=house_tax,
                 )
                 constructions.append(new_construction)
             # --- END FIX ---
@@ -109,7 +114,10 @@ def get_property_list(village: str, db: Session = Depends(database.get_db)):
     properties = db.query(models.Property).filter(models.Property.village_id == village_obj.id).all()
     result = []
     for p in properties:
-        owner_name = p.owners[0].name if p.owners else "N/A"
+        if p.owners:
+            owner_name = ','.join([f"{i+1}.{o.name}" for i, o in enumerate(p.owners)])
+        else:
+            owner_name = "N/A"
         result.append({"malmattaKramank": p.malmattaKramank, "ownerName": owner_name, "anuKramank": p.anuKramank})
     return result
 
@@ -193,6 +201,9 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
             construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
             if not construction_type:
                 raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
+            # Set capitalValue and houseTax as in create
+            capital_value = 541133
+            house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * 541133)
             new_construction = models.Construction(
                 construction_type_id=construction_type.id,
                 length=construction_data.length,
@@ -200,6 +211,8 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
                 constructionYear=construction_data.constructionYear,
                 floor=construction_data.floor,
                 bharank=construction_data.bharank,
+                capitalValue=capital_value,
+                houseTax=house_tax,
             )
             new_constructions.append(new_construction)
         db_property.constructions = new_constructions

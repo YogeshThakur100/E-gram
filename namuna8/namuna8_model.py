@@ -95,6 +95,8 @@ class Construction(Base):
     floor: Mapped[str] = mapped_column()
     # usage: Mapped[str] = mapped_column()
     bharank: Mapped[str] = mapped_column(nullable=True)
+    houseTax:Mapped[float] = mapped_column(nullable=True)
+    capitalValue:Mapped[float] = mapped_column(nullable=True)
 
     property = relationship("Property", back_populates="constructions")
     construction_type = relationship("ConstructionType", back_populates="constructions")
