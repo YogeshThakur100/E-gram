@@ -91,6 +91,73 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 constructions.append(new_construction)
             # --- END FIX ---
 
+            # --- ADDITION: Handle vacant land construction if needed ---
+            vacant_land_type = property_data.vacantLandType
+            print("vacant " + str(vacant_land_type))
+            has_khali_jaga = False
+            for c in constructions:
+                ctype = db.query(models.ConstructionType).filter_by(id=c.construction_type_id).first()
+                if ctype and ctype.name.strip().startswith("खाली जागा"):
+                    has_khali_jaga = True
+                    break
+            if not has_khali_jaga:
+                # Use totalAreaSqFt if present, otherwise fallback to totalArea, otherwise calculate from lengths
+                total_area = getattr(property_data, 'totalAreaSqFt', None)
+                if total_area is None or total_area == 0:
+                    total_area = getattr(property_data, 'totalArea', None)
+                if total_area is None or total_area == 0:
+                    east = getattr(property_data, 'eastLength', 0) or 0
+                    west = getattr(property_data, 'westLength', 0) or 0
+                    north = getattr(property_data, 'northLength', 0) or 0
+                    south = getattr(property_data, 'southLength', 0) or 0
+                    try:
+                        avg_length = (float(east) + float(west)) / 2 if east or west else 0
+                        avg_width = (float(north) + float(south)) / 2 if north or south else 0
+                        total_area = avg_length * avg_width if avg_length and avg_width else 0
+                    except (TypeError, ValueError):
+                        total_area = 0
+                try:
+                    total_area = float(total_area)
+                except (TypeError, ValueError):
+                    total_area = 0
+
+                # Sum all construction areas, converting to float
+                used_area = sum(
+                    float(getattr(c, 'length', 0) or 0) * float(getattr(c, 'width', 0) or 0)
+                    for c in constructions
+                )
+                remaining_area = total_area - used_area
+                print("remaining_area:", remaining_area)
+                if remaining_area > 0:
+                    print("greater")
+                    vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
+                    if vacant_type_obj:
+                        from datetime import datetime
+                        length = remaining_area
+                        width = 1
+                        constructionYear = str(datetime.now().year)
+                        floor = "तळमजला"
+                        bharank = "औद्योगिक"
+                        AreaInMeter = length * width * 0.092903
+                        AnnualLandValueRate = 1000
+                        ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
+                        depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
+                        usageBasedBuildingWeightageFactor = 1
+                        capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                        house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
+                        new_vacant_land = models.Construction(
+                            construction_type_id=vacant_type_obj.id,
+                            length=length,
+                            width=width,
+                            constructionYear=constructionYear,
+                            floor=floor,
+                            bharank=bharank,
+                            capitalValue=capital_value,
+                            houseTax=house_tax,
+                        )
+                        constructions.append(new_vacant_land)
+            # --- END ADDITION ---
+
             property_dict = property_data.dict(exclude={"owners", "constructions"})
             db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
             db.add(db_property)
@@ -299,8 +366,8 @@ def get_bulk_edit_property_list(village: str, db: Session = Depends(database.get
             ownerName=owner_name,
             occupant="स्वतः",  # Always 'self' for now
             gharKar=getattr(p, 'gharKar', 0),
-            divaKar=get_tax_by_area(total_area, 'light') if divaArogyaKar else 0,
-            aarogyaKar=get_tax_by_area(total_area, 'health') if divaArogyaKar else 0,
+            divaKar=get_tax_by_area(total_area, 'light') if not divaArogyaKar else 0,
+            aarogyaKar=get_tax_by_area(total_area, 'health') if not divaArogyaKar else 0,
             sapanikar=get_water_facility_price(getattr(p, 'waterFacility1', None)),
             vpanikar=get_water_facility_price(getattr(p, 'waterFacility2', None)),
         ))
@@ -509,8 +576,8 @@ def build_property_response(db_property, db):
         **{k: getattr(db_property, k) for k in schemas.PropertyBase.__fields__.keys()},
         "owners": owners,
         "constructions": constructions,
-        "divaKar": get_tax_by_area(total_area, 'light') if divaArogyaKar else 0,
-        "aarogyaKar": get_tax_by_area(total_area, 'health') if divaArogyaKar else 0,
+        "divaKar": get_tax_by_area(total_area, 'light') if not divaArogyaKar else 0,
+        "aarogyaKar": get_tax_by_area(total_area, 'health') if not divaArogyaKar else 0,
         "cleaningTax": get_tax_by_area(total_area, 'cleaning') if safaiKar else 0,
         "toiletTax": get_tax_by_area(total_area, 'bathroom') if shauchalayKar else 0,
         "sapanikar": get_water_facility_price(getattr(db_property, 'waterFacility1', None)),
@@ -1048,8 +1115,8 @@ def recalculate_all_property_taxes(db: Session = Depends(database.get_db)):
     properties = db.query(models.Property).all()
     for prop in properties:
         total_area = prop.totalAreaSqFt or 0
-        prop.divaKar = get_tax_by_area(total_area, 'light') if prop.divaArogyaKar else 0
-        prop.aarogyaKar = get_tax_by_area(total_area, 'health') if prop.divaArogyaKar else 0
+        prop.divaKar = get_tax_by_area(total_area, 'light') if not prop.divaArogyaKar else 0
+        prop.aarogyaKar = get_tax_by_area(total_area, 'health') if not prop.divaArogyaKar else 0
         prop.cleaningTax = get_tax_by_area(total_area, 'cleaning') if prop.safaiKar else 0
         toilet_tax = get_tax_by_area(total_area, 'bathroom') if prop.shauchalayKar else 0.0
         prop.toiletTax = toilet_tax

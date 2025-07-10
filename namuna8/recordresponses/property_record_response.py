@@ -138,6 +138,14 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     total_area = prop.totalAreaSqFt or 0
     # Calculate totalHouseTax as the sum of all houseTax in constructions
     total_house_tax = sum([c.houseTax or 0 for c in prop.constructions])
+    
+    # Calculate total capital value (excluding khali jagas)
+    total_capital_value = sum([c.capitalValue or 0 for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
+    
+    # Calculate total construction area in foot and meter (excluding khali jagas)
+    total_construction_area_foot = sum([(c.length or 0) * (c.width or 0) for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
+    total_construction_area_meter = round(total_construction_area_foot * 0.092903, 2)
+    
     response = {
         "id": str(prop.anuKramank),
         "srNo": prop.anuKramank,
@@ -177,11 +185,13 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "waterFacility2": prop.waterFacility2,
         "toilet": str(prop.toilet) if prop.toilet is not None else "",
         "house": prop.roofType,
-        "totalCapitalValue": 0,
+        "totalCapitalValue": int(total_capital_value),
         "totalHouseTax": int(total_house_tax),
+        "totalconstructionareainfoot": int(total_construction_area_foot),
+        "totalconstructionareainmeter": total_construction_area_meter,
         "housingUnit": prop.areaUnit,
-        "lightingTax": get_tax_by_area(total_area, 'light') if prop.divaArogyaKar else 0,
-        "healthTax": get_tax_by_area(total_area, 'health') if prop.divaArogyaKar else 0,
+        "lightingTax": get_tax_by_area(total_area, 'light') if not prop.divaArogyaKar else 0,
+        "healthTax": get_tax_by_area(total_area, 'health') if not prop.divaArogyaKar else 0,
         "waterTax": 0,  # Not specified in Namuna8SettingTax
         "cleaningTax": get_tax_by_area(total_area, 'cleaning') if prop.safaiKar else 0,
         "toiletTax": get_tax_by_area(total_area, 'bathroom') if prop.shauchalayKar else 0,
