@@ -126,7 +126,7 @@
 <div class="outer-box">
     <div class="sub-header" style="text-align: center; font-size: 12px; margin-top: 4px;">जनरल कर</div>
     <div style="border-bottom: 1px dashed #000; margin: 8px 0 8px 0;"></div>
-    <div class="header-title">ग्रामपंचायत {{gramPanchayat}} पं.स. {{taluka}} जि.प. {{jilha}} </div>
+    <div class="header-title">ग्रामपंचायत {{gramPanchayat|default('')}} पं.स. {{taluka|default('')}} जि.प. {{jilha|default('')}} </div>
     <div style="border-bottom: 1px dashed #000; margin: 8px 0 8px 0;"></div>
     <ol class="instructions" style="margin-top: 0; margin-bottom: 0;">
         <div style="display: flex;justify-content: space-between;">
@@ -135,23 +135,23 @@
         </div>
         <li>महाराष्ट्र शासन राजपत्र असाधारण भाग 4 ब ग्रामविकास व जलसंधारण विभाग बांधकाम भवन, 25 मर्झबान पथ फोर्ट, डिसेंबर 2015 ची अधिसुचना</li>
         <li>महाराष्ट्र ग्रामपंचायत अधिनियम 1958 चे कलम 124 महाराष्ट्र ग्रामपंचायत कर व फि (सुधारणा) मुख्य अधिनीयम 2015  </li>
-        <li> ग्रामपंचायत {{gramPanchayat}}, ता. {{taluka}}, जिल्हा {{jilha}} ठराव क्र.____________ सभा दि ____________ नुसार</li>
+        <li> ग्रामपंचायत {{gramPanchayat|default('')}}, ता. {{taluka|default('')}}, जिल्हा {{jilha|default('')}} ठराव क्र.____________ सभा दि ____________ नुसार</li>
     </ol>
     <div style="border-bottom: 1px solid #000; margin: 10px 0 8px 0;"></div>
-    <p style="margin-left: 50px;">ग्रामपंचायतचे नांव {{gramPanchayat}}, गावाचे नांव {{village}}, पं.स. {{taluka}}, जि.प. {{jilha}}</p>
+    <p style="margin-left: 50px;">ग्रामपंचायतचे नांव {{gramPanchayat|default('')}}, गावाचे नांव {{village|default('')}}, पं.स. {{taluka|default('')}}, जि.प. {{jilha|default('')}}</p>
     <div style="margin: 18px 0 0 0;">
         <table style="margin-left: 50px; width: 96%; border-collapse: collapse; font-size: 12px;">
             <tr>
                 <td style="font-weight: bold; width: 14%;">मालमत्ता धारकाचे नांव :</td>
-                <td style="padding: 2px 6px;"> {{ownerName}} </td>
+                <td style="padding: 2px 6px;"> {{ownerName|default('')}} </td>
                 <td style="font-weight: bold; width: 5%;padding: 2px 6px;">मोकं :</td>
                 <td style="width: 15%; padding: 2px 6px;">&nbsp;</td>
             </tr>
         </table>
         <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
             <tr>
-                <td style="width: 40%; border: none; padding-left: 50px;"><b>भोगवटदाराचे नांव :</b> {{occupantName}} </td>
-                <td style="width: 60%; border: none; text-align: center; "><b>मिळकत क्रमांक :</b>  {{propertyNumber}}  </td>
+                <td style="width: 40%; border: none; padding-left: 50px;"><b>भोगवटदाराचे नांव :</b> {{occupantName|default('')}} </td>
+                <td style="width: 60%; border: none; text-align: center; "><b>मिळकत क्रमांक :</b>  {{propertyNumber|default('')}}  </td>
             </tr>
         </table>
         <div style="border-bottom: 1px dashed #000; margin: 8px 8px 8px 0;"></div>
@@ -161,20 +161,20 @@
             </tr>
             <tr>
                 <td style="border: none; text-align: center; font-weight: bold;padding-left: 20px;">पूर्व :</td>
-                <td style="border: none; text-align: center;"> {{areaEast}} </td>
+                <td style="border: none; text-align: center;"> {{areaEast|default('')}} </td>
                 <td style="border: none; text-align: center; font-weight: bold;">पश्चिम :</td>
-                <td style="border: none; text-align: center;"> {{areaWest}} </td>
+                <td style="border: none; text-align: center;"> {{areaWest|default('')}} </td>
                 <td style="border: none; text-align: center; font-weight: bold;">उत्तर :</td>
-                <td style="border: none; text-align: center;"> {{areaNorth}} </td>
+                <td style="border: none; text-align: center;"> {{areaNorth|default('')}} </td>
                 <td style="border: none; text-align: center; font-weight: bold;">दक्षिण :</td>
-                <td style="border: none; text-align: center;"> {{areaSouth}} </td>
+                <td style="border: none; text-align: center;"> {{areaSouth|default('')}} </td>
                 <td style="border: none; text-align: center; font-weight: bold;">एकूण :</td>
                 <td style="border: none; text-align: center;">&nbsp;</td>
             </tr>
         </table>
         <div style="border-bottom: 1px dashed #000; margin: 8px 0 8px 0;"></div>
         <p style="padding-left: 50px;">स.क्र./ग.क्र ____________ प्लॉट क्र ____________</p>
-        <p style="padding-left: 50px;"><b>चतुर्सिमा पूर्व -:</b>  {{boundaryEast}}, <b>पश्चिम -:</b>  {{boundaryWest}}, <b>उत्तर -:</b>  {{boundaryNorth}} <b>दक्षिण -:</b> {{boundarySouth}}.</p>
+        <p style="padding-left: 50px;"><b>चतुर्सिमा पूर्व -:</b>  {{boundaryEast|default('')}}, <b>पश्चिम -:</b>  {{boundaryWest|default('')}}, <b>उत्तर -:</b>  {{boundaryNorth|default('')}} <b>दक्षिण -:</b> {{boundarySouth|default('')}}.</p>
         <p style="padding-left: 50px;"><b>वापराची दिशा :</b>_______________ </p>
         <p style="padding-left: 50px;"><b>ग्रामपंचायत नमुना ८ ला स.न.</b>-च्या नोंदीप्रमाणे मिळकतीचे तपशीलासह वर्णन</p>
     </div>
@@ -195,12 +195,12 @@
             </tr>
             <tr>
                 <td style="text-align:center;">1 <br>2 <br/>3</td>
-                <td> {{constructionType[0].type}} <br> {{constructionType[1].type}} <br> {{khaliJaga[0].constructiontype}} </td>
-                <td> {{constructionType[0].length}}  X  {{constructionType[0].width}} <br> {{constructionType[1].length}}  X {{constructionType[1].width}} <br> {{khaliJaga[0].length}}  X {{khaliJaga[0].width}} </td>
-                <td> {{constructionType[0].length * 0.3048}}  X  {{constructionType[0].width * 0.3048}} <br> {{constructionType[1].length * 0.3048}}  X {{constructionType[1].width * 0.3048}} <br> {{khaliJaga[0].length * 0.3048}}  X {{khaliJaga[0].width * 0.3048}} </td>
-                <td> {{constructionType[0].length * constructionType[0].width}} <br> {{constructionType[1].length * constructionType[1].width}}<br> {{khaliJaga[0].length * khaliJaga[0].width}} </td>
-                <td> {{constructionType[0].length * constructionType[0].width * 0.3048}} <br> {{constructionType[1].length * constructionType[1].width * 0.3048}}<br> {{khaliJaga[0].length * khaliJaga[0].width * 0.3048}} </td>
-                <td> {{constructionType[0].year}} <br> {{constructionType[1].year}} <br> {{khaliJaga[0].year}} </td>
+                <td> {{constructionType[0].type if constructionType and constructionType|length > 0 else ''}} <br> {{constructionType[1].type if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].constructiontype if khaliJaga and khaliJaga|length > 0 else ''}} </td>
+                <td> {{constructionType[0].length if constructionType and constructionType|length > 0 else ''}}  X  {{constructionType[0].width if constructionType and constructionType|length > 0 else ''}} <br> {{constructionType[1].length if constructionType and constructionType|length > 1 else ''}}  X {{constructionType[1].width if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].length if khaliJaga and khaliJaga|length > 0 else ''}}  X {{khaliJaga[0].width if khaliJaga and khaliJaga|length > 0 else ''}} </td>
+                <td> {{constructionType[0].length * 0.3048 if constructionType and constructionType|length > 0 and constructionType[0].length is not none else ''}}  X  {{constructionType[0].width * 0.3048 if constructionType and constructionType|length > 0 and constructionType[0].width is not none else ''}} <br> {{constructionType[1].length * 0.3048 if constructionType and constructionType|length > 1 and constructionType[1].length is not none else ''}}  X {{constructionType[1].width * 0.3048 if constructionType and constructionType|length > 1 and constructionType[1].width is not none else ''}} <br> {{khaliJaga[0].length * 0.3048 if khaliJaga and khaliJaga|length > 0 and khaliJaga[0].length is not none else ''}}  X {{khaliJaga[0].width * 0.3048 if khaliJaga and khaliJaga|length > 0 and khaliJaga[0].width is not none else ''}} </td>
+                <td> {{constructionType[0].length * constructionType[0].width if constructionType and constructionType|length > 0 and constructionType[0].length is not none and constructionType[0].width is not none else ''}} <br> {{constructionType[1].length * constructionType[1].width if constructionType and constructionType|length > 1 and constructionType[1].length is not none and constructionType[1].width is not none else ''}}<br> {{khaliJaga[0].length * khaliJaga[0].width if khaliJaga and khaliJaga|length > 0 and khaliJaga[0].length is not none and khaliJaga[0].width is not none else ''}} </td>
+                <td> {{constructionType[0].length * constructionType[0].width * 0.3048 if constructionType and constructionType|length > 0 and constructionType[0].length is not none and constructionType[0].width is not none else ''}} <br> {{constructionType[1].length * constructionType[1].width * 0.3048 if constructionType and constructionType|length > 1 and constructionType[1].length is not none and constructionType[1].width is not none else ''}}<br> {{khaliJaga[0].length * khaliJaga[0].width * 0.3048 if khaliJaga and khaliJaga|length > 0 and khaliJaga[0].length is not none and khaliJaga[0].width is not none else ''}} </td>
+                <td> {{constructionType[0].year if constructionType and constructionType|length > 0 else ''}} <br> {{constructionType[1].year if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].year if khaliJaga and khaliJaga|length > 0 else ''}} </td>
                 <td></td>
             </tr>
         </table>
@@ -227,7 +227,7 @@
         <p style="text-align: right;" >आपला विश्वासु</p>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 2px;">
             <tr>
-                <td style="width: 70%; text-align: left;">मालमत्ता धारकाचे नाव : {{ownerName}} </td>
+                <td style="width: 70%; text-align: left;">मालमत्ता धारकाचे नाव : {{ownerName|default('')}} </td>
                 <td style="width: 30%; text-align: right;">सही .............................................</td>
             </tr>
         </table>

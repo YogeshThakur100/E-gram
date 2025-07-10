@@ -9,7 +9,8 @@ env/    # Another common virtual environment name
 *.db
 *.sqlite
 *.sqlite3
-E-gram/backend/E-gram/static/*.html
+E-gram/backend/E-gram/static/
+static
 # Or specifically:
 # grampanchayat.db
 # test.db

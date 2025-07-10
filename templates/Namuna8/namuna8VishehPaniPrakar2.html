@@ -159,9 +159,9 @@
                     </p>
                     <table class="header-table" style="width:100%; margin:0;">
                         <tr>
-                            <td class="left" style="width:33%">ग्रामपंचायत : {{gramPanchayat}} <br>गाव/मोहोल्ला : {{village}} </td>
-                            <td class="center bold" style="font-size:22px; width:34%">नमुना ८<br><span style="font-size:15px; font-weight:normal;">सन {{yearFrom}} <b>ते</b> {{yearTo}} </span></td>
-                            <td class="right" style="width:33%">नियम 32 (1)<br>तालुका : {{taluka}}  <br>जिल्हा : {{jilha}} </td>
+                            <td class="left" style="width:33%">ग्रामपंचायत : {{ gramPanchayat | default('') }} <br>गाव/मोहोल्ला : {{ village | default('') }} </td>
+                            <td class="center bold" style="font-size:22px; width:34%">नमुना ८<br><span style="font-size:15px; font-weight:normal;">सन {{ yearFrom | default('') }} <b>ते</b> {{ yearTo | default('') }} </span></td>
+                            <td class="right" style="width:33%">नियम 32 (1)<br>तालुका : {{ taluka | default('') }}  <br>जिल्हा : {{ jilha | default('') }} </td>
                         </tr>
                     </table>
                 </td>
@@ -234,56 +234,56 @@
         <tbody>
             {% for row in data %}
             <tr class="record-row">
-                <td>{{ row.srNo }}</td>
-                <td>{{ row.propertyNumber }}</td>
-                <td style="width: 300px;">{{ row.ownerName }}</td>
-                <td>{{ row.occupantName }}</td>
-                <td>{{ row.constructionType[0].type }} <br> {{row.constructionType[1].type}} </br> {{row.khaliJaga[0].constructiontype}} </td>
+                <td>{{ row.srNo | default('') }}</td>
+                <td>{{ row.propertyNumber | default('') }}</td>
+                <td style="width: 300px;">{{ row.ownerName | default('') }}</td>
+                <td>{{ row.occupantName | default('') }}</td>
+                <td>{{ row.constructionType[0].type | default('') }} <br> {{ row.constructionType[1].type | default('') }} </br> {{ row.khaliJaga[0].constructiontype | default('') }} </td>
                 <td colspan="5" style="padding:0; vertical-align:stretch; height:100%;">
                     <table class="nested-table">
                         <tr>
-                            <td style="height: 100px;width: 87px;">{{ row.constructionType[0].year }} <br> {{row.constructionType[1].year}} </td>
-                            <td >{{ row.areaEast }} x {{row.areaNorth}} </td>
-                            <td >{{ row.khaliJaga[0].rate }} - {{row.khaliJaga[0].totalkhalijagaareainfoot}} </td>
+                            <td style="height: 100px;width: 87px;">{{ row.constructionType[0].year | default('') }} <br> {{ row.constructionType[1].year | default('') }} </td>
+                            <td >{{ row.areaEast | default('') }} x {{ row.areaNorth | default('') }} </td>
+                            <td >{{ row.khaliJaga[0].rate | default('') }} - {{ row.khaliJaga[0].totalkhalijagaareainfoot | default('') }} </td>
                             <td ></td>
-                            <td >{{row.constructionType[0].rate}}-{{row.constructionType[0].length}} x {{row.constructionType[0].width}} <br><br/> {{row.constructionType[1].rate}}-{{row.constructionType[1].length}} x {{row.constructionType[1].width}} </td>
+                            <td >{{ row.constructionType[0].rate | default('') }}-{{ row.constructionType[0].length | default('') }} x {{ row.constructionType[0].width | default('') }} <br><br/> {{ row.constructionType[1].rate | default('') }}-{{ row.constructionType[1].length | default('') }} x {{ row.constructionType[1].width | default('') }} </td>
                         </tr>
                         <tr>
                             <td style="width: 87px;">एकूण चौ. फुट</td>
-                            <td style="width: 87px;"> {{row.total_arearinfoot}} </td>
-                            <td style="width: 87px;"> {{row.khaliJaga[0].totalkhalijagaareainfoot}} </td>
+                            <td style="width: 87px;"> {{ row.total_arearinfoot | default('') }} </td>
+                            <td style="width: 87px;"> {{ row.khaliJaga[0].totalkhalijagaareainfoot | default('') }} </td>
                             <td style="width: 87px;"></td>
-                            <td style="width: 87px;"> {{row.totalConstruction}} </td>
+                            <td style="width: 87px;"> {{ row.totalConstruction | default('') }} </td>
                         </tr>
                         <tr>
                             <td style="width: 87px;">एकूण चौ. मीटर</td>
-                            <td style="width: 87px;"> {{row.totalareainmeters}} </td>
-                            <td style="width: 87px;"> {{row.khaliJaga[0].totalkhalijagaareainmeters}} </td>
+                            <td style="width: 87px;"> {{ row.totalareainmeters | default('') }} </td>
+                            <td style="width: 87px;"> {{ row.khaliJaga[0].totalkhalijagaareainmeters | default('') }} </td>
                             <td style="width: 87px;"></td>
-                            <td style="width: 87px;"> {{row.totalConstruction}} </td>
+                            <td style="width: 87px;"> {{ row.totalConstruction | default('') }} </td>
                         </tr>
                     </table>
                 </td>
-                <td>{{ row.constructionType[0].depreciation_rate }} <br> {{row.constructionType[1].depreciation_rate}} </br> 0 </td>
-                <td>{{ row.constructionType[0].usageBasedBuildingWeightageFactor }} <br>{{ row.constructionType[1].usageBasedBuildingWeightageFactor }}</br> {{row.khaliJaga[0].usageBasedBuildingWeightageFactor}} </td>
-                <td>{{ row.constructionType[0].capitalValue }} <br>{{row.constructionType[1].capitalValue}}</br>{{ row.khaliJaga[0].capitalValue }}</td>
-                <td>{{ row.constructionType[0].taxRates }} <br>{{ row.constructionType[0].taxRates }}</br>{{ row.khaliJaga[0].taxRates }} </td>
-                <td>{{ row.constructionType[0].houseTax }} <br>{{ row.constructionType[0].houseTax }}</br> {{row.khaliJaga[0].houseTax}} </td>
-                <td>{{ row.lightingTax }}</td>
-                <td>{{ row.healthTax }}</td>
-                <td>{{ row.waterTax }}</td>
-                <td>{{ row.cleaningTax }}</td>
-                <td>{{ row.toiletTax }}</td>
-                <td>{{ row.totaltax }}</td>
-                <td>{{ row.shera }}</td>
+                <td>{{ row.constructionType[0].depreciation_rate | default('') }} <br> {{ row.constructionType[1].depreciation_rate | default('') }} </br> 0 </td>
+                <td>{{ row.constructionType[0].usageBasedBuildingWeightageFactor | default('') }} <br>{{ row.constructionType[1].usageBasedBuildingWeightageFactor | default('') }}</br> {{ row.khaliJaga[0].usageBasedBuildingWeightageFactor | default('') }} </td>
+                <td>{{ row.constructionType[0].capitalValue | default('') }} <br>{{ row.constructionType[1].capitalValue | default('') }}</br>{{ row.khaliJaga[0].capitalValue | default('') }}</td>
+                <td>{{ row.constructionType[0].taxRates | default('') }} <br>{{ row.constructionType[0].taxRates | default('') }}</br>{{ row.khaliJaga[0].taxRates | default('') }} </td>
+                <td>{{ row.constructionType[0].houseTax | default('') }} <br>{{ row.constructionType[0].houseTax | default('') }}</br> {{ row.khaliJaga[0].houseTax | default('') }} </td>
+                <td>{{ row.lightingTax | default('') }}</td>
+                <td>{{ row.healthTax | default('') }}</td>
+                <td>{{ row.waterTax | default('') }}</td>
+                <td>{{ row.cleaningTax | default('') }}</td>
+                <td>{{ row.toiletTax | default('') }}</td>
+                <td>{{ row.totaltax | default('') }}</td>
+                <td>{{ row.shera | default('') }}</td>
             </tr>
             <tr class="record-row">
                 <td colspan="22" style="text-align:center; font-size:15px; font-weight:bold; border-top:none;padding: 3px;">
                     <span style="font-weight:bold;padding-right: 5px;">चातुर्सिमा </span>
-                    <span style="font-weight:bold;">पूर्व:</span> <span style="padding-right:20px;"> {{boundaryEast}} </span>
-                    <span style="font-weight:bold;">पश्चिम:</span> <span style="padding-right: 20px;"> {{boundaryWest}} </span>
-                    <span style="font-weight:bold;">उत्तर:</span> <span style="padding-right: 20px;"> {{boundaryNorth}} </span>
-                    <span style="font-weight:bold;">दक्षिण:</span> <span style="padding-right: 20px;"> {{boundarySouth}} </span>
+                    <span style="font-weight:bold;">पूर्व:</span> <span style="padding-right:20px;"> {{ boundaryEast | default('') }} </span>
+                    <span style="font-weight:bold;">पश्चिम:</span> <span style="padding-right: 20px;"> {{ boundaryWest | default('') }} </span>
+                    <span style="font-weight:bold;">उत्तर:</span> <span style="padding-right: 20px;"> {{ boundaryNorth | default('') }} </span>
+                    <span style="font-weight:bold;">दक्षिण:</span> <span style="padding-right: 20px;"> {{ boundarySouth | default('') }} </span>
                 </td>
             </tr>
             {% endfor %}
