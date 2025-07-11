@@ -1081,10 +1081,21 @@ def create_bulk_villages(villages: List[schemas.VillageCreate], db: Session = De
 def get_all_owners(db: Session = Depends(database.get_db)):
     return db.query(models.Owner).all()
 
+@router.get("/owners_by_village/", response_model=List[schemas.Owner])
+def get_owners_by_village(village_id: int, db: Session = Depends(database.get_db)):
+    return db.query(models.Owner).filter(models.Owner.village_id == village_id).all()
+
 @router.get("/properties_by_village/", response_model=List[schemas.PropertyRead])
 def get_properties_by_village(village_id: int, db: Session = Depends(database.get_db)):
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     return [build_property_response(p, db) for p in properties]
+
+@router.get("/properties_by_owner/", response_model=List[schemas.PropertyRead])
+def get_properties_by_owner(owner_id: int, db: Session = Depends(database.get_db)):
+    owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+    if not owner:
+        return []
+    return [build_property_response(p, db) for p in owner.properties]
 
 def get_tax_rate_by_area(db: Session, area: float, field: str):
     # Fetch the first settings row (assuming only one row for now)
