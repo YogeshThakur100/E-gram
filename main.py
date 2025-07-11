@@ -8,6 +8,8 @@ from certificates import birth_certificate_apis, death_certificate_apis, birthde
 from namuna8.recordresponses import property_record_response
 from namuna8.namuna7 import namuna7_apis
 from namuna8.namuna7.ReportCreationUsingJinja import namuna7Print
+from namuna8.utilitytab.owner_transfer_api import router as owner_transfer_router
+from namuna8.utilitytab.owners_with_properties_api import router as owners_with_properties_router
 
 # Import database components and models
 from database import engine, Base
@@ -55,7 +57,8 @@ app.include_router(namuna9Print.router , prefix="/namuna9/print")
 app.include_router(yadiPrint.router , prefix="/yadi/print")
 app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")
-
+app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")
+app.include_router(owners_with_properties_router, prefix="/namuna8/utilitytab")
 # --- Auto-register routers in E-gram submodules ---
 import importlib
 import pkgutil

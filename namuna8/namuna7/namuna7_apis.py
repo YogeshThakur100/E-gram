@@ -6,7 +6,7 @@ from typing import List
 from database import get_db
 from uuid import UUID
 from datetime import datetime, timedelta
-from ..namuna8_model import Owner, Village
+from ..namuna8_model import Owner, Village, Property
 
 router = APIRouter(prefix="/namuna7", tags=["Namuna7"])
 
@@ -97,3 +97,30 @@ def get_namuna7_print(item_id: int, db: Session = Depends(get_db)):
         receivedMoney=int(item.__dict__["receivedMoney"]),
         currentDate=currentDate
     ) 
+
+@router.get("/prints/by_village/{village_id}")
+def get_namuna7_prints_by_village(village_id: int, db: Session = Depends(get_db)):
+    village = db.query(Village).filter(Village.id == village_id).first()
+    grampanchayat = village.name if village else ""
+    currentDate = datetime.now().strftime("%d/%m/%Y")
+    items = db.query(Namuna7).filter(Namuna7.villageId == village_id).all()
+    results = []
+    for item in items:
+        owner = db.query(Owner).filter(Owner.id == item.userId).first()
+        ownername = owner.name if owner else ""
+        # Find property for this owner in this village (if any)
+        property_obj = db.query(Property).filter(Property.village_id == village_id, Property.owners.any(Owner.id == item.userId)).first()
+        # anuKramank = property_obj.anuKramank if property_obj else None
+        results.append({
+            "receiptNumber": int(item.__dict__["receiptNumber"]),
+            "receiptBookNumber": int(item.__dict__["receiptBookNumber"]),
+            "ownername": ownername,
+            "reason": str(item.__dict__["reason"]) if item.__dict__["reason"] is not None else "",
+            "receivedMoney": int(item.__dict__["receivedMoney"])
+        })
+    return {
+        "grampanchayat": grampanchayat,
+        "village": grampanchayat,
+        "currentDate": currentDate,
+        "records": results
+    } 
