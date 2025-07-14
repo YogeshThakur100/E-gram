@@ -136,7 +136,7 @@
             <td colspan="3" class="center" style="font-size:15px;">नियम 22 (9), 32 (4), 5 (6) व ( 7 ) पाहा</td>
         </tr>
         <tr>
-            <td colspan="3" class="center" style="font-size:15px;">सन {{selectedYear}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
+            <td colspan="3" class="center" style="font-size:15px;">सन {{yearFrom}} - {{yearTo}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
         </tr>
         <tr>
             <td  style="width:10%">ग्रामपंचायत : वाडी ( बु. )</td>
@@ -147,45 +147,30 @@
     <table class="main-table" style= "width:100%; border-collapse:collapse; margin-top:8px; font-size:14px;">
         <thead>
             <tr>
-                <th colspan="16" style="min-width:32px;">वसुली</th>
-                <th rowspan="2" colspan="5" style="min-width:48px;">सुट</th>
-                <th rowspan="2" colspan="5" style="min-width:120px;">बाकी</th>
+                <th rowspan="3">अ.क्र.</th>
+                <th rowspan="3">मिळकत नंबर</th>
+                <th colspan="3">वसुली</th>
+                <th rowspan="3">एकुण</th>
+                <th rowspan="2" colspan="4">सुट</th>
+                <th rowspan="2" colspan="4">बाकी</th>
                 <th rowspan="3" >सुट मजुर करणा-या आदेशासह शेरा</th>
+
             </tr>
             <tr>
-                <th colspan="4">घरकर</th>
-                <th colspan="3">दिवाकर</th>
-                <th colspan="3">आरोग्यकर</th>
-                <th colspan="3">सामान्य पाणीकर</th>
-                <th colspan="3">विशेष पाणीकर</th>
+                <th colspan="4">पाणीकर</th>
             </tr>
             <tr>
-                <th>थकीत</th>
+                <th>थक्ति</th>
                 <th>दंड</th>
                 <th>चालु</th>
-                <th>एकुण</th>
-                <th>थकीत</th>
-                <th>चालु</th>
-                <th>एकुण</th>
-                <th>थकीत</th>
-                <th>चालु</th>
-                <th>एकुण</th>
-                <th>थकीत</th>
-                <th>चालु</th>
-                <th>एकुण</th>
-                <th>थकीत</th>
-                <th>चालु</th>
-                <th>एकुण</th>
                 <th>घर</th>
                 <th>दिवा</th>
                 <th>आरोग्य</th>
-                <th>पाणी</th>
                 <th>सफाई</th>
                 <th>घर</th>
                 <th>दिवा</th>
                 <th>आरोग्य</th>
-                <th>पाणी</th>
-                <th>सफाई</th>
+                <th>सफाई</th>    
             </tr>
         </thead>
         <tbody>
@@ -195,59 +180,27 @@
                 <td>{{ row.srNo }}</td>
                 <td>{{ row.propertyNumber }}</td>
                 <td>{{ row.ownerName }}</td>
-                <td>0</td><td>{{waterTax}} </td> <td>851</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>0</td><td>0</td><td> {{totalHouseTax}} </td><td>6128</td>
+                <td>0</td><td>{{lightingTax}}</td><td>1404</td>
+                <td>0</td><td>{{healthTax}} </td><td>656</td>
+                <td>0</td><td>{{waterTax}} </td></td>
             </tr>
             {% endfor  %}
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="2"></td>
-                <td style="font-weight:normal; text-align:right;">गोषवारा</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
+                <td colspan="1" style="font-weight:bold; text-align:left;">गोष्टवार</td>
+                <td colspan="4" style="font-weight:bold; text-align:center;">घर कर</td>
+                <td colspan="3" style="font-weight:bold; text-align:center;">दिवा कर</td>
+                <td colspan="3" style="font-weight:bold; text-align:center;">आ. कर</td>
+                <td colspan="3" style="font-weight:bold; text-align:center;">पाणी कर</td>
+                <td colspan="3" style="font-weight:bold; text-align:center;">सफाई कर</td>
+            </tr>
+            <tr>
+                <td colspan="1"></td>
+                <td style="font-weight:normal; text-align:center;">थकित 100</td>
+                <td style="font-weight:normal; text-align:center;">दंड  100</td>
+                <td style="font-weight:normal; text-align:center;">चालु  100</td>
             </tr>
         </tfoot>
     </table>
