@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Query
 from sqlalchemy.orm import Session
 import database
 from namuna8 import namuna8_model as models
@@ -54,6 +54,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                         ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
                         village_id=owner_data.village_id
                     )
+                    new_owner.created_at = datetime.now()
                     db.add(new_owner)
                     db.flush()
                     owners.append(new_owner)
@@ -132,7 +133,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     print("greater")
                     vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
                     if vacant_type_obj:
-                        from datetime import datetime
+                       
                         length = remaining_area
                         width = 1
                         constructionYear = str(datetime.now().year)
@@ -160,6 +161,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
 
             property_dict = property_data.dict(exclude={"owners", "constructions"})
             db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
+            db_property.created_at = datetime.now()
             db.add(db_property)
             # Only set boolean fields and toilet (not calculated tax fields)
             db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
@@ -219,6 +221,7 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
     property_update_data = property_data.dict(exclude={'owners', 'constructions'})
     for key, value in property_update_data.items():
         setattr(db_property, key, value)
+    db_property.updated_at = datetime.now()
 
     if property_data.owners:
         new_owners = []
@@ -251,6 +254,7 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
                     owner.ownerPhoto = owner_photo_val
                 if owner_data.village_id is not None:
                     owner.village_id = owner_data.village_id
+                owner.updated_at = datetime.now()
                 db.commit()
                 new_owners.append(owner)
             else:
@@ -1096,6 +1100,13 @@ def get_properties_by_owner(owner_id: int, db: Session = Depends(database.get_db
     if not owner:
         return []
     return [build_property_response(p, db) for p in owner.properties]
+
+@router.get("/properties/bulk", response_model=list[schemas.PropertyRead])
+def get_properties_bulk(ids: str = Query(...), db: Session = Depends(database.get_db)):
+    # ids is a comma-separated string of property IDs
+    id_list = [int(i) for i in ids.split(",") if i.strip().isdigit()]
+    properties = db.query(models.Property).filter(models.Property.anuKramank.in_(id_list)).all()
+    return [build_property_response(p, db) for p in properties]
 
 def get_tax_rate_by_area(db: Session, area: float, field: str):
     # Fetch the first settings row (assuming only one row for now)

@@ -39,7 +39,6 @@ class Namuna9SettingsRead(Namuna9SettingsBase):
     id: str
     class Config:
         orm_mode = True
-
 class Namuna9SettingsUpdate(BaseModel):
     penalty_percentage: Optional[int] = None
     notice_fee: Optional[int] = None
