@@ -31,10 +31,12 @@ class Owner(Base):
     wifeName: Mapped[str] = mapped_column(nullable=True)
     occupantName: Mapped[str] = mapped_column(nullable=True)
     ownerPhoto: Mapped[str] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     village_id: Mapped[int] = mapped_column(ForeignKey("villages.id", ondelete="CASCADE"))
     village = relationship("Village", back_populates="owners")
     properties = relationship("Property", secondary=property_owner_association, back_populates="owners")
-
+   
 class Property(Base):
     __tablename__ = "properties"
     anuKramank: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -68,9 +70,12 @@ class Property(Base):
     westLength: Mapped[float] = mapped_column(nullable=True)
     northLength: Mapped[float] = mapped_column(nullable=True)
     southLength: Mapped[float] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     areaUnit: Mapped[str] = mapped_column(nullable=True)
     constructions = relationship("Construction", back_populates="property", cascade="all, delete-orphan")
     owners = relationship("Owner", secondary=property_owner_association, back_populates="properties")
+   
 
 class ConstructionType(Base):
     __tablename__ = "construction_types"
