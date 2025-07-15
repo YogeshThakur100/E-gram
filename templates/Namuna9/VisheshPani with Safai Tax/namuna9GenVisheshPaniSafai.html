@@ -124,6 +124,10 @@
             document.querySelector('button[title="Previous Page"]').onclick = prevPage;
             document.querySelector('button[title="Next Page"]').onclick = nextPage;
             document.querySelector('button[title="Last Page"]').onclick = lastPage;
+            document.getElementById('pageInput').addEventListener('change', function() {
+                let val = parseInt(this.value);
+                if (!isNaN(val)) showPage(val);
+            });
         };
     </script>
     <div id="mainContent">
@@ -136,7 +140,7 @@
             <td colspan="3" class="center" style="font-size:15px;">नियम 22 (9), 32 (4), 5 (6) व ( 7 ) पाहा</td>
         </tr>
         <tr>
-            <td colspan="3" class="center" style="font-size:15px;">सन {{selectedYear}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
+            <td colspan="3" class="center" style="font-size:15px;">सन {{yearFrom}} - {{yearTo}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
         </tr>
         <tr>
             <td  style="width:10%">ग्रामपंचायत : वाडी ( बु. )</td>
@@ -150,8 +154,7 @@
                 <th rowspan="3" style="min-width:32px;">अ.क्र.</th>
                 <th rowspan="3" style="min-width:48px;">मिळकत नंबर</th>
                 <th rowspan="3" style="min-width:120px;">ज्या व्यक्तीकडुन कर येणे असेल त्या व्यक्तीचे नाव</th>
-                <th colspan="16">मागणी</th>
-                <th rowspan="3">सुट</th>
+                <th colspan="13">मागणी</th>
                 <th rowspan="3" style="min-width:48px;">एकूण कर</th>
                 <th rowspan="3" style="min-width:80px;">पावती क्रमांक व तारीख</th>
             </tr>
@@ -159,15 +162,11 @@
                 <th colspan="4">घरकर</th>
                 <th colspan="3">दिवाकर</th>
                 <th colspan="3">आरोग्यकर</th>
-                <th colspan="3">पाणीकर</th>
                 <th colspan="3">सफाई कर</th>
             </tr>
             <tr>
                 <th style="min-width:32px;">थक्ति</th>
                 <th style="min-width:32px;">दंड</th>
-                <th style="min-width:32px;">चालु</th>
-                <th style="min-width:32px;">एकुण</th>
-                <th style="min-width:32px;">थक्ति</th>
                 <th style="min-width:32px;">चालु</th>
                 <th style="min-width:32px;">एकुण</th>
                 <th style="min-width:32px;">थक्ति</th>
@@ -193,46 +192,27 @@
                 <td>0</td><td>{{healthTax}} </td><td>656</td>
                 <td>0</td><td>{{waterTax}} </td> <td>851</td>
                 <td>6428</td>
-                <td> {{cleaningTax}} </td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
+                <td></td>
             </tr>
             {% endfor  %}
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="1" style="font-weight:bold; text-align:left;">गोष्टवार</td>
-                <td colspan="4" style="font-weight:bold; text-align:center;">घर कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">दिवा कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">आ. कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">पाणी कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">सफाई कर</td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;">19311</td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-            </tr>
-            <tr>
-                <td colspan="1"></td>
-                <td style="font-weight:normal; text-align:center;">थकित 100</td>
-                <td style="font-weight:normal; text-align:center;">दंड  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
+                <td colspan="2"></td>
+                <td style="font-weight:normal; text-align:right;">गोषवारा</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;"></td>
             </tr>
         </tfoot>
     </table>
