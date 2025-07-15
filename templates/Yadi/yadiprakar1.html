@@ -2,15 +2,11 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>मालमत्ता धारकांची यादी</title>
+    <title>नमुना ८</title>
     <style>
-        @page {
-            size: A4;  /* Default portrait mode */
-            margin: 1cm;
-        }
         body { font-family: 'Mangal', Arial, sans-serif; }
-        table { border-collapse: collapse; width: 95%; font-size: 13px; margin-left: auto; margin-right: auto; }
-        .header-table td { border: none; padding: 2px 4px; text-align: center; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; }
+        .header-table td { border: none; padding: 2px 4px; }
         .center { text-align: center; }
         .left { text-align: left; }
         .right { text-align: right; }
@@ -34,11 +30,124 @@
         }
         thead { display: table-header-group; }
         tfoot { display: table-footer-group; }
-        .nested-table { width: 100%; border-collapse: collapse; }
-        .nested-table td { border: 1px solid #000; padding: 2px 4px; }
+        .nested-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .nested-table tr, .nested-table td {
+            height: 100%;
+            vertical-align: stretch;
+            padding: 0;
+            text-align: center;
+            word-break: break-word;
+        }
+        @media print {
+            @page {
+                size: A4;
+            }
+            #toolbar {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
+    <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+        <!-- Left: Icon Buttons & Navigation -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+            <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+            <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+            <span id="pageTotal" style="font-size: 14px; color: #888;"></span>
+            <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+            <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+            <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+            <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+            <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+        </div>
+        <!-- Right: Print & Exit Buttons -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+            <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+        </div>
+    </div>
+    <script>
+        let zoomLevel = 1.0;
+        const minZoom = 0.5;
+        const maxZoom = 2.0;
+        const zoomStep = 0.1;
+        let currentPage = 1;
+        const recordsPerPage = 10; // Show 10 records per page
+        let totalPages = 0;
+
+        function updateZoom() {
+            document.getElementById('mainContent').style.zoom = zoomLevel;
+            document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
+        }
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                zoomLevel = Math.min(maxZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                zoomLevel = Math.max(minZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function showPage(page) {
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            totalPages = Math.ceil(records.length / recordsPerPage);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageTotal').innerText = '/' + totalPages;
+        }
+        function nextPage() { showPage(currentPage + 1); }
+        function prevPage() { showPage(currentPage - 1); }
+        function firstPage() { showPage(1); }
+        function lastPage() { showPage(totalPages); }
+        function printPage() {
+            // Show only current page's records before printing, then restore
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            const prevStates = records.map(el => el.style.display);
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    records.forEach((el, idx) => {
+                        el.style.display = prevStates[idx];
+                    });
+                }, 100);
+            }, 50);
+        }
+        function exitPage() {
+            window.close();
+        }
+        window.onload = function() {
+            updateZoom();
+            showPage(1);
+            // Wire up navigation buttons
+            document.querySelector('button[title="First Page"]').onclick = firstPage;
+            document.querySelector('button[title="Previous Page"]').onclick = prevPage;
+            document.querySelector('button[title="Next Page"]').onclick = nextPage;
+            document.querySelector('button[title="Last Page"]').onclick = lastPage;
+        };
+    </script>
+    <div id="mainContent">
     <!-- Main Data Table -->
     <table class="main-table" style="margin-top:0; width:95%; margin-left:auto; margin-right:auto;">
         <!-- Page Header - Repeats on every page -->
@@ -47,9 +156,9 @@
                 <td colspan="21" style="border:none; padding:0;">
                     <table class="header-table" style="width:100%; margin:0;">
                         <tr>
-                            <td class="left" style="width:33%">ग्रामपंचायत : वाडी ( बु. )<br>एकूण संख्या : 569 </td>
-                            <td class="center bold" style="font-size:22px; width:34%">मालमत्ता धारकांची यादी<br><span style="font-size:15px; font-weight:normal;">सन 2024-2025 <b>ते</b> 2027-2028</span></td>
-                            <td class="right" style="width:33%">तालुका : नांदेड<br>जिल्हा : नांदेड</td>
+                            <td class="left" style="width:33%">ग्रामपंचायत : {{gramPanchayat}} <br>एकूण संख्या : {{totalCount}} </td>
+                            <td class="center bold" style="font-size:22px; width:34%">मालमत्ता धारकांची यादी<br><span style="font-size:15px; font-weight:normal;">सन {{yearFrom}} <b>ते</b> {{yearTo}} </span></td>
+                            <td class="right" style="width:33%">तालुका : {{taluka}} <br>जिल्हा : {{jilha}} </td>
                         </tr>
                     </table>
                 </td>
@@ -81,14 +190,14 @@
             </tr>
         </tfoot>
         <tbody>
-            {% for row in rows %}
-            <tr>
-                <td>{{ row.sr_no }}</td>
+            {% for row in data %}
+            <tr class="record-row">
+                <td>{{ row.srNo }}</td>
                 <td>{{ row.village }}</td>
-                <td>{{ row.property_no }}</td>
-                <td>{{ row.owner_name }}</td>
-                <td>{{ row.total_tax }}</td>
-                <td>{{ row.page_number }}</td>
+                <td>{{ row.propertyNumber }}</td>
+                <td>{{ row.propertyDescription }}</td>
+                <td>{{ row.ownerName }}</td>
+                <td>{{ row.totaltax }}</td>
             </tr>
             {% endfor %}
         </tbody>
