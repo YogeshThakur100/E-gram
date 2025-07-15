@@ -22,6 +22,7 @@ from namuna9.ReportCreationUsingJinja import namuna9Print
 from Yadi.ReportCreationUsingJinja import yadiPrint
 from fastapi.staticfiles import StaticFiles
 from namuna8.mastertab.mastertabapis import router as mastertab_router
+from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -56,6 +57,7 @@ app.include_router(property_record_response.router, prefix="/namuna8/recordrespo
 app.include_router(namuna8Print.router , prefix="/namuna8/print")
 app.include_router(namuna9Print.router , prefix="/namuna9/print")
 app.include_router(yadiPrint.router , prefix="/yadi/print")
+app.include_router(ghoshawaraprint.router , prefix="/ghoshawara/print")
 app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")
 app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")

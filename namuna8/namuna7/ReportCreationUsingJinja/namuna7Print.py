@@ -10,7 +10,10 @@ router = APIRouter()
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..' ,'..'))
 print("base_dir ---->",base_dir)
 template_dir = os.path.join(base_dir, 'templates')
+print("template dir ---> " , template_dir)
 namuna7_template_dir = os.path.join(template_dir ,'Namuna7' )
+
+print("namuna7_template dir ---> " , namuna7_template_dir)
 static_dir = os.path.join(base_dir, 'static')
 env = Environment(loader=FileSystemLoader(namuna7_template_dir))
 
@@ -25,7 +28,7 @@ def receipt():
         template = env.get_template('namuna7Pavati.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna7/prints/get/1')
+        response = requests.get(f'{localhost}/namuna7/prints/get/2')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
