@@ -14,11 +14,19 @@ class OwnerBase(BaseModel):
 class OwnerCreate(OwnerBase):
     id: Optional[int] = None
 
-class Owner(OwnerBase):
+class Owner(BaseModel):
     id: int
+    name: str
+    aadhaarNumber: Optional[str] = None
+    mobileNumber: Optional[str] = None
+    wifeName: Optional[str] = None
+    occupantName: Optional[str] = None
+    ownerPhoto: Optional[str] = None
+    village_id: int
+    holderno: Optional[int] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class OwnerUpdate(OwnerBase):
     id: Optional[int] = None
@@ -107,6 +115,7 @@ class PropertyList(BaseModel):
     malmattaKramank: int
     ownerName: str
     anuKramank: int
+    holderno: Optional[int] = None
 
 class BulkEditPropertyRow(BaseModel):
     serial_no: int

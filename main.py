@@ -10,6 +10,7 @@ from namuna8.namuna7 import namuna7_apis
 from namuna8.namuna7.ReportCreationUsingJinja import namuna7Print
 from namuna8.utilitytab.owner_transfer_api import router as owner_transfer_router
 from namuna8.utilitytab.owners_with_properties_api import router as owners_with_properties_router
+from namuna8.mastertab.transfer_apis import router as transfer_router
 
 # Import database components and models
 from database import engine, Base
@@ -59,6 +60,8 @@ app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")
 app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")
 app.include_router(owners_with_properties_router, prefix="/namuna8/utilitytab")
+app.include_router(mastertab_router)
+app.include_router(transfer_router, prefix="/transfer-setting")
 # --- Auto-register routers in E-gram submodules ---
 import importlib
 import pkgutil

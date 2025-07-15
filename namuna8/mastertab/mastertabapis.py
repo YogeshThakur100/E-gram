@@ -5,6 +5,8 @@ from .mastertabschemas import GeneralSettingCreate, GeneralSettingRead, NewYojna
 from typing import List
 from uuid import UUID
 from database import get_db
+from namuna8.namuna8_model import Owner
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/master-setting", tags=["GeneralSetting"])
 
@@ -95,4 +97,18 @@ def delete_new_yojna(yojna_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Yojna not found")
     db.delete(yojna)
     db.commit()
-    return {"detail": "Deleted successfully"} 
+    return {"detail": "Deleted successfully"}
+
+class SetHolderNoRequest(BaseModel):
+    owner_id: int
+    holderno: int
+
+@router.post('/set-holderno/')
+def set_holderno(data: SetHolderNoRequest, db: Session = Depends(get_db)):
+    owner = db.query(Owner).filter(Owner.id == data.owner_id).first()
+    if not owner:
+        raise HTTPException(status_code=404, detail="Owner not found")
+    owner.holderno = data.holderno
+    db.commit()
+    db.refresh(owner)
+    return {"detail": "Holder number updated successfully", "owner_id": owner.id, "holderno": owner.holderno} 

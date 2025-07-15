@@ -196,9 +196,16 @@ def get_property_list(village: str, db: Session = Depends(database.get_db)):
     for p in properties:
         if p.owners:
             owner_name = ','.join([f"{i+1}.{o.name}" for i, o in enumerate(p.owners)])
+            holderno = p.owners[0].holderno if hasattr(p.owners[0], 'holderno') else None
         else:
             owner_name = "N/A"
-        result.append({"malmattaKramank": p.malmattaKramank, "ownerName": owner_name, "anuKramank": p.anuKramank})
+            holderno = None
+        result.append({
+            "malmattaKramank": p.malmattaKramank,
+            "ownerName": owner_name,
+            "anuKramank": p.anuKramank,
+            "holderno": holderno
+        })
     return result
 
 @router.get("/get-all-constructiontypes", response_model=List[schemas.ConstructionType])
