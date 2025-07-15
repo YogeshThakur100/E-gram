@@ -31,6 +31,7 @@ class Owner(Base):
     wifeName: Mapped[str] = mapped_column(nullable=True)
     occupantName: Mapped[str] = mapped_column(nullable=True)
     ownerPhoto: Mapped[str] = mapped_column(nullable=True)
+    holderno: Mapped[int] = mapped_column(nullable=True)  # धारक नंबर
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     village_id: Mapped[int] = mapped_column(ForeignKey("villages.id", ondelete="CASCADE"))

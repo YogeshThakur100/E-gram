@@ -241,7 +241,7 @@ def get_namuna9_table_data(villageId: str, yearslap: str, db: Session = Depends(
         # Join all owner names
         owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
         # lightingTax, healthTax, sapanikar, vpanikar, cleaningTax
-        lightingTax = prop_data.get('lightingTax', 0) or 0
+        lightingTax = prop_data.get('divaKar', 0) or 0
         healthTax = prop_data.get('aarogyaKar', 0) or prop_data.get('healthTax', 0) or 0
         sapanikar = prop_data.get('sapanikar', 0) or 0
         vpanikar = prop_data.get('vpanikar', 0) or 0
