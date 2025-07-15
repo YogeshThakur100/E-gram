@@ -53,6 +53,7 @@ def delete_namuna7(item_id: int, db: Session = Depends(get_db)):
 def get_namuna7_by_date(
     from_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
     to_date: str = Query(..., description="End date in YYYY-MM-DD format"),
+    village_id: int = Query(None, description="Village ID to filter by"),
     db: Session = Depends(get_db)
 ):
     try:
@@ -60,13 +61,14 @@ def get_namuna7_by_date(
         to_dt = datetime.strptime(to_date, "%Y-%m-%d") + timedelta(days=1)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
-    results = (
+    query = (
         db.query(Namuna7, Owner)
         .join(Owner, Namuna7.userId == Owner.id)
         .filter(Namuna7.createdAt >= from_dt, Namuna7.createdAt < to_dt)
-        .order_by(Namuna7.createdAt, Namuna7.receiptNumber)
-        .all()
     )
+    if village_id is not None:
+        query = query.filter(Namuna7.villageId == village_id)
+    results = query.order_by(Namuna7.createdAt, Namuna7.receiptNumber).all()
     response = [
         {
             **{k: getattr(n7, k) for k in n7.__table__.columns.keys()},
@@ -75,7 +77,7 @@ def get_namuna7_by_date(
         }
         for n7, owner in results
     ]
-    return response 
+    return response
 
 @router.get("/prints/get/{item_id}", response_model=Namuna7PrintResponse)
 def get_namuna7_print(item_id: int, db: Session = Depends(get_db)):
