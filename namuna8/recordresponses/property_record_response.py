@@ -5,6 +5,7 @@ from namuna8 import namuna8_schemas as schemas
 from database import get_db
 from datetime import datetime
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
+import os
 
 router = APIRouter()
 
@@ -100,6 +101,12 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         for c in prop.constructions
     ]
     owner = prop.owners[0] if prop.owners else None
+    # Find the first owner with a non-null ownerPhoto
+    photo_url = None
+    for o in prop.owners:
+        if getattr(o, 'ownerPhoto', None):
+            photo_url = f"http://localhost:8000/{o.ownerPhoto.replace(os.sep, '/')}"
+            break
     # Fetch Namuna8SettingTax row
     settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
     water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
@@ -158,7 +165,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "jilha": None,
         "yearFrom": 2024,
         "yearTo": 2027,
-        "photoURL": owner.ownerPhoto if owner and getattr(owner, 'ownerPhoto', None) else None,
+        "photoURL": photo_url,
         "QRcodeURL": None,
         "total_arearinfoot": prop.totalAreaSqFt,
         "totalareainmeters": round((prop.totalAreaSqFt or 0) * 0.092903, 2),
@@ -205,6 +212,14 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "updationAt": datetime.now(),
        
     }
+    # Fetch Namuna8SettingChecklist row
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist_fields = {}
+    if checklist:
+        checklist_dict = checklist.__dict__
+        checklist_fields = {k: v for k, v in checklist_dict.items() if k not in ('id', 'createdAt', 'updatedAt', 'roundupArea', '_sa_instance_state')}
+    # Add checklist fields at the end
+    response.update(checklist_fields)
     return response 
 
 @router.get("/property_records_by_village/{village_id}")
@@ -338,7 +353,7 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             "jilha": None,
             "yearFrom": 2024,
             "yearTo": 2027,
-            "photoURL": owner.ownerPhoto if owner and getattr(owner, 'ownerPhoto', None) else None,
+            "photoURL": None,
             "QRcodeURL": None,
             "total_arearinfoot": prop.totalAreaSqFt,
             "totalareainmeters": round((prop.totalAreaSqFt or 0) * 0.092903, 2),
@@ -380,5 +395,20 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             "vpanikar": get_water_facility_price(prop.waterFacility2),
             "totaltax": 0,
         }
+        # Find the first owner with a non-null ownerPhoto
+        photo_url = None
+        for o in prop.owners:
+            if getattr(o, 'ownerPhoto', None):
+                photo_url = f"http://localhost:8000/{o.ownerPhoto.replace(os.sep, '/')}"
+                break
+        response["photoURL"] = photo_url
         results.append(response)
-    return results 
+    # For property_records_by_village, after results are built:
+    # Fetch Namuna8SettingChecklist row
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist_fields = {}
+    if checklist:
+        checklist_dict = checklist.__dict__
+        checklist_fields = {k: v for k, v in checklist_dict.items() if k not in ('id', 'createdAt', 'updatedAt', 'roundupArea', '_sa_instance_state')}
+    # Return both results and checklist_fields
+    return {"results": results, "checklist": checklist_fields} 

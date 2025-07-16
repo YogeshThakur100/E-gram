@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Body, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session
 import database
 from namuna8 import namuna8_model as models
@@ -12,12 +12,18 @@ from namuna8.namuna8_model import Namuna8SettingTax
 from sqlalchemy.exc import SQLAlchemyError
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
 from pydantic import BaseModel
+import os
+import shutil
+import time
 
 
 router = APIRouter(
     prefix="/namuna8",
     tags=["namuna8"]
 )
+
+UPLOAD_OWNER_PHOTO_DIR = "uploaded_images/owners"
+os.makedirs(UPLOAD_OWNER_PHOTO_DIR, exist_ok=True)
 
 @router.post("/", response_model=schemas.PropertyRead, status_code=status.HTTP_201_CREATED)
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
@@ -577,6 +583,17 @@ def create_owner(
         "wifeName": new_owner.wifeName,
         "village_id": new_owner.village_id
     }
+
+@router.post("/owners/upload_photo/", response_model=str)
+def upload_owner_photo(owner_id: int = Form(...), file: UploadFile = File(...)):
+    owner_dir = os.path.join(UPLOAD_OWNER_PHOTO_DIR, str(owner_id))
+    os.makedirs(owner_dir, exist_ok=True)
+    # Use a unique filename (timestamp + original name)
+    filename = f"photo_{int(time.time())}_{file.filename}"
+    file_location = os.path.join(owner_dir, filename)
+    with open(file_location, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    return file_location
 
 def build_property_response(db_property, db):
     # Build constructions with constructionType name
