@@ -60,7 +60,7 @@
             <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
             <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
             <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
-            <span style="font-size: 14px; color: #888;"></span>
+            <span id="pageTotal" style="font-size: 14px; color: #888;"></span>
             <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
             <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
             <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
@@ -195,7 +195,7 @@
                 <td>{{ row.village }}</td>
                 <td>{{ row.propertyNumber }}</td>
                 <td>{{ row.propertyDescription }}</td>
-                <td>{{ row.propertyDescription }}</td>
+                <td>{{ row.ownerName }}</td>
                 <td>{{ row.totaltax }}</td>
             </tr>
             {% endfor %}

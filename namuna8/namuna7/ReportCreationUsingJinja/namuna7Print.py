@@ -10,7 +10,10 @@ router = APIRouter()
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..' ,'..'))
 print("base_dir ---->",base_dir)
 template_dir = os.path.join(base_dir, 'templates')
+print("template dir ---> " , template_dir)
 namuna7_template_dir = os.path.join(template_dir ,'Namuna7' )
+
+print("namuna7_template dir ---> " , namuna7_template_dir)
 static_dir = os.path.join(base_dir, 'static')
 env = Environment(loader=FileSystemLoader(namuna7_template_dir))
 
@@ -25,7 +28,89 @@ def receipt():
         template = env.get_template('namuna7Pavati.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna7/prints/get/1')
+        response = requests.get(f'{localhost}/namuna7/prints/get/2')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/register')
+def receipt():
+    try:
+        # Load template
+        template = env.get_template('namuna7pavatiRegister.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna7/prints/get/2')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        rendered_html = template.render(data)
+
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/logbook/print')
+def receipt():
+    try:
+        # Load template
+        template = env.get_template('printTemplate.html')
+
+        # Call API
+        response = requests.get(f'{localhost}/namuna7/prints/get/2')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
