@@ -120,7 +120,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             return 0
         if not water_settings or not water_slab_settings:
             return 0
-        if facility == 'सामान्य पाणिकर':
+        # Accept both spellings for 'सामान्य पाणिकर' and 'सामान्य पाणीकर'
+        if facility in ['सामान्य पाणिकर', 'सामान्य पाणीकर']:
             return getattr(water_settings, 'generalWater', 0)
         elif facility == 'घरगुती नळ':
             return getattr(water_settings, 'houseTax', 0)
