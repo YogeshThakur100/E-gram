@@ -11,6 +11,7 @@ from sqlalchemy import select
 from namuna8.namuna8_model import Namuna8SettingTax
 from sqlalchemy.exc import SQLAlchemyError
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
+from pydantic import BaseModel
 
 
 router = APIRouter(
@@ -290,7 +291,6 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
             construction_type = db.query(models.ConstructionType).filter_by(name=construction_data.constructionType).first()
             if not construction_type:
                 raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
-            # Set capitalValue and houseTax as in create
             capital_value = 541133
             house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * 541133)
             new_construction = models.Construction(
@@ -304,6 +304,65 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
                 houseTax=house_tax,
             )
             new_constructions.append(new_construction)
+        # --- ADDITION: Handle vacant land construction if needed (like POST) ---
+        vacant_land_type = getattr(property_data, 'vacantLandType', None)
+        has_khali_jaga = False
+        for c in new_constructions:
+            ctype = db.query(models.ConstructionType).filter_by(id=c.construction_type_id).first()
+            if ctype and ctype.name.strip().startswith("खाली जागा"):
+                has_khali_jaga = True
+                break
+        if not has_khali_jaga and vacant_land_type:
+            total_area = getattr(property_data, 'totalAreaSqFt', None)
+            if total_area is None or total_area == 0:
+                total_area = getattr(property_data, 'totalArea', None)
+            if total_area is None or total_area == 0:
+                east = getattr(property_data, 'eastLength', 0) or 0
+                west = getattr(property_data, 'westLength', 0) or 0
+                north = getattr(property_data, 'northLength', 0) or 0
+                south = getattr(property_data, 'southLength', 0) or 0
+                try:
+                    avg_length = (float(east) + float(west)) / 2 if east or west else 0
+                    avg_width = (float(north) + float(south)) / 2 if north or south else 0
+                    total_area = avg_length * avg_width if avg_length and avg_width else 0
+                except (TypeError, ValueError):
+                    total_area = 0
+            try:
+                total_area = float(total_area)
+            except (TypeError, ValueError):
+                total_area = 0
+            used_area = sum(
+                float(getattr(c, 'length', 0) or 0) * float(getattr(c, 'width', 0) or 0)
+                for c in new_constructions
+            )
+            remaining_area = total_area - used_area
+            if remaining_area > 0:
+                vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
+                if vacant_type_obj:
+                    length = remaining_area
+                    width = 1
+                    constructionYear = str(datetime.now().year)
+                    floor = "तळमजला"
+                    bharank = "औद्योगिक"
+                    AreaInMeter = length * width * 0.092903
+                    AnnualLandValueRate = 1000
+                    ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
+                    depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
+                    usageBasedBuildingWeightageFactor = 1
+                    capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                    house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
+                    new_vacant_land = models.Construction(
+                        construction_type_id=vacant_type_obj.id,
+                        length=length,
+                        width=width,
+                        constructionYear=constructionYear,
+                        floor=floor,
+                        bharank=bharank,
+                        capitalValue=capital_value,
+                        houseTax=house_tax,
+                    )
+                    new_constructions.append(new_vacant_land)
+        # --- END ADDITION ---
         db_property.constructions = new_constructions
     # --- END FIX ---
 
@@ -351,7 +410,8 @@ def get_bulk_edit_property_list(village: str, db: Session = Depends(database.get
             return 0
         if not water_settings or not water_slab_settings:
             return 0
-        if facility == 'सामान्य पाणिकर':
+        # Accept both spellings for 'सामान्य पाणिकर' and 'सामान्य पाणीकर'
+        if facility in ['सामान्य पाणिकर', 'सामान्य पाणीकर']:
             return getattr(water_settings, 'generalWater', 0)
         elif facility == 'घरगुती नळ':
             return getattr(water_settings, 'houseTax', 0)
@@ -564,7 +624,8 @@ def build_property_response(db_property, db):
             return 0
         if not water_settings or not water_slab_settings:
             return 0
-        if facility == 'सामान्य पाणिकर':
+        # Accept both spellings for 'सामान्य पाणिकर' and 'सामान्य पाणीकर'
+        if facility in ['सामान्य पाणिकर', 'सामान्य पाणीकर']:
             return getattr(water_settings, 'generalWater', 0)
         elif facility == 'घरगुती नळ':
             return getattr(water_settings, 'houseTax', 0)
@@ -1172,4 +1233,18 @@ def delete_property(anu_kramank: int, db: Session = Depends(database.get_db)):
     db.delete(prop)
     db.commit()
     return {"message": f"Property {anu_kramank} deleted successfully."}
+
+class HolderNoAssignment(BaseModel):
+    anuKramank: int
+    ownerIds: List[int]
+
+@router.post("/set_holdernos/")
+def set_holdernos(assignments: List[HolderNoAssignment], db: Session = Depends(database.get_db)):
+    for assignment in assignments:
+        for owner_id in assignment.ownerIds:
+            owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+            if owner:
+                owner.holderno = assignment.anuKramank
+    db.commit()
+    return {"detail": "Holder numbers set for all provided owners."}
     

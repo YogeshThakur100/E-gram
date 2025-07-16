@@ -120,7 +120,8 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             return 0
         if not water_settings or not water_slab_settings:
             return 0
-        if facility == 'सामान्य पाणिकर':
+        # Accept both spellings for 'सामान्य पाणिकर' and 'सामान्य पाणीकर'
+        if facility in ['सामान्य पाणिकर', 'सामान्य पाणीकर']:
             return getattr(water_settings, 'generalWater', 0)
         elif facility == 'घरगुती नळ':
             return getattr(water_settings, 'houseTax', 0)
@@ -157,7 +158,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "jilha": None,
         "yearFrom": 2024,
         "yearTo": 2027,
-        "photoURL": None,
+        "photoURL": owner.ownerPhoto if owner and getattr(owner, 'ownerPhoto', None) else None,
         "QRcodeURL": None,
         "total_arearinfoot": prop.totalAreaSqFt,
         "totalareainmeters": round((prop.totalAreaSqFt or 0) * 0.092903, 2),
@@ -337,7 +338,7 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             "jilha": None,
             "yearFrom": 2024,
             "yearTo": 2027,
-            "photoURL": None,
+            "photoURL": owner.ownerPhoto if owner and getattr(owner, 'ownerPhoto', None) else None,
             "QRcodeURL": None,
             "total_arearinfoot": prop.totalAreaSqFt,
             "totalareainmeters": round((prop.totalAreaSqFt or 0) * 0.092903, 2),

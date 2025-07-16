@@ -11,6 +11,8 @@ from namuna8.namuna7.ReportCreationUsingJinja import namuna7Print
 from namuna8.utilitytab.owner_transfer_api import router as owner_transfer_router
 from namuna8.utilitytab.owners_with_properties_api import router as owners_with_properties_router
 from namuna8.mastertab.transfer_apis import router as transfer_router
+from namuna8.madhila.madhila_apis import router as madhila_router
+from namuna8.PropertyDocuments import property_document_apis
 
 # Import database components and models
 from database import engine, Base
@@ -32,6 +34,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 # CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
@@ -68,6 +71,8 @@ app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")
 app.include_router(owners_with_properties_router, prefix="/namuna8/utilitytab")
 app.include_router(mastertab_router)
 app.include_router(transfer_router, prefix="/transfer-setting")
+app.include_router(madhila_router)
+app.include_router(property_document_apis.router)
 # --- Auto-register routers in E-gram submodules ---
 import importlib
 import pkgutil
