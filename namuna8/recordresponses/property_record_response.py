@@ -6,6 +6,7 @@ from database import get_db
 from datetime import datetime
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
 import os
+backend_url = os.environ.get('BACKEND_URL', 'http://localhost:8000')
 
 router = APIRouter()
 
@@ -105,7 +106,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     photo_url = None
     for o in prop.owners:
         if getattr(o, 'ownerPhoto', None):
-            photo_url = f"http://localhost:8000/{o.ownerPhoto.replace(os.sep, '/')}"
+            photo_url = f"{backend_url}/{o.ownerPhoto.replace(os.sep, '/')}"
             break
     # Fetch Namuna8SettingTax row
     settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
@@ -212,6 +213,22 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "updationAt": datetime.now(),
        
     }
+    # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus healthTax, arogyakar, toiletTax, cleaningTax, sapanikar, and vpanikar
+    total_house_tax = sum([
+        c.houseTax or 0
+        for c in prop.constructions
+        if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+    ])
+    totaltax = (
+        total_house_tax +
+        response.get('healthTax', 0) +
+        response.get('aarogyaKar', 0) +
+        response.get('toiletTax', 0) +
+        response.get('cleaningTax', 0) +
+        response.get('sapanikar', 0) +
+        response.get('vpanikar', 0)
+    )
+    response['totaltax'] = totaltax
     # Fetch Namuna8SettingChecklist row
     checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
     checklist_fields = {}
@@ -226,6 +243,12 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
 def get_property_records_by_village(village_id: int, db: Session = Depends(get_db)):
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     results = []
+    # Fetch Namuna8SettingChecklist row only once
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist_fields = {}
+    if checklist:
+        checklist_dict = checklist.__dict__
+        checklist_fields = {k: v for k, v in checklist_dict.items() if k not in ('id', 'createdAt', 'updatedAt', 'roundupArea', '_sa_instance_state')}
     for prop in properties:
         owner_ids = [o.id for o in prop.owners]
         property_types = [c.construction_type.name for c in prop.constructions]
@@ -395,20 +418,26 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             "vpanikar": get_water_facility_price(prop.waterFacility2),
             "totaltax": 0,
         }
+        # Calculate total tax as sum of houseTax in all constructions plus healthTax, arogyakar, toiletTax, cleaningTax, sapanikar, and vpanikar
+        total_house_tax = sum([c.houseTax or 0 for c in prop.constructions])
+        totaltax = (
+            total_house_tax +
+            response.get('healthTax', 0) +
+            response.get('aarogyaKar', 0) +
+            response.get('toiletTax', 0) +
+            response.get('cleaningTax', 0) +
+            response.get('sapanikar', 0) +
+            response.get('vpanikar', 0)
+        )
+        response['totaltax'] = totaltax
         # Find the first owner with a non-null ownerPhoto
         photo_url = None
         for o in prop.owners:
             if getattr(o, 'ownerPhoto', None):
-                photo_url = f"http://localhost:8000/{o.ownerPhoto.replace(os.sep, '/')}"
+                photo_url = f"{backend_url}/{o.ownerPhoto.replace(os.sep, '/')}"
                 break
         response["photoURL"] = photo_url
+        # Add checklist fields to the response
+        response.update(checklist_fields)
         results.append(response)
-    # For property_records_by_village, after results are built:
-    # Fetch Namuna8SettingChecklist row
-    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
-    checklist_fields = {}
-    if checklist:
-        checklist_dict = checklist.__dict__
-        checklist_fields = {k: v for k, v in checklist_dict.items() if k not in ('id', 'createdAt', 'updatedAt', 'roundupArea', '_sa_instance_state')}
-    # Return both results and checklist_fields
-    return {"results": results, "checklist": checklist_fields} 
+    return results 
