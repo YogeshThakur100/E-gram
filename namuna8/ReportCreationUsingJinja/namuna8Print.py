@@ -3872,6 +3872,10 @@ async def singlePrint(request : Request):
         # Render template
         if not isinstance(data, list):
             data = [data]
+            
+        context = {
+                
+        }
         rendered_html = template.render(data=data)
 
 

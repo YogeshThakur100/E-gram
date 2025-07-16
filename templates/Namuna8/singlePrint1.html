@@ -196,8 +196,8 @@
         </td>
         <td rowspan="2">{{areaEast|default('')}} x {{areaNorth|default('')}}</td>
         <td rowspan="2">
-            {% for c in constructionType %}
-                {{ c.rate }}-{{ c.length }}<br>
+            {% for k in khaliJaga %}
+                {{ k.rate }}-{{ k.length }}<br>
             {% endfor %}
         </td>
         <td rowspan="2"></td>
@@ -235,7 +235,7 @@
             {% endfor %}
         </td>
         <td></td>
-        <td>{{totalConstruction|default('')}}</td>   
+        <td>{{totalconstructionareainfoot|default('')}}</td>   
         <td></td>
         <td></td>
     </tr>
@@ -249,8 +249,8 @@
                 {{ k.totalkhalijagaareainmeters }}<br>
             {% endfor %}
         </td>
-        <td>0</td>
-        <td>{{totalConstruction|default('')}}</td>
+        <td></td>
+        <td>{{totalconstructionareainmeter|default('')}}</td>
         <td></td>
         <td></td>
     </tr>
