@@ -35,6 +35,7 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
+app.mount("/ReportImages" , StaticFiles(directory="ReportImages") , name="ReportImages")
 # CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
