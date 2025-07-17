@@ -151,9 +151,9 @@
     <div style="text-align:center; font-weight:bold; font-size:16px;">नमुना ७ वसुली हिशोब</div>
     <table style="margin-top:4px;">
         <tr>
-            <td colspan="4" class="left bold">गाव यादी (सु.)</td>
-            <td colspan="8" class="center">दिनांक : <span class="bold">15/07/2025</span> पासून ते दिनांक : <span class="bold">15/07/2025</span> पर्यंत</td>
-            <td colspan="6" class="right">दिनांक : <span class="bold">15/07/2025</span></td>
+            <td colspan="4" class="left bold">ग्रामपंचायत : {{gramPanchayat}} </td>
+            <td colspan="8" class="center">दिनांक : <span class="bold"> {{startDate}} </span> पासून ते दिनांक : <span class="bold">{{endDate}}</span> पर्यंत</td>
+            <td colspan="6" class="right">दिनांक : <span class="bold"> {{currentDate}} </span></td>
         </tr>
     </table>
     <table>
@@ -166,15 +166,17 @@
             <th >रक्कम देण्याचे कारण </th>
             <th >प्राप्त रक्कम</th>
         </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+        {% for row in data %}
+        <tr class="record-row">
+            <td>{{ row.srNo }}</td>
+            <td>{{ row.receiptDate }}</td>
+            <td>{{ row.receiptNumber }}</td>
+            <td>{{ row.receiptBookNumber }}</td>
+            <td>{{ row.ownername }}</td>
+            <td>{{ row.reason }}</td>
+            <td>{{ row.receivedMoney }}</td>
         </tr>
+        {% endfor %}
         <tr>
             <td colspan="6" class="right bold">एकूण</td>
             <td></td>

@@ -1,9 +1,9 @@
 from jinja2 import Environment, FileSystemLoader
 import os
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter , Request
 from fastapi.responses import JSONResponse
-
+import httpx
 router = APIRouter()
 # Load templates from the 'templates' folder (adjust path as needed)
 # Init environment
@@ -16,221 +16,20 @@ env = Environment(loader=FileSystemLoader(namuna8_template_dir))
 localhost = "http://127.0.0.1:8000"
 
 @router.post('/verticalreport')
-def verticalreport():
+async def verticalreport(request : Request):
     try:
         # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
         template = env.get_template('yadivertical.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
-        # data = response.json()
-        data = [
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "स्वत:",
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        },
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "श्री रामराव पि.तत्तवराव पावडे"  ,
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        }
-        ]
-        
-        data = data * 100
+        data = response.json()
 
         # Render template
         if not isinstance(data, list):
@@ -244,6 +43,7 @@ def verticalreport():
             'jilha': data[0].get('jilha', '') if data else '',
             'yearFrom': data[0].get('yearFrom', '') if data else '',
             'yearTo': data[0].get('yearTo', '') if data else '',
+            'totalCount': len(data),
         }
         rendered_html = template.render(**context)
         
@@ -274,221 +74,20 @@ def verticalreport():
         
         
 @router.post('/horizontalReport')
-def verticalreport():
+async def verticalreport(request : Request):
     try:
         # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
         template = env.get_template('yadihorizontal.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
-        # data = response.json()
-        data = [
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "स्वत:",
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        },
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "श्री रामराव पि.तत्तवराव पावडे"  ,
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        }
-        ]
-        
-        data = data * 100
+        data = response.json()
 
         # Render template
         if not isinstance(data, list):
@@ -502,6 +101,7 @@ def verticalreport():
             'jilha': data[0].get('jilha', '') if data else '',
             'yearFrom': data[0].get('yearFrom', '') if data else '',
             'yearTo': data[0].get('yearTo', '') if data else '',
+            'totalCount': len(data),
         }
         rendered_html = template.render(**context)
         
@@ -531,221 +131,20 @@ def verticalreport():
         )
         
 @router.post('/prakar1')
-def verticalreport():
+async def verticalreport(request : Request):
     try:
         # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
         template = env.get_template('yadiprakar1.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
-        # data = response.json()
-        data = [
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "स्वत:",
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        },
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "श्री रामराव पि.तत्तवराव पावडे"  ,
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        }
-        ]
-        
-        data = data * 100
+        data = response.json()
 
         # Render template
         if not isinstance(data, list):
@@ -759,6 +158,7 @@ def verticalreport():
             'jilha': data[0].get('jilha', '') if data else '',
             'yearFrom': data[0].get('yearFrom', '') if data else '',
             'yearTo': data[0].get('yearTo', '') if data else '',
+            'totalCount': len(data),
         }
         rendered_html = template.render(**context)
         
@@ -788,221 +188,20 @@ def verticalreport():
         )
         
 @router.post('/prakar2')
-def verticalreport():
+async def verticalreport(request : Request):
     try:
         # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
         template = env.get_template('yadiprakar2.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
-        # data = response.json()
-        data = [
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "स्वत:",
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        },
-                    {
-            "id": "1",
-            "srNo": 1,
-            "propertyNumber": "जरीचेवखडकाचे",
-            "propertyDescription": "दगड सिमेंट चुना अर्ध पक्के घर, आर सी सी",
-            "gramPanchayat": "गट नं 6",
-            "village": "गट नं 6",
-            "taluka": "null",
-            "jilha": "null",
-            "yearFrom": 2024,
-            "yearTo": 2027,
-            "photoURL": "null",
-            "QRcodeURL": "null",
-            "total_arearinfoot": 9879.0,
-            "totalareainmeters": 917.79,
-            "occupantName": "श्री रामराव पि.तत्तवराव पावडे"  ,
-            "aadharNumber": "",
-            "ownerName": "श्री रामराव पि.तत्तवराव पावडे",
-            "roadName": "",
-            "cityWardGatNumber": "",
-            "areaEast": 133.5,
-            "areaWest": 133.5,
-            "areaNorth": 74.5,
-            "areaSouth": 73.5,
-            "totalArea": 9879.0,
-            "boundaryEast": "पांडुरंग बाबाराव",
-            "boundaryWest": "रस्ता वि. द. शाळा",
-            "boundaryNorth": "बाजरीचे व खडकाचे",
-            "boundarySouth": " खडकाचे",
-            "removeLightHealthTax": "true",
-            "applyCleaningTax": "true",
-            "applyToiletTax": "false",
-            "taxNotApplicable": "false",
-            "khaliJaga": [
-                {
-                    "constructiontype": "खाली जागा",
-                    "length": 8538.0,
-                    "width": 1,
-                    "year": 2025,
-                    "rate": "null",
-                    "floor": "null",
-                    "usage": "null",
-                    "capitalValue": 541133,
-                    "houseTax": 0,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": "null",
-                    "totalkhalijagaareainfoot": 8538.0,
-                    "totalkhalijagaareainmeters": 793.21
-                }
-            ],
-            "constructionType": [
-                {
-                    "type": "दगड सिमेंट चुना अर्ध पक्के घर",
-                    "length": 494.0,
-                    "width": 1.0,
-                    "year": "1999",
-                    "rate": 14137.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 406,
-                    "depreciation_rate": 70,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 0.75
-                },
-                {
-                    "type": "आर सी सी",
-                    "length": 847.0,
-                    "width": 1.0,
-                    "year": "2005",
-                    "rate": 17424.0,
-                    "floor": "तळमजला",
-                    "usage": "निवासी",
-                    "capitalValue": 541133,
-                    "houseTax": 541,
-                    "depreciation_rate": 75,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": 1.0
-                }
-            ],
-            "waterFacility1": "सामान्य पाणीकर",
-            "waterFacility2": "सामान्य पाणीकर",
-            "toilet": "आहे",
-            "house": "आहे",
-            "totalCapitalValue": 0,
-            "totalHouseTax": 0,
-            "housingUnit": "sqft",
-            "lightingTax": 300,
-            "healthTax": 300,
-            "waterTax": 0,
-            "cleaningTax": 300,
-            "toiletTax": 0,
-            "totaltax": 0,
-            "userId": [
-                2
-            ],
-            "villageId": "3",
-            "creationAt": "2025-07-03T11:16:50.572730",
-            "updationAt": "2025-07-03T11:16:50.572730"
-        }
-        ]
-        
-        data = data * 100
+        data = response.json()
 
         # Render template
         if not isinstance(data, list):
@@ -1016,6 +215,7 @@ def verticalreport():
             'jilha': data[0].get('jilha', '') if data else '',
             'yearFrom': data[0].get('yearFrom', '') if data else '',
             'yearTo': data[0].get('yearTo', '') if data else '',
+            'totalCount': len(data),
         }
         rendered_html = template.render(**context)
         

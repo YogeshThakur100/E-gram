@@ -192,9 +192,6 @@
 
             {% for row in data %}
             <tr class="record-row">
-                <td>{{ row.srNo }}</td>
-                <td>{{ row.propertyNumber }}</td>
-                <td>{{ row.ownerName }}</td>
                 <td>{% if removeDhakit != 'true' %}{{row.dhakitHouseTax}}{% endif %}</td>
                 <td>{% if removeDhakit != 'true' %}{{row.dandHouseTax}}{% endif %}</td>
                 <td>{% if removeChalu != 'true' %}{{row.houseTax}}{% endif %}</td>
@@ -211,13 +208,17 @@
                 <td>{% if removeDhakit != 'true' %}{{row.dhakitCleaningTax}}{% endif %}</td>
                 <td>{% if removeChalu != 'true' %}{{row.cleaningTax}}{% endif %}</td>
                 <td>{% if removeYekun != 'true' %}{{row.totalCleaningTax}}{% endif %}</td>
-                <td>{% if removePurnaYekun != 'true' %}{{row.totaltax}}{% endif %}</td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>{{row.pavatiSRKivyaTarik}}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             {% endfor  %}
         </tbody>
