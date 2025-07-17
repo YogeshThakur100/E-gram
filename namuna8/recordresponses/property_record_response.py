@@ -237,6 +237,12 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         checklist_fields = {k: v for k, v in checklist_dict.items() if k not in ('id', 'createdAt', 'updatedAt', 'roundupArea', '_sa_instance_state')}
     # Add checklist fields at the end
     response.update(checklist_fields)
+    # Set QRcodeURL if QR code exists (single property)
+    qr_path = os.path.join("uploaded_images", "qrcode", str(prop.anuKramank), "qrcode.png")
+    if os.path.exists(qr_path):
+        response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}"
+    else:
+        response["QRcodeURL"] = None
     return response 
 
 @router.get("/property_records_by_village/{village_id}")
@@ -437,6 +443,12 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
                 photo_url = f"{backend_url}/{o.ownerPhoto.replace(os.sep, '/')}"
                 break
         response["photoURL"] = photo_url
+        # Set QRcodeURL if QR code exists (bulk)
+        qr_path = os.path.join("uploaded_images", "qrcode", str(prop.anuKramank), "qrcode.png")
+        if os.path.exists(qr_path):
+            response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}"
+        else:
+            response["QRcodeURL"] = None
         # Add checklist fields to the response
         response.update(checklist_fields)
         results.append(response)
