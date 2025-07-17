@@ -140,7 +140,7 @@
             <td colspan="3" class="center" style="font-size:15px;">नियम 22 (9), 32 (4), 5 (6) व ( 7 ) पाहा</td>
         </tr>
         <tr>
-            <td colspan="3" class="center" style="font-size:15px;">सन {{yearFrom}} - {{yearTo}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
+            <td colspan="3" class="center" style="font-size:15px;">सन {{selectedYear}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
         </tr>
         <tr>
             <td  style="width:10%">ग्रामपंचायत : वाडी ( बु. )</td>
@@ -187,12 +187,21 @@
                 <td>{{ row.srNo }}</td>
                 <td>{{ row.propertyNumber }}</td>
                 <td>{{ row.ownerName }}</td>
-                <td>0</td><td>0</td><td> {{totalHouseTax}} </td><td>6128</td>
-                <td>0</td><td>{{lightingTax}}</td><td>1404</td>
-                <td>0</td><td>{{healthTax}} </td><td>656</td>
-                <td>0</td><td>{{waterTax}} </td> <td>851</td>
-                <td>6428</td>
-                <td></td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitHouseTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dandHouseTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.houseTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalHouseTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitLightingTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.lightingTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalLightingTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitHealthTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.healthTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalHealthTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitCleaningTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.cleaningTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalCleaningTax}}{% endif %}</td>
+                <td>{% if removePurnaYekun != 'true' %}{{row.totaltax}}{% endif %}</td>
+                <td>{{pavatiSRKivyaTarik}}</td>
             </tr>
             {% endfor  %}
         </tbody>
@@ -212,6 +221,7 @@
                 <td style="font-weight:normal; text-align:center;">100</td>
                 <td style="font-weight:normal; text-align:center;">100</td>
                 <td style="font-weight:normal; text-align:center;">100</td>
+                <td style="font-weight:normal; text-align:center;"></td>
                 <td style="font-weight:normal; text-align:center;"></td>
             </tr>
         </tfoot>

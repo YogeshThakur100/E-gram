@@ -198,23 +198,25 @@
 
             {% for row in data %}
             <tr class="record-row">
-                <td>{{ row.srNo }}</td>
-                <td>{{ row.propertyNumber }}</td>
-                <td>{{ row.ownerName }}</td>
-                <td>0</td><td>{{waterTax}} </td> <td>851</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitHouseTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dandHouseTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.houseTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalHouseTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitLightingTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.lightingTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalLightingTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitHealthTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.healthTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalHealthTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitCleaningTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.cleaningTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalCleaningTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitSaWaterTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.saWaterTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalSaWaterTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitViWaterTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.viWaterTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalViWaterTax}}{% endif %}</td>
                 <td></td>
                 <td></td>
                 <td></td>
