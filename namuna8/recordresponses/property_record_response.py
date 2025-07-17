@@ -149,7 +149,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     total_house_tax = sum([
         c.houseTax or 0
         for c in prop.constructions
-        if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+        # if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
     ])
     
     # Calculate total capital value (excluding khali jagas)
@@ -218,11 +218,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
        
     }
     # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus lightingTax, healthTax, toiletTax, cleaningTax, sapanikar, and vpanikar
-    house_tax_sum = sum([
-        c.houseTax or 0
-        for c in prop.constructions
-        if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
-    ])
+    house_tax_sum = response['totalHouseTax']
     totaltax = (
         house_tax_sum +
         response.get('lightingTax', 0) +
@@ -374,7 +370,7 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
         total_house_tax = sum([
             c.houseTax or 0
             for c in prop.constructions
-            if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+            # if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
         ])
         total_capital_value = sum([c.capitalValue or 0 for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
         total_construction_area_foot = sum([(c.length or 0) * (c.width or 0) for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
@@ -434,11 +430,12 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             "totaltax": 0,
         }
         # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus lightingTax, healthTax, toiletTax, cleaningTax, sapanikar, and vpanikar
-        house_tax_sum = sum([
-            c.houseTax or 0
-            for c in prop.constructions
-            if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
-        ])
+        # house_tax_sum = sum([
+        #     c.houseTax or 0
+        #     for c in prop.constructions
+        #     # if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+        # ])
+        house_tax_sum = response['totalHouseTax']
         totaltax = (
             house_tax_sum +
             response.get('lightingTax', 0) +
