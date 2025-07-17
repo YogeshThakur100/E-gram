@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import database
 from namuna8 import namuna8_model as models
 from namuna8 import namuna8_schemas as schemas
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from namuna8.namuna8_schemas import PropertyReportDTO
 from typing import List, Optional
 from datetime import datetime
@@ -15,6 +15,9 @@ from pydantic import BaseModel
 import os
 import shutil
 import time
+import re
+from Utility.QRcodeGeneration import QRCodeGeneration
+from namuna8.recordresponses.property_record_response import get_property_record
 
 
 router = APIRouter(
@@ -166,18 +169,14 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                         constructions.append(new_vacant_land)
             # --- END ADDITION ---
 
+            # Map totalArea to totalAreaSqFt if present in dict
             property_dict = property_data.dict(exclude={"owners", "constructions"})
+            if "totalArea" in property_dict and property_dict["totalArea"] is not None:
+                property_dict["totalAreaSqFt"] = property_dict["totalArea"]
             db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
             db_property.created_at = datetime.now()
             db.add(db_property)
-            # Only set boolean fields and toilet (not calculated tax fields)
-            db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
-            db_property.safaiKar = bool(property_data.safaiKar)
-            db_property.shauchalayKar = bool(property_data.shauchalayKar)
-            db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
-            db.flush()
-            db.refresh(db_property)
-            # Calculate total area if not provided
+            # Ensure totalAreaSqFt is set on the db_property object before saving
             if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
                 east = db_property.eastLength or 0
                 west = db_property.westLength or 0
@@ -186,8 +185,52 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 avg_length = (east + west) / 2 if (east or west) else 0
                 avg_width = (north + south) / 2 if (north or south) else 0
                 db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+            # Only set boolean fields and toilet (not calculated tax fields)
+            db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
+            db_property.safaiKar = bool(property_data.safaiKar)
+            db_property.shauchalayKar = bool(property_data.shauchalayKar)
+            db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
+            db.flush()
+            db.refresh(db_property)
             # Build response with constructionType name
-            return build_property_response(db_property, db)
+            response = build_property_response(db_property, db)
+            # --- QR CODE GENERATION (after save, using calculated values) ---
+            try:
+                # Use get_property_record to get accurate total tax
+                record_response = get_property_record(db_property.anuKramank, db)
+                totalTax = record_response.get('totaltax', 0)
+                srNo = response.get('anuKramank') or response.get('srNo') or ''
+                # Calculate totalArea from east/west/north/south
+                east = db_property.eastLength or 0
+                west = db_property.westLength or 0
+                north = db_property.northLength or 0
+                south = db_property.southLength or 0
+                avg_length = (east + west) / 2 if (east or west) else 0
+                avg_width = (north + south) / 2 if (north or south) else 0
+                totalArea = avg_length * avg_width if avg_length and avg_width else 0
+                # Construction area (exclude 'खाली जागा')
+                constructionArea = sum(
+                    (c['length'] or 0) * (c['width'] or 0)
+                    for c in response.get('constructions', [])
+                    if not (c.get('constructionType', '').strip().startswith('खाली जागा'))
+                )
+                # Open area: totalArea - constructionArea
+                openArea = totalArea - constructionArea
+                qr_data = {
+                    "srNo": srNo,
+                    "totalArea": totalArea,
+                    "constructionArea": constructionArea,
+                    "openArea": openArea,
+                    "totalTax": totalTax,
+                }
+                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.anuKramank))
+                qr_path = os.path.join(qr_dir, "qrcode.png")
+                QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
+                db_property.qrcode = qr_path.replace(os.sep, "/")
+                db.flush()
+            except Exception as e:
+                print(f"QR code generation failed: {e}")
+            return response
     except SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to save property and owners: " + str(e))
@@ -228,14 +271,28 @@ def get_property_details(anu_kramank: int, db: Session = Depends(database.get_db
 
 @router.put("/{anu_kramank}", response_model=schemas.PropertyRead)
 def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate, db: Session = Depends(database.get_db)):
+    # Map totalArea to totalAreaSqFt if provided
+    property_update_data = property_data.dict(exclude={'owners', 'constructions'})
+    if "totalArea" in property_update_data and property_update_data["totalArea"] is not None:
+        property_update_data["totalAreaSqFt"] = property_update_data["totalArea"]
     db_property = db.query(models.Property).filter(models.Property.anuKramank == anu_kramank).first()
     if not db_property:
         raise HTTPException(status_code=404, detail="Property not found")
     
-    property_update_data = property_data.dict(exclude={'owners', 'constructions'})
     for key, value in property_update_data.items():
         setattr(db_property, key, value)
     db_property.updated_at = datetime.now()
+    # After setting all fields, always recalculate totalAreaSqFt from lengths
+    try:
+        east = float(db_property.eastLength) if db_property.eastLength is not None else 0
+        west = float(db_property.westLength) if db_property.westLength is not None else 0
+        north = float(db_property.northLength) if db_property.northLength is not None else 0
+        south = float(db_property.southLength) if db_property.southLength is not None else 0
+        avg_length = (east + west) / 2 if (east or west) else 0
+        avg_width = (north + south) / 2 if (north or south) else 0
+        db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+    except Exception:
+        db_property.totalAreaSqFt = 0
 
     if property_data.owners:
         new_owners = []
@@ -379,16 +436,42 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
 
     db.commit()
     db.refresh(db_property)
-    # Calculate total area if not provided
-    if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
+    # Build response with constructionType name
+    response = build_property_response(db_property, db)
+    # --- QR CODE GENERATION (after update, using calculated values) ---
+    try:
+        # Use get_property_record to get accurate total tax
+        record_response = get_property_record(db_property.anuKramank, db)
+        totalTax = record_response.get('totaltax', 0)
+        srNo = response.get('anuKramank') or response.get('srNo') or ''
         east = db_property.eastLength or 0
         west = db_property.westLength or 0
         north = db_property.northLength or 0
         south = db_property.southLength or 0
         avg_length = (east + west) / 2 if (east or west) else 0
         avg_width = (north + south) / 2 if (north or south) else 0
-        db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
-    return build_property_response(db_property, db)
+        totalArea = avg_length * avg_width if avg_length and avg_width else 0
+        constructionArea = sum(
+            (c['length'] or 0) * (c['width'] or 0)
+            for c in response.get('constructions', [])
+            if not (c.get('constructionType', '').strip().startswith('खाली जागा'))
+        )
+        openArea = totalArea - constructionArea
+        qr_data = {
+            "srNo": srNo,
+            "totalArea": totalArea,
+            "constructionArea": constructionArea,
+            "openArea": openArea,
+            "totalTax": totalTax,
+        }
+        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.anuKramank))
+        qr_path = os.path.join(qr_dir, "qrcode.png")
+        QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
+        db_property.qrcode = qr_path.replace(os.sep, "/")
+        db.commit()
+    except Exception as e:
+        print(f"QR code update failed: {e}")
+    return response
 
 @router.get("/bulk_edit_list/", response_model=list[schemas.BulkEditPropertyRow])
 def get_bulk_edit_property_list(village: str, db: Session = Depends(database.get_db)):
@@ -586,14 +669,25 @@ def create_owner(
 
 @router.post("/owners/upload_photo/", response_model=str)
 def upload_owner_photo(owner_id: int = Form(...), file: UploadFile = File(...)):
+    owner = None
+    from sqlalchemy.orm import Session
+    from database import get_db
+    import re
+    db: Session = next(get_db())
+    owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+    if not owner or not owner.name:
+        raise HTTPException(status_code=400, detail="Owner not found or has no name")
+    # Sanitize owner name for filename
+    ownername = re.sub(r'[^\w\-_]', '_', owner.name)
+    # Get file extension
+    ext = os.path.splitext(file.filename)[1] if file.filename else ''
+    filename = f"{ownername}{ext}"
     owner_dir = os.path.join(UPLOAD_OWNER_PHOTO_DIR, str(owner_id))
     os.makedirs(owner_dir, exist_ok=True)
-    # Use a unique filename (timestamp + original name)
-    filename = f"photo_{int(time.time())}_{file.filename}"
     file_location = os.path.join(owner_dir, filename)
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    return file_location
+    return file_location.replace(os.sep, '/')
 
 def build_property_response(db_property, db):
     # Build constructions with constructionType name
@@ -668,7 +762,7 @@ def build_property_response(db_property, db):
         "divaKar": get_tax_by_area(total_area, 'light') if not divaArogyaKar else 0,
         "aarogyaKar": get_tax_by_area(total_area, 'health') if not divaArogyaKar else 0,
         "cleaningTax": get_tax_by_area(total_area, 'cleaning') if safaiKar else 0,
-        "toiletTax": get_tax_by_area(total_area, 'bathroom') if shauchalayKar else 0,
+        "toiletTax": get_tax_by_area(total_area, 'bathroom') if shauchalayKar else 0.0,
         "sapanikar": get_water_facility_price(getattr(db_property, 'waterFacility1', None)),
         "vpanikar": get_water_facility_price(getattr(db_property, 'waterFacility2', None)),
     }
@@ -1264,4 +1358,11 @@ def set_holdernos(assignments: List[HolderNoAssignment], db: Session = Depends(d
                 owner.holderno = assignment.anuKramank
     db.commit()
     return {"detail": "Holder numbers set for all provided owners."}
+
+@router.get("/property_qrcode/{anu_kramank}")
+def get_property_qrcode(anu_kramank: int):
+    qr_path = os.path.join("uploaded_images", "qrcode", str(anu_kramank), "qrcode.png")
+    if not os.path.exists(qr_path):
+        raise HTTPException(status_code=404, detail="QR code not found")
+    return FileResponse(qr_path, media_type="image/png")
     

@@ -237,7 +237,12 @@ def get_namuna9_table_data(villageId: str, yearslap: str, db: Session = Depends(
         constructions = db.query(namuna8_model.Construction).filter(
             namuna8_model.Construction.property_anuKramank == prop.anuKramank
         ).all()
-        totalHouseTax = sum([c.houseTax or 0 for c in constructions])
+        # Calculate totalHouseTax as the sum of all houseTax in constructions (excluding 'खाली जागा')
+        totalHouseTax = sum([
+            c.houseTax or 0
+            for c in constructions
+            if not getattr(c, 'construction_type', None) or not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+        ])
         # Join all owner names
         owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
         # lightingTax, healthTax, sapanikar, vpanikar, cleaningTax
@@ -278,6 +283,72 @@ def get_namuna9_table_data(villageId: str, yearslap: str, db: Session = Depends(
             "warrantFee": 0,
             "noticeFee": 0,
             "total": total
+        }
+        rows.append(row)
+    return rows 
+
+@router.get("/recordresponses/property_records_by_village")
+def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = Depends(database.get_db)):
+    rec = db.query(namuna9_model.Namuna9).filter(
+        namuna9_model.Namuna9.villageId == villageId,
+        namuna9_model.Namuna9.yearslap == yearslap
+    ).first()
+    if not rec:
+        return []
+    property_ids = getattr(rec, 'property_ids', None)
+    if not isinstance(property_ids, list) or len(property_ids) == 0:
+        return []
+    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
+    rows = []
+    for idx, prop in enumerate(properties, 1):
+        prop_data = build_property_response(prop, db)
+        constructions = db.query(namuna8_model.Construction).filter(
+            namuna8_model.Construction.property_anuKramank == prop.anuKramank
+        ).all()
+        totalHouseTax = sum([
+            c.houseTax or 0
+            for c in constructions
+            if not getattr(c, 'construction_type', None) or not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+        ])
+        lightingTax = prop_data.get('divaKar', 0) or prop_data.get('lightingTax', 0) or 0
+        healthTax = prop_data.get('aarogyaKar', 0) or prop_data.get('healthTax', 0) or 0
+        saWaterTax = prop_data.get('sapanikar', 0) or 0
+        viWaterTax = prop_data.get('vpanikar', 0) or 0
+        cleaningTax = prop_data.get('cleaningTax', 0) or 0
+        toiletTax = prop_data.get('toiletTax', 0) or 0
+        totaltax = totalHouseTax + lightingTax + healthTax + saWaterTax + viWaterTax + cleaningTax + toiletTax
+        row = {
+            "id": str(prop.anuKramank),
+            "srNo": idx,
+            "gramPanchayat": prop.village.name if hasattr(prop, 'village') and prop.village else None,
+            "taluka": None,
+            "jilha": None,
+            "ownerName": ', '.join([o.get('name', '') for o in prop_data.get('owners', [])]),
+            "propertyNumber": prop_data.get('malmattaKramank', ''),
+            "dhakitHouseTax": 0,
+            "dandHouseTax": 0,
+            "houseTax": totalHouseTax,
+            "totalHouseTax": totalHouseTax,
+            "dhakitLightingTax": 0,
+            "lightingTax": lightingTax,
+            "totalLightingTax": lightingTax,
+            "dhakitHealthTax": 0,
+            "healthTax": healthTax,
+            "totalHealthTax": healthTax,
+            "dhakitSaWaterTax": 0,
+            "saWaterTax": saWaterTax, 
+            "totalSaWaterTax": saWaterTax, 
+            "dhakitViWaterTax": 0,
+            "viWaterTax": viWaterTax, 
+            "totalViWaterTax": viWaterTax, 
+            "dhakitCleaningTax": 0,
+            "cleaningTax": cleaningTax,
+            "totalCleaningTax": cleaningTax,
+            "dhakitToiletTax": 0,
+            "toiletTax": toiletTax,
+            "totlaToiletTax": toiletTax,
+            "totaltax": totaltax,
+            "pavatiSRKivyaTarik": 0
         }
         rows.append(row)
     return rows 

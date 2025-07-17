@@ -92,6 +92,7 @@ class PropertyBase(BaseModel):
 class PropertyCreate(PropertyBase):
     owners: List[OwnerCreate]
     constructions: List[ConstructionCreate]
+    qrcode: Optional[str] = None
 
 class PropertyRead(PropertyBase):
     owners: List[Owner] = []
@@ -102,6 +103,7 @@ class PropertyRead(PropertyBase):
     toiletTax: Optional[float] = None
     sapanikar: Optional[float] = None
     vpanikar: Optional[float] = None
+    qrcode: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -109,6 +111,7 @@ class PropertyRead(PropertyBase):
 class PropertyUpdate(PropertyBase):
     owners: List[OwnerUpdate]
     constructions: List[ConstructionCreate]
+    qrcode: Optional[str] = None
 
 # --- Schema for the property list on the side ---
 class PropertyList(BaseModel):
