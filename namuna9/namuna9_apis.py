@@ -241,7 +241,6 @@ def get_namuna9_table_data(villageId: str, yearslap: str, db: Session = Depends(
         totalHouseTax = sum([
             c.houseTax or 0
             for c in constructions
-            if not getattr(c, 'construction_type', None) or not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
         ])
         # Join all owner names
         owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
@@ -308,7 +307,6 @@ def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = D
         totalHouseTax = sum([
             c.houseTax or 0
             for c in constructions
-            if not getattr(c, 'construction_type', None) or not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
         ])
         lightingTax = prop_data.get('divaKar', 0) or prop_data.get('lightingTax', 0) or 0
         healthTax = prop_data.get('aarogyaKar', 0) or prop_data.get('healthTax', 0) or 0
@@ -323,6 +321,7 @@ def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = D
             "gramPanchayat": prop.village.name if hasattr(prop, 'village') and prop.village else None,
             "taluka": None,
             "jilha": None,
+            "village": prop.village.name if hasattr(prop, 'village') and prop.village else None,
             "ownerName": ', '.join([o.get('name', '') for o in prop_data.get('owners', [])]),
             "propertyNumber": prop_data.get('malmattaKramank', ''),
             "dhakitHouseTax": 0,

@@ -9,10 +9,11 @@ class BirthCertificateBase(BaseModel):
     child_name: Optional[str]
     child_name_en: str
     gender: Optional[str]
-    sex: Optional[str]
+    gender_en: Optional[str]
     panhera: Optional[str]
     birth_date: Optional[date]
     birth_place: Optional[str]
+    birth_place_en: Optional[str]
     mother_name: Optional[str]
     mother_name_en: str
     father_name: Optional[str]
@@ -25,7 +26,7 @@ class BirthCertificateBase(BaseModel):
     remark_en: str
 
 class BirthCertificateCreate(BirthCertificateBase):
-    pass
+    id: Optional[int] = None
 
 class BirthCertificateRead(BirthCertificateBase):
     id: int
