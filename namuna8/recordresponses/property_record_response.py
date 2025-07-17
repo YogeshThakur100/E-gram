@@ -145,8 +145,12 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             return getattr(water_slab_settings, 'generalWaterAbove700', 0)
         return 0
     total_area = prop.totalAreaSqFt or 0
-    # Calculate totalHouseTax as the sum of all houseTax in constructions
-    total_house_tax = sum([c.houseTax or 0 for c in prop.constructions])
+    # Calculate totalHouseTax as the sum of all houseTax in constructions (excluding 'खाली जागा')
+    total_house_tax = sum([
+        c.houseTax or 0
+        for c in prop.constructions
+        if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+    ])
     
     # Calculate total capital value (excluding khali jagas)
     total_capital_value = sum([c.capitalValue or 0 for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
@@ -213,16 +217,16 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
         "updationAt": datetime.now(),
        
     }
-    # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus healthTax, arogyakar, toiletTax, cleaningTax, sapanikar, and vpanikar
-    total_house_tax = sum([
+    # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus lightingTax, healthTax, toiletTax, cleaningTax, sapanikar, and vpanikar
+    house_tax_sum = sum([
         c.houseTax or 0
         for c in prop.constructions
         if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
     ])
     totaltax = (
-        total_house_tax +
+        house_tax_sum +
+        response.get('lightingTax', 0) +
         response.get('healthTax', 0) +
-        response.get('aarogyaKar', 0) +
         response.get('toiletTax', 0) +
         response.get('cleaningTax', 0) +
         response.get('sapanikar', 0) +
@@ -366,7 +370,12 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
                 return getattr(water_slab_settings, 'generalWaterAbove700', 0)
             return 0
         total_area = prop.totalAreaSqFt or 0
-        total_house_tax = sum([c.houseTax or 0 for c in prop.constructions])
+        # Calculate totalHouseTax as the sum of all houseTax in constructions (excluding 'खाली जागा')
+        total_house_tax = sum([
+            c.houseTax or 0
+            for c in prop.constructions
+            if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+        ])
         total_capital_value = sum([c.capitalValue or 0 for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
         total_construction_area_foot = sum([(c.length or 0) * (c.width or 0) for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
         total_construction_area_meter = round(total_construction_area_foot * 0.092903, 2)
@@ -424,12 +433,16 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             "vpanikar": get_water_facility_price(prop.waterFacility2),
             "totaltax": 0,
         }
-        # Calculate total tax as sum of houseTax in all constructions plus healthTax, arogyakar, toiletTax, cleaningTax, sapanikar, and vpanikar
-        total_house_tax = sum([c.houseTax or 0 for c in prop.constructions])
+        # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus lightingTax, healthTax, toiletTax, cleaningTax, sapanikar, and vpanikar
+        house_tax_sum = sum([
+            c.houseTax or 0
+            for c in prop.constructions
+            if not getattr(c.construction_type, 'name', '').strip().startswith('खाली जागा')
+        ])
         totaltax = (
-            total_house_tax +
+            house_tax_sum +
+            response.get('lightingTax', 0) +
             response.get('healthTax', 0) +
-            response.get('aarogyaKar', 0) +
             response.get('toiletTax', 0) +
             response.get('cleaningTax', 0) +
             response.get('sapanikar', 0) +

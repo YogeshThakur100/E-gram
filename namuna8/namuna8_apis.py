@@ -17,6 +17,7 @@ import shutil
 import time
 import re
 from Utility.QRcodeGeneration import QRCodeGeneration
+from namuna8.recordresponses.property_record_response import get_property_record
 
 
 router = APIRouter(
@@ -195,6 +196,9 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
             response = build_property_response(db_property, db)
             # --- QR CODE GENERATION (after save, using calculated values) ---
             try:
+                # Use get_property_record to get accurate total tax
+                record_response = get_property_record(db_property.anuKramank, db)
+                totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
                 # Calculate totalArea from east/west/north/south
                 east = db_property.eastLength or 0
@@ -212,15 +216,6 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 )
                 # Open area: totalArea - constructionArea
                 openArea = totalArea - constructionArea
-                # Total tax: cleaningTax + sapanikar + vpanikar + divaKar + aarogyaKar + toiletTax
-                totalTax = sum([
-                    response.get('cleaningTax', 0) or 0,
-                    response.get('sapanikar', 0) or 0,
-                    response.get('vpanikar', 0) or 0,
-                    response.get('divaKar', 0) or 0,
-                    response.get('aarogyaKar', 0) or 0,
-                    response.get('toiletTax', 0) or 0,
-                ])
                 qr_data = {
                     "srNo": srNo,
                     "totalArea": totalArea,
@@ -230,7 +225,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 }
                 qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.anuKramank))
                 qr_path = os.path.join(qr_dir, "qrcode.png")
-                QRCodeGeneration.createQRcode(qr_data, qr_path)
+                QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
                 db_property.qrcode = qr_path.replace(os.sep, "/")
                 db.flush()
             except Exception as e:
@@ -445,6 +440,9 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
     response = build_property_response(db_property, db)
     # --- QR CODE GENERATION (after update, using calculated values) ---
     try:
+        # Use get_property_record to get accurate total tax
+        record_response = get_property_record(db_property.anuKramank, db)
+        totalTax = record_response.get('totaltax', 0)
         srNo = response.get('anuKramank') or response.get('srNo') or ''
         east = db_property.eastLength or 0
         west = db_property.westLength or 0
@@ -459,14 +457,6 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
             if not (c.get('constructionType', '').strip().startswith('खाली जागा'))
         )
         openArea = totalArea - constructionArea
-        totalTax = sum([
-            response.get('cleaningTax', 0) or 0,
-            response.get('sapanikar', 0) or 0,
-            response.get('vpanikar', 0) or 0,
-            response.get('divaKar', 0) or 0,
-            response.get('aarogyaKar', 0) or 0,
-            response.get('toiletTax', 0) or 0,
-        ])
         qr_data = {
             "srNo": srNo,
             "totalArea": totalArea,
@@ -476,7 +466,7 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
         }
         qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.anuKramank))
         qr_path = os.path.join(qr_dir, "qrcode.png")
-        QRCodeGeneration.createQRcode(qr_data, qr_path)
+        QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
         db_property.qrcode = qr_path.replace(os.sep, "/")
         db.commit()
     except Exception as e:
