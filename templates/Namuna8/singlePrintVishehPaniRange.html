@@ -101,7 +101,7 @@
     {% for row in data %}
     <div class="record-page" style="page-break-after: always; display: none;">
 <!-- Header Notice -->
-{% if tip %}
+{% if row.tip %}
 <div style="font-size: 12px; text-align: center; border: 1px solid #000; border-bottom: none; border-radius: 0; margin-bottom: -1px;">
     (टीप :- *सदर मालमत्ता आकारणी नक्कल केवळ ग्रामपंचायत कर आकारणी बाबत असून इतर कोणत्याही हक्काबाबत हा दस्त कायदेशीर पुरावा सांगत नाही. *नमूद मोजमापे तांत्रिक दृष्ट्या प्रमाणित तथा प्रमाणबद्ध केलेली नाहीत)
 </div>
@@ -219,7 +219,7 @@
         <td rowspan="2" style="text-align: left;">{{row.constructionType[0].type if row.constructionType and row.constructionType|length > 0 else ''}} <br> {{row.constructionType[1].type if row.constructionType and row.constructionType|length > 1 else ''}} <br/> {{row.khaliJaga[0].constructiontype if row.khaliJaga and row.khaliJaga|length > 0 else ''}} </td>
         <td rowspan="2">{{row.constructionType[0].year if row.constructionType and row.constructionType|length > 0 else ''}} <br>{{row.constructionType[1].year if row.constructionType and row.constructionType|length > 1 else ''}}<br/></td>
         <td rowspan="2">{{row.areaEast|default('')}} x {{row.areaNorth|default('')}}</td>
-        <td rowspan="2">{{row.constructionType[0].rate if row.constructionType and row.constructionType|length > 0 else ''}}-{{row.constructionType[0].length if row.constructionType and row.constructionType|length > 0 else ''}}</td>
+        <td rowspan="2">{{khaliJaga[0].rate if khaliJaga and khaliJaga|length > 0 else ''}}-{{khaliJaga[0].length if khaliJaga and khaliJaga|length > 0 else ''}}</td>
         <td rowspan="2"></td>
     </tr>
     <tr>
@@ -340,13 +340,13 @@
     <tr>
         <td style="text-align: left; border-right: 1px solid #000;">शौचालय : {{toilet|default('')}} </td>
         <td style="text-align: left; border-right: 1px solid #000;">
-            {% if boundaryMarking %}
+            {% if row.boundaryMarking %}
             <td style="text-align: left; border-right: 1px solid #000;">चतुर्सिमा</td>
             {% else %}
             <td style="text-align: left; border-right: 1px solid #000; height:30px;"></td>
             {% endif %}
         </td>
-        {% if boundaryMarking %}
+        {% if row.boundaryMarking %}
         <td style="text-align: left; border-right: 1px solid #000;">पूर्व : {{boundaryEast|default('')}} </td>
         <td style="text-align: left; border-right: 1px solid #000;">पश्चिम : {{boundaryWest|default('')}} </td>
         <td style="text-align: left; border-right: 1px solid #000;">उत्तर : {{boundaryNorth|default('')}} </td>
@@ -363,7 +363,7 @@
             <img src="/ReportImages/betibachaobetipadhia.png" alt="Girl Logo" style="height: 50px; display: block; margin: 0 auto;" />
         </td>
         <td style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
-            {% if date %}
+            {% if row.date %}
             <td style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
                 दिनांक : {{todayDate|default('')}} <br>
             </td>
@@ -372,7 +372,7 @@
             {% endif %}
         </td>
         <td colspan="2" style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
-            {% if stamp %}
+            {% if row.stamp %}
             <td colspan="2" style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
                 ग्रामपंचायत चा शिक्का
             </td>
@@ -380,7 +380,7 @@
             <td colspan="2" style="text-align: left; vertical-align: middle; border-right: 1px solid #000; height:30px;"></td>
             {% endif %}
         </td>
-        {% if sachivSarpanch %}
+        {% if row.sachivSarpanch %}
         <td  style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
             सचिव/सरपंच ग्रामपंचायत वाडी( बु.)
         </td>
