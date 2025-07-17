@@ -179,13 +179,15 @@
 
             {% for row in data %}
             <tr class="record-row">
-                <td>{{ row.srNo }}</td>
-                <td>{{ row.propertyNumber }}</td>
-                <td>{{ row.ownerName }}</td>
-                <td>0</td><td>{{waterTax}} </td> <td>851</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitHouseTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.houseTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalHouseTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitLightingTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.lightingTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalLightingTax}}{% endif %}</td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitHealthTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.healthTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalHealthTax}}{% endif %}</td>
                 <td></td>
                 <td></td>
                 <td></td>

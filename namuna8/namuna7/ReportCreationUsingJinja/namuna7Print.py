@@ -1,8 +1,9 @@
 from jinja2 import Environment, FileSystemLoader
 import os
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter , Request
 from fastapi.responses import JSONResponse
+import httpx
 
 router = APIRouter()
 # Load templates from the 'templates' folder (adjust path as needed)
@@ -22,17 +23,29 @@ localhost = "http://127.0.0.1:8000"
 
 
 @router.post('/receipt')
-def receipt():
+async def receipt(request : Request):
     try:
         # Load template
+        requestData = await request.json()
+        userID = requestData.get("userId")
         template = env.get_template('namuna7Pavati.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna7/prints/get/2')
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna7/prints/get/{userID}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+        # Debug print the response text
+        print("API response text:", response.text)
+
+        # Check for empty or invalid JSON response
+        if not response.text.strip():
+            raise Exception("API returned empty response")
+        try:
+            data = response.json()
+        except Exception as e:
+            raise Exception(f"API did not return valid JSON: {response.text}")
 
         # Render template
         rendered_html = template.render(data)
