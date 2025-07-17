@@ -76,20 +76,37 @@ async def receipt(request : Request):
         )
         
 @router.post('/register')
-def receipt():
+async def receipt(request : Request):
     try:
         # Load template
+        requestDate = await request.json()
+        stateDate = requestDate.get("startDate")
+        endDate = requestDate.get("endDate")
         template = env.get_template('namuna7pavatiRegister.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna7/prints/get/2')
+        async with httpx.AsyncClient() as client:    
+            response = await client.get(f'{localhost}/namuna7/getall_receipts?startdate={stateDate}&enddate={endDate}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
         data = response.json()
+        
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            "startDate" : stateDate,
+            "endDate" : endDate,
+            "currentDate" : data[0].get('currentDate', '') if data else '',
+        }
 
         # Render template
-        rendered_html = template.render(data)
+        rendered_html = template.render(**context)
 
         # Save output.html
         os.makedirs(static_dir, exist_ok=True)
