@@ -22,6 +22,40 @@ def create_namuna7(item: Namuna7Create, db: Session = Depends(get_db)):
 def get_all_namuna7(db: Session = Depends(get_db)):
     return db.query(Namuna7).all()
 
+@router.get("/getall_receipts")
+def get_namuna7_custom_list(
+    startdate: str = Query(..., description="Start date in YYYY-MM-DD format"),
+    enddate: str = Query(..., description="End date in YYYY-MM-DD format"),
+    db: Session = Depends(get_db)
+):
+    from datetime import datetime, timedelta
+    try:
+        start_dt = datetime.strptime(startdate, "%Y-%m-%d")
+        end_dt = datetime.strptime(enddate, "%Y-%m-%d") + timedelta(days=1)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+    items = db.query(Namuna7).filter(Namuna7.createdAt >= start_dt, Namuna7.createdAt < end_dt).all()
+    result = []
+    today = datetime.now().strftime("%d/%m/%Y")
+    for idx, item in enumerate(items, start=1):
+        owner = db.query(Owner).filter(Owner.id == item.userId).first()
+        ownername = owner.name if owner else ""
+        village = db.query(Village).filter(Village.id == item.villageId).first()
+        grampanchayat = village.name if village else ""
+        result.append({
+            "grampanchayat": grampanchayat,
+            "srNo": idx,
+            "receiptDate": item.createdAt.strftime("%Y-%m-%d") if getattr(item, "createdAt", None) else None,
+            "receiptNumber": item.receiptNumber,
+            "receiptBookNumber": item.receiptBookNumber,
+            "village": grampanchayat,
+            "ownername": ownername,
+            "reason": item.reason or "",
+            "receivedMoney": item.receivedMoney,
+            "currentDate": today
+        })
+    return result
+
 @router.get("/{item_id}", response_model=Namuna7Read)
 def get_namuna7(item_id: int, db: Session = Depends(get_db)):
     item = db.query(Namuna7).filter(Namuna7.id == item_id).first()
@@ -126,3 +160,4 @@ def get_namuna7_prints_by_village(village_id: int, db: Session = Depends(get_db)
         "currentDate": currentDate,
         "records": results
     } 
+    
