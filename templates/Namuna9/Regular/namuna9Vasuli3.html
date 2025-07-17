@@ -136,7 +136,7 @@
             <td colspan="3" class="center" style="font-size:15px;">नियम 22 (9), 32 (4), 5 (6) व ( 7 ) पाहा</td>
         </tr>
         <tr>
-            <td colspan="3" class="center" style="font-size:15px;">सन {{yearFrom}} - {{yearTo}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
+            <td colspan="3" class="center" style="font-size:15px;">सन {{selectedYear}} या वर्षाची आकारणी केलेल्या करांची मागणी नोंदवही</td>
         </tr>
         <tr>
             <td  style="width:10%">ग्रामपंचायत : वाडी ( बु. )</td>
@@ -178,12 +178,20 @@
             {% for row in data %}
             <tr class="record-row">
                 <td>{{ row.srNo }}</td>
-                <td>{{ row.propertyNumber }}</td>
                 <td>{{ row.ownerName }}</td>
-                <td>0</td><td>0</td><td> {{totalHouseTax}} </td><td>6128</td>
-                <td>0</td><td>{{lightingTax}}</td><td>1404</td>
-                <td>0</td><td>{{healthTax}} </td><td>656</td>
-                <td>0</td><td>{{waterTax}} </td></td>
+                <td>{% if removeDhakit != 'true' %}{{row.dhakitSaWaterTax}}{% endif %}</td>
+                <td>{% if removeChalu != 'true' %}{{row.saWaterTax}}{% endif %}</td>
+                <td>{% if removeYekun != 'true' %}{{row.totalSaWaterTax}}{% endif %}</td>
+                <td>{% if removePurnaYekun != 'true' %}{{row.totaltax}}{% endif %}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>   
             </tr>
             {% endfor  %}
         </tbody>

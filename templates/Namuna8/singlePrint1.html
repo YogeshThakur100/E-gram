@@ -182,44 +182,44 @@
         </td>
         <td rowspan="2">{{occupantName|default('')}}</td>
         <td rowspan="2" style="text-align: left;">
-            {% for c in constructionType %}
-                {{ c.type }}<br>
-            {% endfor %}
-            {% for k in khaliJaga %}
-                {{ k.constructiontype }}<br>
+            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
+            {% for i in range(max_len) %}
+                {{ constructionType[i].type if i < constructionType|length else '' }}{{ khaliJaga[i].constructiontype if i < khaliJaga|length else '' }}<br>
             {% endfor %}
         </td>
         <td rowspan="2">
-            {% for c in constructionType %}
-                {{ c.year }}<br>
+            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
+            {% for i in range(max_len) %}
+                {{ constructionType[i].year if i < constructionType|length else '' }}<br>
             {% endfor %}
         </td>
         <td rowspan="2">{{areaEast|default('')}} x {{areaNorth|default('')}}</td>
         <td rowspan="2">
-            {% for k in khaliJaga %}
-                {{ k.rate }}-{{ k.length }}<br>
+            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
+            {% for i in range(max_len) %}
+                {{ khaliJaga[i].rate if i < khaliJaga|length else '' }}-{{ khaliJaga[i].length if i < khaliJaga|length else '' }}<br>
             {% endfor %}
         </td>
         <td rowspan="2"></td>
     </tr>
     <tr>
         <td>
-            {% for c in constructionType %}
-                {{ c.rate }}-{{ c.length }}x{{ c.width }}<br>
+            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
+            {% for i in range(max_len) %}
+                {{ constructionType[i].rate if i < constructionType|length else '' }}-{{ constructionType[i].length if i < constructionType|length else '' }}x{{ constructionType[i].width if i < constructionType|length else '' }}<br>
             {% endfor %}
         </td>
         <td>
-            {% for c in constructionType %}
-                {{ c.depreciation_rate }}<br>
+            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
+            {% for i in range(max_len) %}
+                {{ constructionType[i].depreciation_rate if i < constructionType|length else '' }}<br>
             {% endfor %}
             0
         </td>
         <td>
-            {% for c in constructionType %}
-                {{ c.usageBasedBuildingWeightageFactor }}<br>
-            {% endfor %}
-            {% for k in khaliJaga %}
-                {{ k.usageBasedBuildingWeightageFactor }}<br>
+            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
+            {% for i in range(max_len) %}
+                {{ constructionType[i].usageBasedBuildingWeightageFactor if i < constructionType|length else '' }}{{ khaliJaga[i].usageBasedBuildingWeightageFactor if i < khaliJaga|length else '' }}<br>
             {% endfor %}
         </td>
     </tr>
