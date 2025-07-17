@@ -15,6 +15,7 @@ from pydantic import BaseModel
 import os
 import shutil
 import time
+import re
 
 
 router = APIRouter(
@@ -586,14 +587,25 @@ def create_owner(
 
 @router.post("/owners/upload_photo/", response_model=str)
 def upload_owner_photo(owner_id: int = Form(...), file: UploadFile = File(...)):
+    owner = None
+    from sqlalchemy.orm import Session
+    from database import get_db
+    import re
+    db: Session = next(get_db())
+    owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+    if not owner or not owner.name:
+        raise HTTPException(status_code=400, detail="Owner not found or has no name")
+    # Sanitize owner name for filename
+    ownername = re.sub(r'[^\w\-_]', '_', owner.name)
+    # Get file extension
+    ext = os.path.splitext(file.filename)[1] if file.filename else ''
+    filename = f"{ownername}{ext}"
     owner_dir = os.path.join(UPLOAD_OWNER_PHOTO_DIR, str(owner_id))
     os.makedirs(owner_dir, exist_ok=True)
-    # Use a unique filename (timestamp + original name)
-    filename = f"photo_{int(time.time())}_{file.filename}"
     file_location = os.path.join(owner_dir, filename)
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    return file_location
+    return file_location.replace(os.sep, '/')
 
 def build_property_response(db_property, db):
     # Build constructions with constructionType name
