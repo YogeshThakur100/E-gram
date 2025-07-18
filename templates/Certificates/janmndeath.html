@@ -81,12 +81,12 @@
 
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">दिनांक : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : {{ id | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">दिनांक : {{ register_date | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">Date : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : {{ id | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">Date : {{ register_date | default('') }}</td>
   </tr>
 </table>
 
@@ -94,7 +94,7 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0;">
   <tr>
     <td style="text-align:center; font-size:20px; font-weight:bold; padding:6px;">
-      <span><img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" /></span> नमुना क्रमांक १० (ब)
+      <span><img src="{{ barcode_url | default('') }}" alt="Barcode" style="height:40px;" /></span> नमुना क्रमांक १० (ब)
     </td>
   </tr>
   <tr>
@@ -114,7 +114,7 @@
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;" rowspan="2">
-      
+      <!-- Additional info if needed -->
     </td>
   </tr>
 </table>
@@ -122,28 +122,28 @@
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">ग्रामपंचायत ikUgsjk , ता.eksrkGk, जि.cqyMk.kk</td>
+    <td style="text-align:left; width:50%; padding:4px;">ग्रामपंचायत {{ village | default('') }}  ता. {{taluka | default('')}}  जि. {{jilha}} | default('') </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Grampanchyayat Panhera, TQ-Motala, Dist-Buldhana</td>
+    <td style="text-align:left; padding:4px;">Grampanchyayat {{ village_en | default('') }} TQ- {{taluka | default('')}}  Dist- {{jilha}} | default('')</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">याद्वारे प्रमाणित करण्यात येते कि, मंगेश मधुकर राजपूत</td>
+    <td style="text-align:left; padding:4px;">याद्वारे प्रमाणित करण्यात येते कि, {{ applicant_name | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">This is to certify that as per the application of Mr/Mrs - mangesh</td>
+    <td style="text-align:left; padding:4px;">This is to certify that as per the application of Mr/Mrs - {{ applicant_name_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक :</td>
+    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक : {{ adhar_number | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Aadhar Card Number :</td>
+    <td style="text-align:left; padding:4px;">Aadhar Card Number : {{ adhar_number_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">याचा/हिचा ग्रामपंचायत ikUgsjk, ता.eksrkGk, जि.cqyMk.kk</td>
+    <td style="text-align:left; padding:4px;">याचा/हिचा ग्रामपंचायत {{ village | default('') }}  ता. {{taluka | default('')}}  जि. {{jilha}} | default('')</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">in registered record of grampanchayat Panhera, Tal. Motala, Dist. Buldhana</td>
+    <td style="text-align:left; padding:4px;">in registered record of grampanchayat ग्रामपंचायत {{ village | default('') }}  ता. {{taluka | default('')}}  जि. {{jilha}} | default('')</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">येथे महाराष्ट्र राज्याच्या वर्षाच्या नोंदणी शोध घेण्यात आला.</td>
@@ -152,16 +152,16 @@
     <td style="text-align:left; padding:4px;">Here Maharashtra state year registration search was done.</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">त्यानुसार असे दिसून आले कि त्यांचा मुलगा / मुलगी मंगेश मधुकर राजपूत</td>
+    <td style="text-align:left; padding:4px;">त्यानुसार असे दिसून आले कि त्यांचा मुलगा / मुलगी {{ applicant_name | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">It is observed that the registration of birth/death of their son /daughter मंगेश मधुकर राजपूत</td>
+    <td style="text-align:left; padding:4px;">It is observed that the registration of birth/death of their son /daughter {{ applicant_name_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">ह्याच्या / हिच्या जन्म घटनेची नोंद करण्यात आलेली नाही</td>
+    <td style="text-align:left; padding:4px;">ह्याच्या / हिच्या {{ subject | default('') }} घटनेची नोंद करण्यात आलेली नाही</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Is not Birth mentioned in record.</td>
+    <td style="text-align:left; padding:4px;">Is not {{ subject_en | default('') }} mentioned in record.</td>
   </tr>
 </table>
 
@@ -169,8 +169,8 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:center; padding:8px; ">
-      ठिकाण :<br>
-      Place :<br>
+      ठिकाण : {{ village | default('') }}<br>
+      Place : {{ village_en | default('') }}<br>
     </td>
     <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
       सही व शिक्का<br>

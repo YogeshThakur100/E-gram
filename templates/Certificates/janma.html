@@ -113,34 +113,34 @@
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">नोंद क्रमांक : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">Registration No : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">नोंद क्रमांक : {{ id | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">Registration No : {{ id | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">बाळाचे नाव : √<br>Name of Child : √</td>
-    <td style="text-align:right; padding:4px;">लिंग : पुरुष<br>Sex : Male</td>
+    <td style="text-align:left; padding:4px;">बाळाचे नाव : {{ child_name | default('') }} <br>Name of Child : {{ child_name_en | default('') }} </td>
+    <td style="text-align:right; padding:4px;">लिंग : {{ gender | default('') }} <br>Sex : {{ gender_en | default('') }} </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">जन्म तारीख : 02/03/2019<br>Date of Birth : 02/03/2019</td>
-    <td style="text-align:right; padding:4px;">जन्म ठिकाण : iKUgsjk<br>Place of Birth : Panhera</td>
+    <td style="text-align:left; padding:4px;">जन्म तारीख : {{ birth_date | default('') }}<br>Date of Birth : {{ birth_date | default('') }}</td>
+    <td style="text-align:right; padding:4px;">जन्म ठिकाण : {{ birth_place | default('') }}<br>Place of Birth : {{ birth_place_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">आईचे नाव : √<br>Name of Mother : √</td>
-    <td style="text-align:right; padding:4px;">वडिलांचे नाव : √<br>Name of Father : √</td>
+    <td style="text-align:left; padding:4px;">आईचे नाव : {{ mother_name | default('') }}<br>Name of Mother : {{ mother_name_en | default('') }}</td>
+    <td style="text-align:right; padding:4px;">वडिलांचे नाव : {{ father_name | default('') }}<br>Name of Father : {{ father_name_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">बाळाचे जन्माचे वेळी आई वडिलांचा पत्ता :<br>Address of parents at the time of birth of the child : √</td>
-    <td style="text-align:right; padding:4px;">आई वडिलांचा कायमचा पत्ता :<br>Permanent address of parents : √</td>
+    <td style="text-align:left; padding:4px;">बाळाचे जन्माचे वेळी आई वडिलांचा पत्ता : {{ address_at_birth | default('') }} <br> Address of parents at the time of birth of the child : {{ address_at_birth_en | default('') }}</td>
+    <td style="text-align:right; padding:4px;">आई वडिलांचा कायमचा पत्ता : {{ permanent_address | default('') }} <br>  Permanent address of parents : {{ permanent_address_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">नोंद दिनांक : 02/03/2019 00:00:00<br>Date of Registration : 02/03/2019 00:00:00</td>
+    <td style="text-align:left; padding:4px;">नोंद दिनांक : {{ register_date | default('') }}<br>Date of Registration : {{ register_date | default('') }}</td>
     <td style="text-align:right; padding:4px;" rowspan="2">
-      <img src="/uploaded_images/qrcode/1/qrcode.png" alt="QR Code" style="height:80px;" /><br/>
-      <img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" />
+      <img src="{{ qrcode | default('') }}" alt="QR Code" style="height:80px;" /><br/>
+      <img src="{{ barcode_url | default('') }}" alt="Barcode" style="height:40px;" />
     </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">शेरा : √<br>Remarks (if any): √</td>
+    <td style="text-align:left; padding:4px;">शेरा : {{ remark | default('') }}<br>Remarks (if any): {{ remark_en | default('') }}</td>
   </tr>
 </table>
 
@@ -148,19 +148,22 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:top; padding:8px; border-right : 1px solid black ">
-      गाव :<br>
-      Village :<br>
-      प्रपत्र दिल्याचा दिनांक : 03-Feb-2019<br>
-      Certificate Issue Date : 03-Feb-2019
+      गाव : {{ village | default('') }}<br>
+      Village : {{ village | default('') }}<br>
+      प्रपत्र दिल्याचा दिनांक : {{ date | default('') }}<br>
+      Certificate Issue Date : {{ date | default('') }}
     </td>
     <td style="width:34%; text-align:center; vertical-align:bottom; padding:8px;  border-right : 1px solid black ">
       शिक्का / seal
     </td>
     <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
-      निंदा.क, जन्म मृत्यू नोंदणी<br>
-      अधिकारी, ग्रामपंचायत iKUgsjk<br>
-      ता. eksrkGk, जि. cqyMk.kk
+      निबंधक, जन्म मृत्यू नोंदणी <br>
+      अधिकारी, ग्रामपंचायत {{gramPanchayat}} <br>
+      ता. {{taluka}}, जि. {{taluka}}
     </td>
+    
+
+
   </tr>
   <tr>
     <td colspan="3" style="background:#ccc; text-align:left; font-size:14px; font-weight:bold; padding:6px; border-top:1px solid #000;">

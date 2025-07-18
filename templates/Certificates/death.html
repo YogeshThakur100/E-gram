@@ -116,35 +116,34 @@
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; padding:4px;">मृताचे पूर्ण नाव : ज्ञानबाराव शंकरराव देशमुख<br>Name of Deceased : Dnyanbarao Shankarrao Deshmukh</td>
-    <td style="text-align:right; padding:4px;">लिंग : पुरुष<br>Sex : Male</td>
+    <td style="text-align:left; padding:4px;">मृताचे पूर्ण नाव : {{ deceased_name | default('') }}<br>Name of Deceased : {{ deceased_name_en | default('') }}</td>
+    <td style="text-align:right; padding:4px;">लिंग : {{ gender | default('') }}<br>Sex : {{ gender_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">मृत्यू तारीख : 02/03/2019<br>Death Date : 02/03/2019</td>
-    <td style="text-align:right; padding:4px;">मृत्यू ठिकाण : iKUgsjk<br>Place of Death : Panhera</td>
+    <td style="text-align:left; padding:4px;">मृत्यू तारीख : {{ death_date | default('') }}<br>Death Date : {{ death_date | default('') }}</td>
+    <td style="text-align:right; padding:4px;">मृत्यू ठिकाण : {{ place_of_death | default('') }}<br>Place of Death : {{ place_of_death_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">आईचे नाव : √<br>Name of Mother : √</td>
-    <td style="text-align:right; padding:4px;">वडिलांचे नाव : √<br>Name of Father/Husband : √</td>
+    <td style="text-align:left; padding:4px;">आईचे नाव : {{ mother_name | default('') }}<br>Name of Mother : {{ mother_name | default('') }}</td>
+    <td style="text-align:right; padding:4px;">वडिलांचे नाव : {{ father_name | default('') }}<br>Name of Father/Husband : {{ father_name | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">मयत व्यक्तीचा मृत्यू समयीचा पत्ता : तांदळी बु ता-जि. वाशीम<br>Address of parents at the time of Death : At post Tandali bk Tq Dist Washim</td>
-    <td style="text-align:right; padding:4px;">मयत व्यक्तीचा कायमचा पत्ता : तांदळी बु ता-जि.वाशीम<br>Permanent address of deceased :Tandali bk Tq Dist Washim</td>
+    <td style="text-align:left; padding:4px;">मयत व्यक्तीचा मृत्यू समयीचा पत्ता : {{ address_at_death | default('') }}<br>Address at time of Death : {{ address_at_death_en | default('') }}</td>
+    <td style="text-align:right; padding:4px;">मयत व्यक्तीचा कायमचा पत्ता : {{ permanent_address | default('') }}<br>Permanent address of deceased : {{ permanent_address_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">नोंद दिनांक :00001</td>
-    <td style="text-align:right; width:50%; padding:4px;">नोंद क्रमांक : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">नोंद दिनांक : {{ register_date | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">नोंद क्रमांक : {{ id | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Date of Registration : 02/03/2019 00:00:00<br>Registration No : 02/03/2019 00:00:00</td>
+    <td style="text-align:left; padding:4px;">Date of Registration : {{ register_date | default('') }}<br>Registration No : {{ id | default('') }}</td>
     <td style="text-align:right; padding:4px;" rowspan="2">
-      <img src="/uploaded_images/qrcode/1/qrcode.png" alt="QR Code" style="height:80px;" /><br/>
-      <img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" />
+      <img src="{{ qrcode | default('') }}" alt="QR Code" style="height:80px;" /><br/>
+      <img src="{{ barcode_url | default('') }}" alt="Barcode" style="height:40px;" />
     </td>
   </tr>
-  
   <tr>
-    <td style="text-align:left; padding:4px;">शेरा : √<br>Remarks (if any): √</td>
+    <td style="text-align:left; padding:4px;">शेरा : {{ remark | default('') }}<br>Remarks (if any): {{ remark_en | default('') }}</td>
   </tr>
 </table>
 
@@ -152,16 +151,18 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:top; padding:8px; border-right : 1px solid black ">
-      प्रपत्र दिल्याचा दिनांक : 03-Feb-2019<br>
-      Certificate Issue Date : 03-Feb-2019
+      गाव : {{ village | default('') }}<br>
+      Village : {{ village | default('') }}<br>
+      प्रपत्र दिल्याचा दिनांक : {{ date | default('') }}<br>
+      Certificate Issue Date : {{ date | default('') }}
     </td>
     <td style="width:34%; text-align:center; vertical-align:bottom; padding:8px;  border-right : 1px solid black ">
       शिक्का / seal
     </td>
     <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
       निबंधक, जन्म मृत्यू नोंदणी <br>
-      अधिकारी, ग्रामपंचायत तांदळी बु<br>
-      ता.वाशिम, जि.वाशिम
+      अधिकारी, ग्रामपंचायत {{gramPanchayat}} <br>
+      ता. {{taluka}}, जि. {{taluka}}
     </td>
   </tr>
   <tr>
