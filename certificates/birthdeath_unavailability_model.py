@@ -15,3 +15,4 @@ class BirthDeathUnavailabilityCertificate(Base):
     certificate_name_en = Column(String)
     subject = Column(String)
     subject_en = Column(String) 
+    barcode = Column(String, nullable=True)  # stores the file path for the barcode image 
