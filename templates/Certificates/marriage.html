@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>विवाह नोंदणीचे प्रमाणपत्र</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+            }
+            #toolbar {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+    <!-- Left: Icon Buttons & Navigation -->
+    <div style="display: flex; align-items: center; gap: 6px;">
+        <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+        <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+        <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+        <span style="font-size: 14px; color: #888;">/1</span>
+        <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+        <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+        <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+        <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+        <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+    </div>
+    <!-- Right: Print & Exit Buttons -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+        <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+    </div>
+</div>
+<script>
+    let zoomLevel = 1.0;
+    const minZoom = 0.5;
+    const maxZoom = 2.0;
+    const zoomStep = 0.1;
+    function updateZoom() {
+        document.getElementById('mainContent').style.zoom = zoomLevel;
+        document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
+    }
+    function zoomIn() {
+        if (zoomLevel < maxZoom) {
+            zoomLevel += zoomStep;
+            zoomLevel = Math.min(maxZoom, zoomLevel);
+            updateZoom();
+        }
+    }
+    function zoomOut() {
+        if (zoomLevel > minZoom) {
+            zoomLevel -= zoomStep;
+            zoomLevel = Math.max(minZoom, zoomLevel);
+            updateZoom();
+        }
+    }
+    function printPage() {
+        window.print();
+    }
+    function exitPage() {
+        window.close();
+    }
+    // Initialize zoom display
+    window.onload = updateZoom;
+</script>
+<div id="mainContent">
+<div style="padding-left:40px; padding-right:40px;">
+<table style="width:100%;border:1px solid black ; background:#ccc;">
+  <tr>
+    <td style="border:none width:20%; text-align:center; vertical-align:center;">
+      <img src="/ReportImages/satyamevijayate.png" alt="Ashoka Emblem" style="height:80px;" />
+    </td>
+  </tr>
+  <tr>
+    <td style="border:none width:20%; text-align:center; vertical-align:center; font-weight:bold">
+      महाराष्ट्र शासन<br>
+      भाग चार -ब) महाराष्ट्र शासन राजपत्र, मे 20,1999/वैशाख 30,शके 1921<br>
+      नमुना ‘ई’<br>
+      FORM “E”
+    </td>
+  </tr>
+  <tr>
+    <td style="border:none width:20%; text-align:center; vertical-align:center; font-weight:bold">
+      विवाह नोंदणीचे प्रमाणपत्र<br>
+      CERTIFICATE OF REGISTRATION OF MARRIAGE<br>
+      ( पहा कलम 6(1)आणि नियम 5)(See Section 6(1) and rule 5)
+    </td>
+  </tr>
+</table>
+
+
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">प्रमाणित करण्यात येते कि</td>
+    <td style="text-align:right; width:50%; padding:4px;">दाखला क्रमांक : </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Certified that the marriage between</td>
+    <td style="text-align:right; padding:4px;">Certificate Number :</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">पतीचे नाव :-मंगेश मधुकर राजपूत राहणार रा:-सुंदरखेड, बुलढाणा</td>
+    <td style="text-align:right; padding:4px;"><img src="/uploaded_images/qrcode/1/qrcode.png" alt="QR Code" style="height:80px;" /></td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Husband Name :- मंगेश मधुकर राजपूत Residing at:- सुंदरखेड, बुलढाणा</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक :</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Aadhar Card Number :</td>
+  </tr>
+</table>
+
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">पत्नीचे नाव :-अर्चना राजपूत राहणार रा:-नागपूर</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Wife Name :-नागपूर residing at नागपूर</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक :</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Aadhar Card Number :</td>
+  </tr>
+</table>
+
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">यांचा विवाह येथे. बुलढाणा</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Solemnized on at -buldhana</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">विवाह विधी संपन्न झाला.त्याची महाराष्ट्र विवाह मंडळाने विनियमन आणि विवाह नोंद विधेयक , 1998 </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Registered of Marriages maintained under the Maharashtra Regulation of Marriage Bereaus and registration of Marriages Act 1998</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">अन्वये ठेवण्यात आलेल्या नोंदवहीच्या खंड क्रमांक. 2550  च्या अनुक्रमांक 120 वर </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Of volume    2550  at Serial No.120
+    </td>
+  </tr> 
+</table>
+
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">विवाह दिनांक :- 03-Feb-2019</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Marriage Date :- 03-Feb-2019</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">दिनांक:- 03-Feb-2019   रोजी माझ्याकडून नोंदणी करण्यात आली आहे</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">On:- 03-Feb-2019 registered by me.</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">शेरा :--</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Remark :-
+    </td>
+  </tr> 
+</table>  
+
+<!-- Bottom info and slogan section -->
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="width:33%; vertical-align:center ; padding:8px; ">
+      दिनांक :<br>
+      Date :<br>
+      ठिकाण : 03-Feb-2019<br>
+      Place : 03-Feb-2019
+    </td>
+    <td style="vertical-align:top;  ">
+      <td style="text-align:left; padding:4px;"><img src="/uploaded_images/qrcode/1/qrcode.png" alt="QR Code" style="height:80px;" /></td>
+    </td>
+    <td style="width:33%; text-align:right; vertical-align:center; padding:8px;  border-left:1px solid black">
+      निबंधक / विवाह नोंदणी तथा <br>
+      Registrar of Marrige<br>
+      ग्रामसेवक / ग्रामसेवक अधिकारी<br>
+      Sarpanch / Gramsevak /Village Development Officer<br>
+      ग्रामपंचायत ikUgsjk<br>
+      Grampanchayat Panhera
+    </td>
+  </tr>
+</table>
+</div>
+</div>
+</body>
+
+
+
+ 
+
+
+

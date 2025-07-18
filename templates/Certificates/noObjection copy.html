@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>ना हरकत प्रमाणपत्र</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+            }
+            #toolbar {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+    <!-- Left: Icon Buttons & Navigation -->
+    <div style="display: flex; align-items: center; gap: 6px;">
+        <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+        <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+        <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+        <span style="font-size: 14px; color: #888;">/1</span>
+        <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+        <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+        <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+        <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+        <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+    </div>
+    <!-- Right: Print & Exit Buttons -->
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+        <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+    </div>
+</div>
+<script>
+    let zoomLevel = 1.0;
+    const minZoom = 0.5;
+    const maxZoom = 2.0;
+    const zoomStep = 0.1;
+    function updateZoom() {
+        document.getElementById('mainContent').style.zoom = zoomLevel;
+        document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
+    }
+    function zoomIn() {
+        if (zoomLevel < maxZoom) {
+            zoomLevel += zoomStep;
+            zoomLevel = Math.min(maxZoom, zoomLevel);
+            updateZoom();
+        }
+    }
+    function zoomOut() {
+        if (zoomLevel > minZoom) {
+            zoomLevel -= zoomStep;
+            zoomLevel = Math.max(minZoom, zoomLevel);
+            updateZoom();
+        }
+    }
+    function printPage() {
+        window.print();
+    }
+    function exitPage() {
+        window.close();
+    }
+    // Initialize zoom display
+    window.onload = updateZoom;
+</script>
+<div id="mainContent">
+<div style="padding-left:40px; padding-right:40px;">
+<table style="width:100%;border:1px solid black ; background:#ccc;">
+  <tr>
+    <td style="width:60%; text-align:center; vertical-align:top;">
+      <div style="font-size:18px; font-weight:bold;">
+        ना हरकत प्रमाणपत्र<br/>
+        No Objection certificate<br/>
+      </div>
+    </td>
+  </tr>
+</table>
+
+
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : 100001</td>
+    <td style="text-align:right; width:50%; padding:4px;">दिनांक : 100001</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : 100001</td>
+    <td style="text-align:right; width:50%; padding:4px;">Date : 100001</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;"><img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" /></td>
+    <td style="text-align:right; width:50%; padding:4px;"><img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" /></td>
+  </tr>
+</table>
+
+<!-- Main details table -->
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">सरपंच/ग्रामसेवक/ग्रामविकास अधिकारी ikUgsjk, ता. eksrkGk, जिल्हा cqyMk.kk
+    </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Sarpanch/Gramsevak/Village Development officer Panhera, Tq. Motala, 
+      Dist. Buldhana
+      </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">यांजकडून दाखला देण्यात येतो कि, </td>
+    <td style="text-align:left; padding:4px;">मंगेश मधुकर राजपूत </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Tis issuing the certificate to</td>
+    <td style="text-align:left; padding:4px;">mangesh madhukar rajput</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">हे राहणार </td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Residence at :</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">हे ग्रामपंचायत ikUgsjk, हद्दीतील मौजे ikUgsjk ता.eksrkGk जि.cqyMk.kk महाराष्ट्र</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">of Grampanchyayat Panhera, Village Panhera, Tq.Motala, Dist.Buldhana, Maharashtra</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">येथील कायम / तात्पुरते रहिवाशी आहेत.</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">is a permanent / temporary resident</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">सदर दाखला त्यांचे विनंती अर्जानुसार देण्यात येत आहे.</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">certificate is issued on request of the applicant</td>
+  </tr>
+</table>
+
+<!-- Bottom info and slogan section -->
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="width:33%; vertical-align:center; padding:8px; ">
+      ठिकाण :<br>
+      Place :<br>
+    </td>
+    <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
+      सही व शिक्का<br>
+      (Signature with Seal)<br>
+      सरपंच/ग्रामसेवक/ग्रामविकास अधिकारी
+    </td>
+  </tr>
+</table>
+</div>
+</div>
+</body>
