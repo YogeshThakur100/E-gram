@@ -25,7 +25,7 @@ def create_family_certificate(
     applicant_name_en: str = Form(None),
     relation: str = Form(None),
     relation_en: str = Form(None),
-    relation_type: str = Form(None),
+    year: str = Form(None),
     db: Session = Depends(get_db)
 ):
     # Convert registration_date string to date object
@@ -43,7 +43,7 @@ def create_family_certificate(
         applicant_name_en=applicant_name_en,
         relation=relation,
         relation_en=relation_en,
-        relation_type=relation_type
+        year=year
     )
     db.add(cert)
     db.commit()
@@ -73,7 +73,7 @@ def create_family_certificate(
 
 @router.get("/family", response_model=list[FamilyCertificateRead])
 def list_family_certificates(db: Session = Depends(get_db)):
-    return db.query(FamilyCertificate).all()
+    return db.query(FamilyCertificate).all() 
 
 @router.get("/family/{id}", response_model=FamilyCertificateRead)
 def get_family_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -101,7 +101,7 @@ def update_family_certificate(id: int, registration_date: str = Form(...),
     applicant_name_en: str = Form(None),
     relation: str = Form(None),
     relation_en: str = Form(None),
-    relation_type: str = Form(None),
+    year: str = Form(None),
     db: Session = Depends(get_db)):
     cert = db.query(FamilyCertificate).filter(FamilyCertificate.id == id).first()
     if not cert:
@@ -119,7 +119,7 @@ def update_family_certificate(id: int, registration_date: str = Form(...),
     setattr(cert, "applicant_name_en", applicant_name_en)
     setattr(cert, "relation", relation)
     setattr(cert, "relation_en", relation_en)
-    setattr(cert, "relation_type", relation_type)
+    setattr(cert, "year", year)
     db.commit()
     db.refresh(cert)
     # Regenerate barcode
