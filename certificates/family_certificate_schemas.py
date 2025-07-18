@@ -22,5 +22,11 @@ class FamilyCertificateCreate(FamilyCertificateBase):
 
 class FamilyCertificateRead(FamilyCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
+    model_config = {
+        "from_attributes": True
+    } 

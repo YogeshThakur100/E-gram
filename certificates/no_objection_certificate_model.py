@@ -14,4 +14,5 @@ class NoObjectionCertificate(Base):
     prop_gut_number = Column(String, nullable=True)
     subject = Column(String, nullable=True)
     subject_en = Column(String, nullable=True)
-    image_url = Column(String, nullable=True) 
+    image_url = Column(String, nullable=True)
+    barcode = Column(String, nullable=True) 

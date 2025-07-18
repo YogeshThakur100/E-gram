@@ -17,4 +17,5 @@ class FamilyCertificate(Base):
     relation = Column(String, nullable=True)
     relation_en = Column(String, nullable=True)
     relation_type = Column(String, nullable=True)
+    barcode = Column(String, nullable=True)
     # Add more fields as needed for the form 
