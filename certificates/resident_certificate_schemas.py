@@ -12,11 +12,18 @@ class ResidentCertificateBase(BaseModel):
     adhar_no: Optional[str]
     adhar_no_en: Optional[str]
     image_url: Optional[str]
+    barcode: Optional[str]
 
 class ResidentCertificateCreate(ResidentCertificateBase):
     pass
 
 class ResidentCertificateRead(ResidentCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    image_url: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: str | None = None
+    taluka: str | None = None
+    jilha: str | None = None
+    model_config = {
+        "from_attributes": True
+    } 
