@@ -33,6 +33,9 @@ class DeathCertificateRead(DeathCertificateBase):
     qrcode: str | None = None
     barcode: str | None = None
     barcode_url: str | None = None
+    gramPanchayat: str | None = None
+    taluka: str | None = None
+    jilha: str | None = None
     model_config = {
         "from_attributes": True
     } 

@@ -79,6 +79,38 @@ def get_death_certificate(id: int, request: Request, db: Session = Depends(get_d
     cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/death_barcode/{cert.id}"
     return cert_data
 
+@router.put("/death/{id}", response_model=DeathCertificateRead)
+def update_death_certificate(id: int, data: DeathCertificateCreate, db: Session = Depends(get_db)):
+    cert = db.query(DeathCertificate).filter(DeathCertificate.id == id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="Death certificate not found")
+    for field, value in data.dict(exclude_unset=True).items():
+        setattr(cert, field, value)
+    db.commit()
+    db.refresh(cert)
+    # Regenerate QR code with latest info
+    try:
+        qr_dir = os.path.join("uploaded_images", "death_certificates_qr", str(cert.id))
+        qr_path = os.path.join(qr_dir, "qrcode.png")
+        qr_data = {
+            "SRNo": cert.id,
+            "Reg Date": str(cert.register_date) if cert.register_date is not None else "",
+            "Death Date": str(cert.death_date) if cert.death_date is not None else "",
+            "Name": cert.deceased_name_en or cert.deceased_name or "",
+            "Gender": cert.gender or "",
+            "Gender (EN)": cert.gender_en or "",
+            "Place Of Death": cert.place_of_death_en or cert.place_of_death or "",
+            "Mother Name": cert.mother_name_en or cert.mother_name or "",
+            "Father Name": cert.father_name_en or cert.father_name or "",
+        }
+        QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
+        setattr(cert, "qrcode", qr_path.replace(os.sep, "/"))
+        db.commit()
+        db.refresh(cert)
+    except Exception as e:
+        print(f"QR code regeneration failed: {e}")
+    return cert
+
 @router.get("/death_qrcode/{id}")
 def get_death_certificate_qrcode(id: int, db: Session = Depends(get_db)):
     cert = db.query(DeathCertificate).filter(DeathCertificate.id == id).first()
