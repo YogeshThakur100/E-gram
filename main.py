@@ -23,6 +23,7 @@ from namuna8.ReportCreationUsingJinja import namuna8Print
 from namuna9.ReportCreationUsingJinja import namuna9Print
 from Yadi.ReportCreationUsingJinja import yadiPrint
 from namuna10.ReportCreationUsingJinja import namuna10print
+from certificates.ReportCreationUsingJinja import certificate
 from fastapi.staticfiles import StaticFiles
 from namuna8.mastertab.mastertabapis import router as mastertab_router
 from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
@@ -65,6 +66,7 @@ app.include_router(namuna9Print.router , prefix="/namuna9/print")
 app.include_router(yadiPrint.router , prefix="/yadi/print")
 app.include_router(ghoshawaraprint.router , prefix="/ghoshawara/print")
 app.include_router(namuna10print.router , prefix="/namuna10/print")
+app.include_router(certificate.router , prefix="/certificate/print")
 app.include_router(logbookPrint.router , prefix="/logbook/print")
 app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")

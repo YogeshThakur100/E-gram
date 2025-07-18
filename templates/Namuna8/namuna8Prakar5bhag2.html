@@ -247,6 +247,36 @@
           updateZoom();
         }
       }
+      function updateFooterSummary() {
+          // Only sum visible rows
+          const visibleRows = Array.from(document.querySelectorAll('.record-row')).filter(
+              row => row.style.display !== 'none'
+          );
+          let house = 0, lighting = 0, health = 0, water = 0, cleaning = 0, toilet = 0, total = 0;
+          visibleRows.forEach(row => {
+              house += parseFloat(row.dataset.houseTax) || 0;
+              lighting += parseFloat(row.dataset.lightingTax) || 0;
+              health += parseFloat(row.dataset.healthTax) || 0;
+              water += parseFloat(row.dataset.waterTax) || 0;
+              cleaning += parseFloat(row.dataset.cleaningTax) || 0;
+              toilet += parseFloat(row.dataset.toiletTax) || 0;
+              total += parseFloat(row.dataset.totalTax) || 0;
+          });
+          if(document.getElementById('footerHouseTax'))
+              document.getElementById('footerHouseTax').innerText = `घर : ${house.toFixed(2)}`;
+          if(document.getElementById('footerLightingTax'))
+              document.getElementById('footerLightingTax').innerText = `दिवा : ${lighting.toFixed(2)}`;
+          if(document.getElementById('footerHealthTax'))
+              document.getElementById('footerHealthTax').innerText = `आरोग्य : ${health.toFixed(2)}`;
+          if(document.getElementById('footerWaterTax'))
+              document.getElementById('footerWaterTax').innerText = `पाणी : ${water.toFixed(2)}`;
+          if(document.getElementById('footerCleaningTax'))
+              document.getElementById('footerCleaningTax').innerText = `सफाई : ${cleaning.toFixed(2)}`;
+          if(document.getElementById('footerToiletTax'))
+              document.getElementById('footerToiletTax').innerText = `शौ. कर : ${toilet.toFixed(2)}`;
+          if(document.getElementById('footerTotalTax'))
+              document.getElementById('footerTotalTax').innerText = `एकूण : ${total.toFixed(2)}`;
+      }
       function showPage(page) {
         const recordPages = Array.from(
           document.querySelectorAll(".record-page")
@@ -261,6 +291,7 @@
         document.getElementById("pageInput").value = currentPage;
         if (document.getElementById("pageTotal"))
           document.getElementById("pageTotal").innerText = "/" + totalPages;
+        updateFooterSummary(); // <-- Add this line
       }
       function nextPage() {
         showPage(currentPage + 1);
@@ -296,6 +327,7 @@
       window.onload = function () {
         updateZoom();
         showPage(1);
+        updateFooterSummary(); // <-- Add this line
         // Wire up navigation buttons
         document.querySelector('button[title="First Page"]').onclick =
           firstPage;
@@ -417,7 +449,14 @@
                     <td>12</td>
                     <td colspan="2">13</td>
                   </tr>
-                  <tr>
+                  <tr class="record-row"
+                      data-house-tax="{{ row.totalHouseTax | default('0') }}"
+                      data-lighting-tax="{{ row.lightingTax | default('0') }}"
+                      data-health-tax="{{ row.healthTax | default('0') }}"
+                      data-water-tax="{{ row.waterTax | default('0') }}"
+                      data-cleaning-tax="{{ row.cleaningTax | default('0') }}"
+                      data-toilet-tax="{{ row.toiletTax | default('0') }}"
+                      data-total-tax="{{ row.totaltax | default('0') }}">
                     <td>
                       {% if row.constructionType is defined and row.constructionType|length > 0 %}
                           {{ row.constructionType[0].capitalValue | default('') }}<br>
@@ -509,34 +548,16 @@
             {% endif %}
           {% endfor %}
           <div class="report-footer">
-            <table
-              style="
-                width: 100%;
-                border-collapse: collapse;
-                border: 2px solid #000;
-                font-size: 14px;
-                margin-top: 20px;
-              "
-            >
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 14px; margin-top: 20px;">
               <tr>
-                <td style="border: 1px solid #000; text-align: left; width: 15%">
-                  एकूण कर :
-                </td>
-                <td style="border: 1px solid #000; text-align: left; width: 10%">
-                  घर : 7532.00
-                </td>
-                <td style="border: 1px solid #000; text-align: left; width: 10%">
-                  दिवा : 200.00
-                </td>
-                <td style="border: 1px solid #000; text-align: left; width: 10%">
-                  आरोग्य : 200.00
-                </td>
-                <td style="border: 1px solid #000; text-align: left; width: 10%">
-                  पाणी : 200.00
-                </td>
-                <td style="border: 1px solid #000; text-align: left; width: 10%">
-                  एकूण : 8132.00
-                </td>
+                <td style="border: 1px solid #000; text-align: left; width: 15%;">एकूण कर :</td>
+                <td id="footerHouseTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                <td id="footerLightingTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                <td id="footerHealthTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                <td id="footerWaterTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                <td id="footerCleaningTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                <td id="footerToiletTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                <td id="footerTotalTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
               </tr>
             </table>
           </div>

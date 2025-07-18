@@ -2,7 +2,7 @@
 <html lang="mr">
 <head>
     <meta charset="UTF-8">
-    <title>जन्म प्रमाणपत्र</title>
+    <title>मृत्यू प्रमाणपत्र</title>
     <style>
         @media print {
             @page {
@@ -93,10 +93,13 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0;">
   <tr>
     <td style="text-align:center; font-size:20px; font-weight:bold; padding:6px;">
-      जन्म प्रमाणपत्र / <span style="font-size:22px;">BIRTH CERTIFICATE</span>
+      मृत्यू प्रमाणपत्र / <span style="font-size:22px;">DEATH CERTIFICATE</span>
+      
     </td>
   </tr>
   <tr>
+    
+
     <td style="text-align:center; font-size:14px; padding:6px;">
       जन्म व मृत्यू नोंदणी अधिनियम, १९६९ च्या कलम १२/१७ आणि महाराष्ट्र जन्म व मृत्यू नोंदणी नियम २००० चे नियम ८/१३ अन्वये देण्यात आले असे.<br/>
       <span style="font-size:12px;">(issued under section 12/17 of the registration of births & deaths act,1969 and rule 8/13 of the maharashtra registration of births and deaths rules 2000)</span>
@@ -113,27 +116,27 @@
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">नोंद क्रमांक : {{ id | default('') }}</td>
-    <td style="text-align:right; width:50%; padding:4px;">Registration No : {{ id | default('') }}</td>
+    <td style="text-align:left; padding:4px;">मृताचे पूर्ण नाव : {{ deceased_name | default('') }}<br>Name of Deceased : {{ deceased_name_en | default('') }}</td>
+    <td style="text-align:right; padding:4px;">लिंग : {{ gender | default('') }}<br>Sex : {{ gender_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">बाळाचे नाव : {{ child_name | default('') }} <br>Name of Child : {{ child_name_en | default('') }} </td>
-    <td style="text-align:right; padding:4px;">लिंग : {{ gender | default('') }} <br>Sex : {{ gender_en | default('') }} </td>
+    <td style="text-align:left; padding:4px;">मृत्यू तारीख : {{ death_date | default('') }}<br>Death Date : {{ death_date | default('') }}</td>
+    <td style="text-align:right; padding:4px;">मृत्यू ठिकाण : {{ place_of_death | default('') }}<br>Place of Death : {{ place_of_death_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">जन्म तारीख : {{ birth_date | default('') }}<br>Date of Birth : {{ birth_date | default('') }}</td>
-    <td style="text-align:right; padding:4px;">जन्म ठिकाण : {{ birth_place | default('') }}<br>Place of Birth : {{ birth_place_en | default('') }}</td>
+    <td style="text-align:left; padding:4px;">आईचे नाव : {{ mother_name | default('') }}<br>Name of Mother : {{ mother_name | default('') }}</td>
+    <td style="text-align:right; padding:4px;">वडिलांचे नाव : {{ father_name | default('') }}<br>Name of Father/Husband : {{ father_name | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">आईचे नाव : {{ mother_name | default('') }}<br>Name of Mother : {{ mother_name_en | default('') }}</td>
-    <td style="text-align:right; padding:4px;">वडिलांचे नाव : {{ father_name | default('') }}<br>Name of Father : {{ father_name_en | default('') }}</td>
+    <td style="text-align:left; padding:4px;">मयत व्यक्तीचा मृत्यू समयीचा पत्ता : {{ address_at_death | default('') }}<br>Address at time of Death : {{ address_at_death_en | default('') }}</td>
+    <td style="text-align:right; padding:4px;">मयत व्यक्तीचा कायमचा पत्ता : {{ permanent_address | default('') }}<br>Permanent address of deceased : {{ permanent_address_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">बाळाचे जन्माचे वेळी आई वडिलांचा पत्ता : {{ address_at_birth | default('') }} <br> Address of parents at the time of birth of the child : {{ address_at_birth_en | default('') }}</td>
-    <td style="text-align:right; padding:4px;">आई वडिलांचा कायमचा पत्ता : {{ permanent_address | default('') }} <br>  Permanent address of parents : {{ permanent_address_en | default('') }}</td>
+    <td style="text-align:left; width:50%; padding:4px;">नोंद दिनांक : {{ register_date | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">नोंद क्रमांक : {{ id | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">नोंद दिनांक : {{ register_date | default('') }}<br>Date of Registration : {{ register_date | default('') }}</td>
+    <td style="text-align:left; padding:4px;">Date of Registration : {{ register_date | default('') }}<br>Registration No : {{ id | default('') }}</td>
     <td style="text-align:right; padding:4px;" rowspan="2">
       <img src="{{ qrcode | default('') }}" alt="QR Code" style="height:80px;" /><br/>
       <img src="{{ barcode_url | default('') }}" alt="Barcode" style="height:40px;" />
@@ -161,9 +164,6 @@
       अधिकारी, ग्रामपंचायत {{gramPanchayat}} <br>
       ता. {{taluka}}, जि. {{taluka}}
     </td>
-    
-
-
   </tr>
   <tr>
     <td colspan="3" style="background:#ccc; text-align:left; font-size:14px; font-weight:bold; padding:6px; border-top:1px solid #000;">
