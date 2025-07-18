@@ -84,6 +84,37 @@ def get_birth_certificate(id: int, db: Session = Depends(get_db), request: Reque
     cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/birth_barcode/{cert.id}"
     return cert_data
 
+@router.put("/birth/{id}", response_model=BirthCertificateRead)
+def update_birth_certificate(id: int, data: BirthCertificateCreate, db: Session = Depends(get_db)):
+    cert = db.query(BirthCertificate).filter(BirthCertificate.id == id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="Birth certificate not found")
+    for field, value in data.dict(exclude_unset=True).items():
+        setattr(cert, field, value)
+    db.commit()
+    db.refresh(cert)
+    # Regenerate QR code with latest info
+    try:
+        qr_dir = os.path.join("uploaded_images", "birth_certificates_qr", str(cert.id))
+        qr_path = os.path.join(qr_dir, "qrcode.png")
+        qr_data = {
+            "SRNo": cert.id,
+            "Reg Date": str(cert.register_date) if cert.register_date is not None else "",
+            "Birth Date": str(cert.birth_date) if cert.birth_date is not None else "",
+            "Child Name": cert.child_name_en or "",
+            "Sex": cert.gender_en or "",
+            "Place Of Birth": cert.birth_place_en or "",
+            "Mother Name": cert.mother_name_en or "",
+            "Father Name": cert.father_name_en or "",
+        }
+        QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
+        setattr(cert, "qrcode", qr_path.replace(os.sep, "/"))
+        db.commit()
+        db.refresh(cert)
+    except Exception as e:
+        print(f"QR code regeneration failed: {e}")
+    return cert
+
 @router.get("/birth_qrcode/{id}")
 def get_birth_certificate_qrcode(id: int, db: Session = Depends(get_db)):
     cert = db.query(BirthCertificate).filter(BirthCertificate.id == id).first()

@@ -53,6 +53,17 @@ def get_birthdeath_unavailability_certificate(id: int, request: Request, db: Ses
     cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/birthdeath-unavailability_barcode/{cert.id}"
     return cert_data
 
+@router.put("/birthdeath-unavailability/{id}", response_model=BirthDeathUnavailabilityCertificateRead)
+def update_birthdeath_unavailability_certificate(id: int, data: BirthDeathUnavailabilityCertificateCreate, db: Session = Depends(get_db)):
+    cert = db.query(BirthDeathUnavailabilityCertificate).filter(BirthDeathUnavailabilityCertificate.id == id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="Certificate not found")
+    for field, value in data.dict(exclude_unset=True).items():
+        setattr(cert, field, value)
+    db.commit()
+    db.refresh(cert)
+    return cert
+
 @router.get("/birthdeath-unavailability_barcode/{id}")
 def get_birthdeath_unavailability_barcode(id: int, db: Session = Depends(get_db)):
     cert = db.query(BirthDeathUnavailabilityCertificate).filter(BirthDeathUnavailabilityCertificate.id == id).first()

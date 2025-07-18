@@ -12,4 +12,5 @@ class ResidentCertificate(Base):
     applicant_name_en = Column(String)
     adhar_no = Column(String)
     adhar_no_en = Column(String)
-    image_url = Column(String) 
+    image_url = Column(String)
+    barcode = Column(String, nullable=True) 
