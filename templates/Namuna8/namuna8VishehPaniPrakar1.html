@@ -100,6 +100,39 @@
                 updateZoom();
             }
         }
+        function updateFooterSummary() {
+            // Only sum visible rows
+            const visibleRows = Array.from(document.querySelectorAll('.record-row')).filter(
+                row => row.style.display !== 'none'
+            );
+            let house = 0, lighting = 0, health = 0, saWater = 0, vsaWater = 0, cleaning = 0, toilet = 0, total = 0;
+            visibleRows.forEach(row => {
+                house += parseFloat(row.dataset.houseTax) || 0;
+                lighting += parseFloat(row.dataset.lightingTax) || 0;
+                health += parseFloat(row.dataset.healthTax) || 0;
+                saWater += parseFloat(row.dataset.saWaterTax) || 0;
+                vsaWater += parseFloat(row.dataset.vsaWaterTax) || 0;
+                cleaning += parseFloat(row.dataset.cleaningTax) || 0;
+                toilet += parseFloat(row.dataset.toiletTax) || 0;
+                total += parseFloat(row.dataset.totalTax) || 0;
+            });
+            if(document.getElementById('footerHouseTax'))
+                document.getElementById('footerHouseTax').innerText = `घर : ${house.toFixed(2)}`;
+            if(document.getElementById('footerLightingTax'))
+                document.getElementById('footerLightingTax').innerText = `दिवा : ${lighting.toFixed(2)}`;
+            if(document.getElementById('footerHealthTax'))
+                document.getElementById('footerHealthTax').innerText = `आरोग्य : ${health.toFixed(2)}`;
+            if(document.getElementById('footerSaWaterTax'))
+                document.getElementById('footerSaWaterTax').innerText = `सा.पाणी : ${saWater.toFixed(2)}`;
+            if(document.getElementById('footerVsaWaterTax'))
+                document.getElementById('footerVsaWaterTax').innerText = `वि.पाणी : ${vsaWater.toFixed(2)}`;
+            if(document.getElementById('footerCleaningTax'))
+                document.getElementById('footerCleaningTax').innerText = `सफाई : ${cleaning.toFixed(2)}`;
+            if(document.getElementById('footerToiletTax'))
+                document.getElementById('footerToiletTax').innerText = `शौ. कर : ${toilet.toFixed(2)}`;
+            if(document.getElementById('footerTotalTax'))
+                document.getElementById('footerTotalTax').innerText = `एकूण : ${total.toFixed(2)}`;
+        }
         function showPage(page) {
             const records = Array.from(document.querySelectorAll('.record-row'));
             totalPages = Math.ceil(records.length / recordsPerPage);
@@ -113,6 +146,7 @@
             document.getElementById('pageInput').value = currentPage;
             if(document.getElementById('pageTotal'))
                 document.getElementById('pageTotal').innerText = '/' + totalPages;
+            updateFooterSummary(); // <-- Add this line
         }
         function nextPage() { showPage(currentPage + 1); }
         function prevPage() { showPage(currentPage - 1); }
@@ -139,6 +173,7 @@
         window.onload = function() {
             updateZoom();
             showPage(1);
+            updateFooterSummary(); // <-- Add this line
             // Wire up navigation buttons
             document.querySelector('button[title="First Page"]').onclick = firstPage;
             document.querySelector('button[title="Previous Page"]').onclick = prevPage;
@@ -218,15 +253,33 @@
         <tfoot class="page-footer">
             <tr>
                 <td colspan="21" style="border:none; padding:0;">
-                    <div class="footer-summary">
-                        एकूण कर : घर : 8188.00 &nbsp; दिवा : 300.00 &nbsp; आरोग्य : 300.00 &nbsp; पाणी : 300.00 &nbsp; सफाई : 0.00 &nbsp; शौ. कर : 0.00 &nbsp; एकूण : 9088.00
-                    </div>                                                                                                                                                                                                                                                                                                                                                                                          
+                    <table class="footer-summary" id="footerSummary" style="width:100%; border-collapse: collapse; font-size: 15px; font-weight:bold;">
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: left; width: 10%;">एकूण कर :</td>
+                            <td id="footerHouseTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerLightingTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerHealthTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerSaWaterTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerVsaWaterTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerCleaningTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerToiletTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                            <td id="footerTotalTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </tfoot>
         <tbody>
             {% for row in data %}
-            <tr class="record-row">
+            <tr class="record-row"
+                data-house-tax="{{ row.totalHouseTax | default('0') }}"
+                data-lighting-tax="{{ row.lightingTax | default('0') }}"
+                data-health-tax="{{ row.healthTax | default('0') }}"
+                data-sa-water-tax="{{ row.saWaterTax | default('0') }}"
+                data-vsa-water-tax="{{ row.vsaWaterTax | default('0') }}"
+                data-cleaning-tax="{{ row.cleaningTax | default('0') }}"
+                data-toilet-tax="{{ row.toiletTax | default('0') }}"
+                data-total-tax="{{ row.totaltax | default('0') }}">
                 <td>{{ row.srNo | default('') }}</td>
                 <td>{{ row.propertyNumber | default('') }}</td>
                 <td style="width: 300px;">{{ row.ownerName | default('') }}</td>
