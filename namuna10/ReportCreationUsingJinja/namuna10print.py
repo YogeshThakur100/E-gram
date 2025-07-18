@@ -1,8 +1,9 @@
 from jinja2 import Environment, FileSystemLoader
 import os
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter , Request
 from fastapi.responses import JSONResponse
+import httpx
 
 router = APIRouter()
 # Load templates from the 'templates' folder (adjust path as needed)
@@ -17,13 +18,17 @@ env = Environment(loader=FileSystemLoader(namuna10_template_dir))
 localhost = "http://127.0.0.1:8000"
 
 @router.post('/vasuliprint')
-def prakar1():
+async def prakar1(request : Request):
     try:
         # Load template
+        requestDate = await request.json()
+        stateDate = requestDate.get("startDate")
+        endDate = requestDate.get("endDate")
         template = env.get_template('vasuliHishob.html')
 
         # Call API
-        response = requests.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+        async with httpx.AsyncClient() as client:    
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/1')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -41,6 +46,8 @@ def prakar1():
             'jilha': data[0].get('jilha', '') if data else '',
             'yearFrom': data[0].get('yearFrom', '') if data else '',
             'yearTo': data[0].get('yearTo', '') if data else '',
+            "stateDate" : stateDate,
+            "endDate" : endDate
         }
         rendered_html = template.render(**context)
         

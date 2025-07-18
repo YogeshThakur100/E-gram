@@ -330,6 +330,8 @@
                     {% if row.khaliJaga is defined and row.khaliJaga|length > 0 %}
                         {{ row.khaliJaga[0].capitalValue | default('') }}
                     {% endif %}
+                    <hr></hr>
+                    {{row.totalCapitalValue}}
                 </td>
                 <td>
                     {% if row.constructionType is defined and row.constructionType|length > 0 %}
@@ -352,6 +354,8 @@
                     {% if row.khaliJaga is defined and row.khaliJaga|length > 0 %}
                         {{ row.khaliJaga[0].houseTax | default('') }}
                     {% endif %}
+                    <hr></hr>
+                    {{row.totalHouseTax}}
                 </td>
                 <td>{{ row.lightingTax | default('') }}</td>
                 <td>{{ row.healthTax | default('') }}</td>
