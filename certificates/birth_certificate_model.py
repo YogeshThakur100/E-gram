@@ -26,3 +26,4 @@ class BirthCertificate(Base):
     permanent_address_en = Column(String)
     remark_en = Column(String)
     qrcode = Column(String, nullable=True)  
+    barcode = Column(String, nullable=True)  

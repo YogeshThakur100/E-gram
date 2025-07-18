@@ -14,11 +14,16 @@ class BirthDeathUnavailabilityCertificateBase(BaseModel):
     certificate_name_en: Optional[str]
     subject: Optional[str]
     subject_en: Optional[str]
+    barcode: str | None = None
 
 class BirthDeathUnavailabilityCertificateCreate(BirthDeathUnavailabilityCertificateBase):
     pass
 
 class BirthDeathUnavailabilityCertificateRead(BirthDeathUnavailabilityCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    barcode: str | None = None
+    barcode_url: str | None = None
+
+    model_config = {
+        "from_attributes": True
+    } 

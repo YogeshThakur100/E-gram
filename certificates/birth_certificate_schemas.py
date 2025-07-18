@@ -24,11 +24,16 @@ class BirthCertificateBase(BaseModel):
     permanent_address_en: str
     remark: Optional[str]
     remark_en: str
+    barcode: str | None = None
 
 class BirthCertificateCreate(BirthCertificateBase):
     id: Optional[int] = None
 
 class BirthCertificateRead(BirthCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    qrcode: str | None = None
+    barcode: str | None = None
+    barcode_url: str | None = None
+    model_config = {
+        "from_attributes": True
+    } 
