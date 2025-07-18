@@ -1,5 +1,5 @@
 from pydantic import BaseModel, constr, validator
-from typing import Annotated
+from typing import Annotated, Optional
 from datetime import date
 
 class ToiletCertificateBase(BaseModel):
@@ -22,5 +22,11 @@ class ToiletCertificateCreate(ToiletCertificateBase):
 
 class ToiletCertificateRead(ToiletCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
+    model_config = {
+        "from_attributes": True
+    } 

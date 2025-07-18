@@ -11,6 +11,8 @@ env/    # Another common virtual environment name
 *.sqlite3
 E-gram/backend/E-gram/static/
 static
+uploaded_images/
+database.py
 # Or specifically:
 # grampanchayat.db
 # test.db

@@ -23,5 +23,12 @@ class NoBenefitCertificateCreate(NoBenefitCertificateBase):
 
 class NoBenefitCertificateRead(NoBenefitCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    image_url: Optional[str] = None
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
+    model_config = {
+        "from_attributes": True
+    } 
