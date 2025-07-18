@@ -7,7 +7,8 @@ class DeathCertificateBase(BaseModel):
     register_date: Optional[date]
     village: Optional[str]
     deceased_name: Optional[str]
-    sex: Optional[str]
+    gender: Optional[str]
+    gender_en: Optional[str]
     death_date: Optional[date]
     place_of_death: Optional[str]
     mother_name: Optional[str]
@@ -22,11 +23,16 @@ class DeathCertificateBase(BaseModel):
     address_at_death_en: Optional[str]
     permanent_address_en: Optional[str]
     remark_en: Optional[str]
+    barcode: str | None = None
 
 class DeathCertificateCreate(DeathCertificateBase):
     pass
 
 class DeathCertificateRead(DeathCertificateBase):
     id: int
-    class Config:
-        orm_mode = True 
+    qrcode: str | None = None
+    barcode: str | None = None
+    barcode_url: str | None = None
+    model_config = {
+        "from_attributes": True
+    } 
