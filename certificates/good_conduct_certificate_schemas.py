@@ -23,5 +23,9 @@ class GoodConductCertificateCreate(GoodConductCertificateBase):
 class GoodConductCertificateRead(GoodConductCertificateBase):
     id: int
     image_url: Optional[str] = None
+    barcode: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
     class Config:
-        orm_mode = True 
+        from_attributes = True 

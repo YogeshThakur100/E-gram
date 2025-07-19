@@ -10,4 +10,5 @@ class NiradharCertificate(Base):
     applicant_name = Column(String, nullable=True)
     applicant_name_en = Column(String, nullable=True)
     adhar_number = Column(String, nullable=True)
-    adhar_number_en = Column(String, nullable=True) 
+    adhar_number_en = Column(String, nullable=True)
+    barcode = Column(String, nullable=True) 

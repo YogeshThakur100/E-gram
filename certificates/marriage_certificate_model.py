@@ -1,0 +1,30 @@
+from sqlalchemy import Column, Integer, String, Date
+from database import Base
+
+class MarriageCertificate(Base):
+    __tablename__ = "marriage_certificates"
+    id = Column(Integer, primary_key=True, index=True)
+    registration_date = Column(Date, nullable=False)
+    village = Column(String, nullable=True)
+    village_en = Column(String, nullable=True)
+    husband_name = Column(String, nullable=True)
+    husband_name_en = Column(String, nullable=True)
+    husband_adhar = Column(String, nullable=True)
+    husband_adhar_en = Column(String, nullable=True)
+    husband_address = Column(String, nullable=True)
+    husband_address_en = Column(String, nullable=True)
+    wife_name = Column(String, nullable=True)
+    wife_name_en = Column(String, nullable=True)
+    wife_adhar = Column(String, nullable=True)
+    wife_adhar_en = Column(String, nullable=True)
+    wife_address = Column(String, nullable=True)
+    wife_address_en = Column(String, nullable=True)
+    marriage_date = Column(Date, nullable=False)
+    marriage_register_no = Column(String, nullable=True)
+    marriage_register_subno = Column(String, nullable=True)
+    marriage_place = Column(String, nullable=True)
+    marriage_place_en = Column(String, nullable=True)
+    remark = Column(String, nullable=True)
+    remark_en = Column(String, nullable=True)
+    barcode = Column(String, nullable=True)
+    qrcode = Column(String, nullable=True) 

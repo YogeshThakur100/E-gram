@@ -105,7 +105,7 @@ def create_no_objection_certificate(
 
 @router.get("/no-objection", response_model=list[NoObjectionCertificateRead])
 def list_no_objection_certificates(db: Session = Depends(get_db)):
-    return db.query(NoObjectionCertificate).all()
+    return db.query(NoObjectionCertificate).all() 
 
 @router.get("/no-objection/{id}", response_model=NoObjectionCertificateRead)
 def get_no_objection_certificate(id: int, request: Request, db: Session = Depends(get_db)):
