@@ -22,6 +22,11 @@ class LifeCertificateCreate(LifeCertificateBase):
 
 class LifeCertificateRead(LifeCertificateBase):
     id: int
-    image_url: Optional[str] = None
-    class Config:
-        orm_mode = True 
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
+    model_config = {
+        "from_attributes": True
+    } 

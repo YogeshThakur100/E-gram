@@ -15,7 +15,7 @@ class FamilyCertificateBase(BaseModel):
     applicant_name_en: Optional[str] = None
     relation: Optional[str] = None
     relation_en: Optional[str] = None
-    relation_type: Optional[str] = None
+    year: Optional[str] = None
 
 class FamilyCertificateCreate(FamilyCertificateBase):
     pass
