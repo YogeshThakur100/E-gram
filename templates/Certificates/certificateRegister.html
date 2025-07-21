@@ -51,12 +51,6 @@
                 display: none !important;
             }
         }
-        #mainContent {
-            max-width: 800px;
-            margin: 32px auto 32px auto;
-            padding: 32px 32px 32px 32px;
-            border-radius: 8px;
-        }
     </style>
 </head>
 <body>
@@ -87,11 +81,13 @@
         let currentPage = 1;
         const recordsPerPage = 10; // Show 10 records per page
         let totalPages = 0;
+        let allRecords = []; // Cache the records
 
         function updateZoom() {
             document.getElementById('mainContent').style.zoom = zoomLevel;
             document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
         }
+
         function zoomIn() {
             if (zoomLevel < maxZoom) {
                 zoomLevel += zoomStep;
@@ -99,6 +95,7 @@
                 updateZoom();
             }
         }
+
         function zoomOut() {
             if (zoomLevel > minZoom) {
                 zoomLevel -= zoomStep;
@@ -106,46 +103,58 @@
                 updateZoom();
             }
         }
+
         function showPage(page) {
-            const records = Array.from(document.querySelectorAll('.record-row'));
-            totalPages = Math.ceil(records.length / recordsPerPage);
+            if (!allRecords.length) {
+                allRecords = Array.from(document.querySelectorAll('.record-row'));
+            }
+            totalPages = Math.ceil(allRecords.length / recordsPerPage);
+
             if (page < 1) page = 1;
             if (page > totalPages) page = totalPages;
             currentPage = page;
-            records.forEach((el, idx) => {
+
+            let pageTotalPrice = 0;
+
+            allRecords.forEach((el, idx) => {
                 const pageIdx = Math.floor(idx / recordsPerPage) + 1;
-                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+                if (pageIdx === currentPage) {
+                    el.style.display = ''; // Show row
+                    const priceEl = el.querySelector('.price');
+                    if (priceEl) {
+                        pageTotalPrice += parseFloat(priceEl.innerText) || 0;
+                    }
+                } else {
+                    el.style.display = 'none'; // Hide row
+                }
             });
+
             document.getElementById('pageInput').value = currentPage;
             document.getElementById('pageTotal').innerText = '/' + totalPages;
+            
+            const pageTotalElement = document.getElementById('page-total-price');
+            if(pageTotalElement) {
+                pageTotalElement.innerText = pageTotalPrice.toFixed(2);
+            }
         }
+
         function nextPage() { showPage(currentPage + 1); }
         function prevPage() { showPage(currentPage - 1); }
         function firstPage() { showPage(1); }
         function lastPage() { showPage(totalPages); }
+
         function printPage() {
-            // Show only current page's records before printing, then restore
-            const records = Array.from(document.querySelectorAll('.record-row'));
-            const prevStates = records.map(el => el.style.display);
-            records.forEach((el, idx) => {
-                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
-                el.style.display = (pageIdx === currentPage) ? '' : 'none';
-            });
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => {
-                    records.forEach((el, idx) => {
-                        el.style.display = prevStates[idx];
-                    });
-                }, 100);
-            }, 50);
+            window.print();
         }
+
         function exitPage() {
             window.close();
         }
+
         window.onload = function() {
             updateZoom();
             showPage(1);
+            
             // Wire up navigation buttons
             document.querySelector('button[title="First Page"]').onclick = firstPage;
             document.querySelector('button[title="Previous Page"]').onclick = prevPage;
@@ -158,35 +167,41 @@
     <table style="margin-top:4px;">
         <tr>
             <td colspan="4" class="left bold">ग्रामपंचायत : {{gramPanchayat}} तालुका : {{taluka}} जिल्हा : {{jilha}}</td>
-            <td colspan="8" class="center">दिनांक : <span class="bold"> {{startDate}} </span> पासून ते दिनांक : <span class="bold">{{endDate}}</span> पर्यंत</td>
+            <td colspan="8" class="center">दिनांक : <span class="bold"> {{startDate}} </span> पासून ते दिनांक : <span class="bold">{{toDate}}</span> पर्यंत</td>
             <td colspan="6" class="right">दिनांक : <span class="bold"> {{currentDate}} </span></td>
         </tr>
     </table>
     <table>
-        <tr class="header">
-            <th >अ.क्र.</th>
-            <th >दाखला प्रकार</th>
-            <th >दाखला नाव</th>
-            <th >गाव</th>
-            <th >दाखला दिनांक</th>
-            <th >दाखला क्रमांक</th>
-            <th >दाखला रक्कम</th>
-        </tr>
+        <thead>
+            <tr class="header">
+                <th >अ.क्र.</th>
+                <th >दाखला प्रकार</th>
+                <th >दाखला नाव</th>
+                <th >गाव</th>
+                <th >दाखला दिनांक</th>
+                <th >दाखला क्रमांक</th>
+                <th >दाखला रक्कम</th>
+            </tr>
+        </thead>
+        <tbody>
         {% for row in data %}
         <tr class="record-row">
-            <td>{{ row.srNo }}</td>
-            <td>{{ row.receiptDate }}</td>  
-            <td>{{ row.receiptNumber }}</td>
-            <td>{{ row.receiptBookNumber }}</td>
-            <td>{{ row.ownername }}</td>
-            <td>{{ row.reason }}</td>
-            <td>{{ row.receivedMoney }}</td>
+            <td>{{ loop.index }}</td>
+            <td>{{ row.type }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.village }}</td>
+            <td>{{ row.registered_date }}</td>
+            <td>{{ row.certificate_id }}</td>
+            <td class="price">{{ row.price }}</td>
         </tr>
         {% endfor %}
-        <tr>
-            <td colspan="6" class="right bold">एकूण</td>
-            <td></td>
-        </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="6" class="right bold">एकूण</td>
+                <td id="page-total-price" class="bold"></td>
+            </tr>
+        </tfoot>
     </table>
 </body>
 </html>

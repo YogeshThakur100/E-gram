@@ -2,7 +2,7 @@
 <html lang="mr">
 <head>
     <meta charset="UTF-8">
-    <title>जन्म प्रमाणपत्र</title>
+    <title>दाखल्याबद्दल पावती</title>
     <style>
         @media print {
             @page {
@@ -12,6 +12,7 @@
                 display: none !important;
             }
         }
+        
     </style>
 </head>
 <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
@@ -73,8 +74,8 @@
       <div style="font-size:18px; font-weight:bold;">
         दाखल्याबद्दल पावती<br/>
         Receipt of the Certificate<br/>
-        ग्रामपंचायत :  तालुका : जिल्हा : <br/>
-        Grampanchyayat : Taluka : District :
+        ग्रामपंचायत : {{ gramPanchayat | default('') }} तालुका : {{ taluka | default('') }} जिल्हा : {{ jilha | default('') }} <br/>
+        Grampanchyayat : {{ gramPanchayat | default('') }} Taluka : {{ taluka | default('') }} District : {{ jilha | default('') }}
       </div>
     </td>
   </tr>
@@ -85,26 +86,26 @@
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">दिनांक :</td>
-    <td style="text-align:right; width:50%; padding:4px;">पावती क्रमांक :</td>
+    <td style="text-align:left; width:50%; padding:4px;">दिनांक : {{ receipt_date | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">पावती क्रमांक : {{ receipt_id | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Date :</td>
-    <td style="text-align:right; padding:4px;">Receipt Number :</td>
+    <td style="text-align:left; padding:4px;">Date : {{ receipt_date | default('') }}</td>
+    <td style="text-align:right; padding:4px;">Receipt Number : {{ receipt_id | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">श्री/श्रीमती  राहणार गाव. ग्रामपंचायत  ता. जिल्हा   याजकडून  प्रमाणपत्र यासाठी रक्कम रुपये  प्राप्त झाले.</td>
+    <td style="text-align:left; padding:4px;" colspan="2">श्री/श्रीमती {{ name1 | default('') }} राहणार गाव. {{ village | default('') }} ग्रामपंचायत {{ gramPanchayat | default('') }} ता. {{ taluka | default('') }} जिल्हा {{ jilha | default('') }} याजकडून {{ name2 | default('') }} प्रमाणपत्र यासाठी रक्कम रुपये {{ receipt_amount | default('') }} प्राप्त झाले.</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Received from Mr./Mrs  of Village  Grampanchyayat  Tal. District  Charge of Rs.  for the .</td>
+    <td style="text-align:left; padding:4px;" colspan="2">Received from Mr./Mrs {{ name1_en | default('') }} of Village {{ village_en | default('') }} Grampanchyayat {{ gramPanchayat | default('') }} Tal. {{ taluka | default('') }} District {{ jilha | default('') }} Charge of Rs. {{ receipt_amount_en | default('') }} for the {{ name2_en | default('') }}.</td>
   </tr>
 </table>
 
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:center; padding:8px; ">
-      ठिकाण :<br>
-      Place :<br>
+      ठिकाण : {{ village | default('') }}<br>
+      Place : {{ village_en | default('') }}<br>
     </td>
     <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
       सही व शिक्का<br>
@@ -117,11 +118,8 @@
 
 
 </div>
-</div>
 
 <div style="border-bottom: 1px dashed #000; margin: 8px 0 8px 0;"></div>
-
-<div id="mainContent">
   <div style="padding-left:40px; padding-right:40px;">
   <table style="width:100%;border:1px solid black ; background:#ccc;">
     <tr>
@@ -129,8 +127,8 @@
         <div style="font-size:18px; font-weight:bold;">
           दाखल्याबद्दल पावती<br/>
           Receipt of the Certificate<br/>
-          ग्रामपंचायत :  तालुका : जिल्हा : <br/>
-          Grampanchyayat : Taluka : District :
+          ग्रामपंचायत : {{ gramPanchayat | default('') }} तालुका : {{ taluka | default('') }} जिल्हा : {{ jilha | default('') }} <br/>
+          Grampanchyayat : {{ gramPanchayat | default('') }} Taluka : {{ taluka | default('') }} District : {{ jilha | default('') }}
         </div>
       </td>
     </tr>
@@ -141,26 +139,26 @@
   <!-- Main details table -->
   <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
     <tr>
-      <td style="text-align:left; width:50%; padding:4px;">दिनांक :</td>
-      <td style="text-align:right; width:50%; padding:4px;">पावती क्रमांक :</td>
+      <td style="text-align:left; width:50%; padding:4px;">दिनांक : {{ receipt_date | default('') }}</td>
+      <td style="text-align:right; width:50%; padding:4px;">पावती क्रमांक : {{ receipt_id | default('') }}</td>
     </tr>
     <tr>
-      <td style="text-align:left; padding:4px;">Date :</td>
-      <td style="text-align:right; padding:4px;">Receipt Number :</td>
+      <td style="text-align:left; padding:4px;">Date : {{ receipt_date | default('') }}</td>
+      <td style="text-align:right; padding:4px;">Receipt Number : {{ receipt_id | default('') }}</td>
     </tr>
     <tr>
-      <td style="text-align:left; padding:4px;">श्री/श्रीमती  राहणार गाव. ग्रामपंचायत  ता. जिल्हा   याजकडून  प्रमाणपत्र यासाठी रक्कम रुपये  प्राप्त झाले.</td>
+      <td style="text-align:left; padding:4px;" colspan="2">श्री/श्रीमती {{ name1 | default('') }} राहणार गाव. {{ village | default('') }} ग्रामपंचायत {{ gramPanchayat | default('') }} ता. {{ taluka | default('') }} जिल्हा {{ jilha | default('') }} याजकडून {{ name2 | default('') }} प्रमाणपत्र यासाठी रक्कम रुपये {{ receipt_amount | default('') }} प्राप्त झाले.</td>
     </tr>
     <tr>
-      <td style="text-align:left; padding:4px;">Received from Mr./Mrs  of Village  Grampanchyayat  Tal. District  Charge of Rs.  for the .</td>
+      <td style="text-align:left; padding:4px;" colspan="2">Received from Mr./Mrs {{ name1_en | default('') }} of Village {{ village_en | default('') }} Grampanchyayat {{ gramPanchayat | default('') }} Tal. {{ taluka | default('') }} District {{ jilha | default('') }} Charge of Rs. {{ receipt_amount_en | default('') }} for the {{ name2_en | default('') }}.</td>
     </tr>
   </table>
   
   <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
     <tr>
       <td style="width:33%; vertical-align:center; padding:8px; ">
-        ठिकाण :<br>
-        Place :<br>
+        ठिकाण : {{ village | default('') }}<br>
+        Place : {{ village_en | default('') }}<br>
       </td>
       <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
         सही व शिक्का<br>
@@ -169,9 +167,8 @@
       </td>
     </tr>
   </table>
-  
-  
-  
-  </div>
+
+</div>
   </div>
 </body>
+</html>

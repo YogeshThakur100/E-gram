@@ -616,6 +616,91 @@ async def prakar1(request: Request):
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "message": f"Error: {str(e)}", "data": {}})
     
+@router.post('/regular/namuna9k')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
+        year = requestData.get("year")
+        template = regularEnv.get_template('namuna9k.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+        if not isinstance(data, list):
+            data = [data]
+
+        tax_name_map = {
+            "houseTax": "घर कर",
+            "lightingTax": "दिवा बत्ती कर",
+            "healthTax": "आरोग्य कर",
+            "waterTax": "पाणी कर",
+            "cleaningTax": "सफाई कर",
+            "noticeFee": "नोटीस फी",
+            "warrantFee": "जप्ती वारंट फी"
+        }
+        
+        rendered_html_parts = []
+        for record in data:
+            taxes_list = []
+            tax_keys_in_order = ["houseTax", "lightingTax", "healthTax", "waterTax", "cleaningTax", "noticeFee", "warrantFee"]
+            
+            for i, key in enumerate(tax_keys_in_order, 1):
+                tax_row = {
+                    "name": tax_name_map.get(key, ""),
+                    "possible_rupees": record['recoverableAmounts']['arrears']['Thakit'].get(f'Thakit{i}', 0),
+                    "possible_tanch": record['recoverableAmounts']['arrears']['Dand'].get(f'Dand{i}', 0),
+                    "current_rupees": record['recoverableAmounts']['current'].get(f'current{i}', 0),
+                    "total_rupees": record['recoverableAmounts']['total'].get(f'total{i}', 0)
+                }
+                taxes_list.append(tax_row)
+
+            context = {
+                'village': record.get('gramPanchayat', ''),
+                'year': record.get('yearSlap', ''),
+                'receipt_no': record.get('propertyNumber', ''),
+                'date': record.get('currentDate', ''),
+                'applicant_name': record.get('ownerName', ''),
+                'owner_type': record.get('occupantName', ''),
+                'house_no': record.get('houseNumber', ''),
+                'taxes': taxes_list,
+                'grand_total': record.get('totalTax', 0)
+            }
+            
+            rendered_html_parts.append(template.render(context))
+        
+        rendered_html = "\\n".join(rendered_html_parts)
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+    
 @router.post('/sutsaha/namuna9All')
 async def prakar1(request : Request):
     try:
