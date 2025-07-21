@@ -153,3 +153,418 @@ async def prakar1(request : Request):
                 "data": {}
             }
         )
+        
+@router.post('/resident')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('RahivashiDakhla.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/resident/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/family')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('BelowPovertyLine.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/family/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/toilet')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('toilet.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/toilet/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/no-objection')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('noObjection.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/no-objection/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/no-benefit')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('nonBeneficiary.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/no-benefit/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/life')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('living.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/life/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/good-conduct')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('character.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/good-conduct/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/niradhar')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('unfounded.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/niradhar/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/marriage')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        userID = requestData.get("userID")
+        template = env.get_template('marriage.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/certificates/marriage/{userID}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        rendered_html = template.render(**data[0])
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+            

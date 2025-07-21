@@ -78,67 +78,62 @@
   </tr>
 </table>
 
-
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">दिनांक : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : {{ id }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">दिनांक : {{ registration_date }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">Date : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : {{ id }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">Date : {{ registration_date }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;"><img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" /></td>
+    <td style="text-align:left; width:50%; padding:4px;"><img src="/{{ barcode }}" alt="Barcode" style="height:40px;" /></td>
   </tr>
 </table>
+
 
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">ग्रामसेवक / ग्रामविकास अधिकारी, ग्रा.प. ikUgsjk, ता.eksrkGk, जि. cqyMk.kk
+    <td style="text-align:left; width:50%; padding:4px;">
+      ग्रामसेवक / ग्रामविकास अधिकारी, ग्रा.प.{{ gramPanchayat or '' }}, ता. {{ taluka or '' }}, जिल्हा {{ jilha or '' }}
     </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Gramsevak / Village Development officer
-      </td>
+    <td style="text-align:left; padding:4px;">
+      Gramsevak/Village Development officer,GP.{{ gramPanchayat or '' }}, Tq. {{ taluka or '' }}, Dist. {{ jilha or '' }}
+    </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">यांजकडून दाखला देण्यात येतो कि, मंगेश मधुकर राजपूत</td>
+    <td style="text-align:left; padding:4px;">यांजकडून दाखला देण्यात येतो कि,{{ applicant_name or '' }} </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">is issuing the certificate to मंगेश मधुकर राजपूत </td>
+    <td style="text-align:left; padding:4px;">is issuing the certificate to {{ applicant_name_en or '' }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक :</td>
+    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक : {{ adhar_number | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Aadhar Card Number :</td>
+    <td style="text-align:left; padding:4px;">Aadhar Card Number : {{ adhar_number_en | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">राहणार ikUgsjk, ता.eksrkGk ,जि.cqyMk.kk</td>
+    <td style="text-align:left; padding:4px;">राहणार गाव.{{ village or '' }},ग्रा.प.{{ gramPanchayat or '' }}, ता. {{ taluka or '' }}, जिल्हा {{ jilha or '' }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Resident at Panhera, Tq.Motala, Dist.cqyMk.kk</td>
+    <td style="text-align:left; padding:4px;">Residence at Village {{ village or '' }},Gp.{{ gramPanchayat or '' }}, Tq.{{ taluka or '' }}, Dist {{ jilha or '' }} </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">यांचा सन 2015 या वर्षातील दारिद्र्य रेषेखालील यादीतील क्रमांक 12205 हा आहे.</td>
+    <td style="text-align:left; padding:4px;">असून त्यांचे पती कै. {{husbandName or ''}}   हे मयत असून त्या विधवा आहेत.</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">In this year 2015 Below poverty line list no.12205 </td>
+    <td style="text-align:left; padding:4px;">And her Husband {{husbandName or ''}} is died and she is widow</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">श्री / श्रीमती मंगेश मधुकर राजपूत     हा/हि/ह्याचा/त्याचा स्वतः आहे.</td>
+    <td style="text-align:left; padding:4px;">सदर दाखला अर्जदाराच्या मागणी नुसार त्यांचे पतीच्या मृत्युच्या दाखल्यावरून व स्थानिक चौकशी करून देण्यात येत आहे.</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Mr./Mrs. मंगेश मधुकर राजपूत   He/She/His/Her Self  In Relation</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">is a permanent / temporary resident</td>
-  </tr><tr>
-    <td style="text-align:left; padding:4px;">सदर दाखला त्यांचे विनंती अर्जानुसार देण्यात येत आहे.</td>
-  </tr><tr>
-    <td style="text-align:left; padding:4px;">certificate is issued on request of the applicant</td>
+    <td style="text-align:left; padding:4px;">This certificate is issued on request of the applicant after verifying the death certificate of her husband and local enquiry.</td>
   </tr>
 </table>
 
@@ -146,8 +141,8 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:center; padding:8px; ">
-      ठिकाण :<br>
-      Place :<br>
+      ठिकाण : {{village or ' '}} <br>
+      Place : {{village_en or ' '}} <br>
     </td>
     <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
       सही व शिक्का<br>

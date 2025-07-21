@@ -12,6 +12,12 @@
                 display: none !important;
             }
         }
+        #mainContent {
+          max-width: 800px;
+          margin: 32px auto 32px auto;
+          padding: 32px 32px 32px 32px;
+          border-radius: 8px;
+      }
     </style>
 </head>
 <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
@@ -66,7 +72,7 @@
     window.onload = updateZoom;
 </script>
 <div id="mainContent">
-<div style="padding-left:40px; padding-right:40px;">
+<div style="padding-left:10px; padding-right:10px;">
 <table style="width:100%;border:1px solid black ; background:#ccc;">
   <tr>
     <td style="border:none width:20%; text-align:center; vertical-align:center;">
@@ -94,48 +100,48 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="text-align:left; width:50%; padding:4px;">प्रमाणित करण्यात येते कि</td>
-    <td style="text-align:right; width:50%; padding:4px;">दाखला क्रमांक : </td>
+    <td style="text-align:right; width:50%; padding:4px;">दाखला क्रमांक : {{ id }}</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">Certified that the marriage between</td>
-    <td style="text-align:right; padding:4px;">Certificate Number :</td>
+    <td style="text-align:right; padding:4px;">Certificate Number : {{ id }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">पतीचे नाव :-मंगेश मधुकर राजपूत राहणार रा:-सुंदरखेड, बुलढाणा</td>
-    <td style="text-align:right; padding:4px;"><img src="/uploaded_images/qrcode/1/qrcode.png" alt="QR Code" style="height:80px;" /></td>
+    <td style="text-align:left; padding:4px;">पतीचे नाव :-{{ husband_name }} राहणार रा:-{{ husband_address }}</td>
+    <td style="text-align:right; padding:4px;"><img src="{{ barcode }}" alt="Bar Code" style="height:80px;" /></td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Husband Name :- मंगेश मधुकर राजपूत Residing at:- सुंदरखेड, बुलढाणा</td>
+    <td style="text-align:left; padding:4px;">Husband Name :- {{ husband_name_en }} Residing at:- {{ husband_address_en }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक :</td>
+    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक : {{ husband_adhar }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Aadhar Card Number :</td>
-  </tr>
-</table>
-
-<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
-  <tr>
-    <td style="text-align:left; width:50%; padding:4px;">पत्नीचे नाव :-अर्चना राजपूत राहणार रा:-नागपूर</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">Wife Name :-नागपूर residing at नागपूर</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक :</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">Aadhar Card Number :</td>
+    <td style="text-align:left; padding:4px;">Aadhar Card Number : {{ husband_adhar_en }}</td>
   </tr>
 </table>
 
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">यांचा विवाह येथे. बुलढाणा</td>
+    <td style="text-align:left; width:50%; padding:4px;">पत्नीचे नाव :-{{ wife_name }} राहणार रा:-{{ wife_address }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Solemnized on at -buldhana</td>
+    <td style="text-align:left; padding:4px;">Wife Name :-{{ wife_name_en }} residing at {{ wife_address_en }}</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">आधार कार्ड क्रमांक : {{ wife_adhar }}</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Aadhar Card Number : {{ wife_adhar_en }}</td>
+  </tr>
+</table>
+
+<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
+  <tr>
+    <td style="text-align:left; width:50%; padding:4px;">यांचा विवाह येथे. {{ village }} ({{ marriage_place }})</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Solemnized on at - {{ village_en }} ({{ marriage_place_en }})</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">विवाह विधी संपन्न झाला.त्याची महाराष्ट्र विवाह मंडळाने विनियमन आणि विवाह नोंद विधेयक , 1998 </td>
@@ -144,32 +150,32 @@
     <td style="text-align:left; padding:4px;">Registered of Marriages maintained under the Maharashtra Regulation of Marriage Bereaus and registration of Marriages Act 1998</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">अन्वये ठेवण्यात आलेल्या नोंदवहीच्या खंड क्रमांक. 2550  च्या अनुक्रमांक 120 वर </td>
+    <td style="text-align:left; padding:4px;">अन्वये ठेवण्यात आलेल्या नोंदवहीच्या खंड क्रमांक. {{ marriage_register_no }}  च्या अनुक्रमांक {{ marriage_register_subno }} वर </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Of volume    2550  at Serial No.120
+    <td style="text-align:left; padding:4px;">Of volume    {{ marriage_register_no }}  at Serial No.{{ marriage_register_subno }}
     </td>
   </tr> 
 </table>
 
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">विवाह दिनांक :- 03-Feb-2019</td>
+    <td style="text-align:left; width:50%; padding:4px;">विवाह दिनांक :- {{ marriage_date }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Marriage Date :- 03-Feb-2019</td>
+    <td style="text-align:left; padding:4px;">Marriage Date :- {{ marriage_date }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">दिनांक:- 03-Feb-2019   रोजी माझ्याकडून नोंदणी करण्यात आली आहे</td>
+    <td style="text-align:left; padding:4px;">दिनांक:- {{ registration_date }}   रोजी माझ्याकडून नोंदणी करण्यात आली आहे</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">On:- 03-Feb-2019 registered by me.</td>
+    <td style="text-align:left; padding:4px;">On:- {{ registration_date }} registered by me.</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">शेरा :--</td>
+    <td style="text-align:left; padding:4px;">शेरा :-- {{ remark }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Remark :-
+    <td style="text-align:left; padding:4px;">Remark :- {{ remark_en }}
     </td>
   </tr> 
 </table>  
@@ -178,21 +184,21 @@
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:center ; padding:8px; ">
-      दिनांक :<br>
-      Date :<br>
-      ठिकाण : 03-Feb-2019<br>
-      Place : 03-Feb-2019
+      दिनांक : {{ registration_date }}<br>
+      Date : {{ registration_date }}<br>
+      ठिकाण : {{ marriage_place }}<br>
+      Place : {{ marriage_place_en }}
     </td>
     <td style="vertical-align:top;  ">
-      <td style="text-align:left; padding:4px;"><img src="/uploaded_images/qrcode/1/qrcode.png" alt="QR Code" style="height:80px;" /></td>
+      <td style="text-align:left; padding:4px;"><img src="{{ qrcode }}" alt="QR Code" style="height:80px;" /></td>
     </td>
     <td style="width:33%; text-align:right; vertical-align:center; padding:8px;  border-left:1px solid black">
       निबंधक / विवाह नोंदणी तथा <br>
       Registrar of Marrige<br>
       ग्रामसेवक / ग्रामसेवक अधिकारी<br>
       Sarpanch / Gramsevak /Village Development Officer<br>
-      ग्रामपंचायत ikUgsjk<br>
-      Grampanchayat Panhera
+      ग्रामपंचायत {{ gramPanchayat if gramPanchayat else '' }}<br>
+      Grampanchayat {{ gramPanchayat if gramPanchayat else '' }}
     </td>
   </tr>
 </table>

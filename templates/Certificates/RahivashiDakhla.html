@@ -12,6 +12,12 @@
                 display: none !important;
             }
         }
+        #mainContent {
+          max-width: 800px;
+          margin: 32px auto 32px auto;
+          padding: 32px 32px 32px 32px;
+          border-radius: 8px;
+      }
     </style>
 </head>
 <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
@@ -66,7 +72,7 @@
     window.onload = updateZoom;
 </script>
 <div id="mainContent">
-<div style="padding-left:40px; padding-right:40px;">
+<div style="padding-left:10px; padding-right:10px;">
 <table style="width:100%;border:1px solid black ; background:#ccc;">
   <tr>
     <td style="width:60%; text-align:center; vertical-align:top;">
@@ -81,49 +87,54 @@
 
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">दिनांक : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">दाखला क्रमांक : {{ dispatch_no | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">दिनांक : {{ date | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : 100001</td>
-    <td style="text-align:right; width:50%; padding:4px;">Date : 100001</td>
+    <td style="text-align:left; width:50%; padding:4px;">Certificate Number : {{ dispatch_no | default('') }}</td>
+    <td style="text-align:right; width:50%; padding:4px;">Date : {{ date | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;"><img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" /></td>
-    <td style="text-align:right; width:50%; padding:4px;"><img src="/uploaded_images/qrcode/1/barcode.png" alt="Barcode" style="height:40px;" /></td>
+    <td style="text-align:left; width:50%; padding:4px;">
+      {% if barcode_url %}
+        <img src="{{ barcode_url }}" alt="Barcode" style="height:40px;" />
+      {% endif %}
+    </td>
+    <td style="text-align:right; width:50%; padding:4px;">
+      {% if barcode_url %}
+        <img src="{{ image_url }}" alt="image" style="height:40px;" />
+      {% endif %}
+    </td>
   </tr>
 </table>
 
 <!-- Main details table -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
-    <td style="text-align:left; width:50%; padding:4px;">सरपंच/ग्रामसेवक/ग्रामविकास अधिकारी ikUgsjk, ता. eksrkGk, जिल्हा cqyMk.kk
-    </td>
+    <td style="text-align:left; width:50%; padding:4px;">सरपंच/ग्रामसेवक/ग्रामविकास अधिकारी {{ gramPanchayat | default('') }}, ता. {{ taluka | default('') }}, जिल्हा {{ jilha | default('') }}</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Sarpanch/Gramsevak/Village Development officer Panhera, Tq. Motala, 
-      Dist. Buldhana
-      </td>
+    <td style="text-align:left; padding:4px;">Sarpanch/Gramsevak/Village Development officer {{ gramPanchayat | default('') }}, Tq. {{ taluka | default('') }}, Dist. {{ jilha | default('') }}</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">यांजकडून दाखला देण्यात येतो कि, </td>
-    <td style="text-align:left; padding:4px;">मंगेश मधुकर राजपूत </td>
+    <td style="text-align:left; padding:4px;">{{ applicant_name | default('') }}</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">Tis issuing the certificate to</td>
-    <td style="text-align:left; padding:4px;">mangesh madhukar rajput</td>
+    <td style="text-align:left; padding:4px;">{{ applicant_name_en | default('') }}</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">हे राहणार </td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">Residence at :</td>
+    <td style="text-align:left; padding:4px;">Residence at
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">हे ग्रामपंचायत ikUgsjk, हद्दीतील मौजे ikUgsjk ता.eksrkGk जि.cqyMk.kk महाराष्ट्र</td>
+    <td style="text-align:left; padding:4px;">हे ग्रामपंचायत {{ gramPanchayat | default('') }}, हद्दीतील मौजे {{ village | default('') }} ता.{{ taluka | default('') }} जि.{{ jilha | default('') }} महाराष्ट्र</td>
   </tr>
   <tr>
-    <td style="text-align:left; padding:4px;">of Grampanchyayat Panhera, Village Panhera, Tq.Motala, Dist.Buldhana, Maharashtra</td>
+    <td style="text-align:left; padding:4px;">of Grampanchyayat {{ gramPanchayat | default('') }}, Village {{ village_en | default('') }}, Tq.{{ taluka | default('') }}, Dist.{{ jilha | default('') }}, Maharashtra</td>
   </tr>
   <tr>
     <td style="text-align:left; padding:4px;">येथील कायम / तात्पुरते रहिवाशी आहेत.</td>
@@ -137,14 +148,20 @@
   <tr>
     <td style="text-align:left; padding:4px;">certificate is issued on request of the applicant</td>
   </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">आधार क्रमांक : {{ adhar_no | default('') }}</td>
+  </tr>
+  <tr>
+    <td style="text-align:left; padding:4px;">Aadhaar Number : {{ adhar_no_en | default('') }}</td>
+  </tr>
 </table>
 
 <!-- Bottom info and slogan section -->
 <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
   <tr>
     <td style="width:33%; vertical-align:center; padding:8px; ">
-      ठिकाण :<br>
-      Place :<br>
+      ठिकाण : {{ village | default('') }}<br>
+      Place : {{ village | default('') }}<br>
     </td>
     <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
       सही व शिक्का<br>
