@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 import database
 from namuna9 import namuna9_model, namuna9_schemas
@@ -217,7 +217,18 @@ def get_delete_options(db: Session = Depends(database.get_db)):
     return {"villages": village_list, "years": sorted(list(unique_years)), "pairs": pairs} 
 
 @router.get("/table-data")
-def get_namuna9_table_data(villageId: str, yearslap: str, db: Session = Depends(database.get_db)):
+def get_table_data(
+    villageId: int,
+    yearslap: str,
+    applyWarrantFee: bool = Query(False),
+    applyNoticeFee: bool = Query(False),
+    applyPenalty: bool = Query(False),
+    db: Session = Depends(database.get_db)
+):
+    settings = db.query(Namuna9Settings).first()
+    warrant_fee = settings.warrant_fee if applyWarrantFee else 0
+    notice_fee = settings.notice_fee if applyNoticeFee else 0
+    penalty = settings.penalty_percentage if applyPenalty else 0
     # Find the Namuna9 record for this village and year
     rec = db.query(namuna9_model.Namuna9).filter(
         namuna9_model.Namuna9.villageId == villageId,
@@ -279,8 +290,8 @@ def get_namuna9_table_data(villageId: str, yearslap: str, db: Session = Depends(
             "shaktiCleaningTax": 0,
             "chaluCleaningTax": cleaningTax,
             "ekunCleaningTax": cleaningTax,
-            "warrantFee": 0,
-            "noticeFee": 0,
+            "warrantFee": warrant_fee,
+            "noticeFee": notice_fee,
             "total": total
         }
         rows.append(row)
@@ -348,6 +359,184 @@ def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = D
             "totlaToiletTax": toiletTax,
             "totaltax": totaltax,
             "pavatiSRKivyaTarik": 0
+        }
+        rows.append(row)
+    return rows 
+
+@router.get("/recordresponses/property_records_by_village/regular/")
+def get_property_records_by_village_regular(
+    villageId: str,
+    yearslap: str,
+    db: Session = Depends(database.get_db)
+):
+    from datetime import datetime
+    rec = db.query(namuna9_model.Namuna9).filter(
+        namuna9_model.Namuna9.villageId == villageId,
+        namuna9_model.Namuna9.yearslap == yearslap
+    ).first()
+    if not rec:
+        return []
+    property_ids = getattr(rec, 'property_ids', None)
+    if not isinstance(property_ids, list) or len(property_ids) == 0:
+        return []
+    # Fetch Namuna9Settings for notice and warrant fee
+    settings = db.query(Namuna9Settings).first()
+    notice_fee = settings.notice_fee if settings and settings.notice_fee is not None else 0
+    warrant_fee = settings.warrant_fee if settings and settings.warrant_fee is not None else 0
+    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
+    rows = []
+    for prop in properties:
+        prop_data = build_property_response(prop, db)
+        owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
+        occupant_names = ', '.join([o.get('occupantName', '') for o in prop_data.get('owners', []) if o.get('occupantName', '')])
+        house_number = prop_data.get('malmattaKramank', '')
+        # Taxes
+        house_tax = sum([(c.get('houseTax', 0) if isinstance(c, dict) else getattr(c, 'houseTax', 0) or 0) for c in getattr(prop, 'constructions', [])])
+        lighting_tax = prop_data.get('divaKar', 0) or 0
+        health_tax = prop_data.get('aarogyaKar', 0) or prop_data.get('healthTax', 0) or 0
+        sapanikar = prop_data.get('sapanikar', 0) or 0
+        cleaning_tax = prop_data.get('cleaningTax', 0) or 0
+        # Arrears as Thakit and Dand
+        thakit = {f"Thakit{i}": 0 for i in range(1, 8)}
+        dand = {f"Dand{i}": 0 for i in range(1, 8)}
+        arrears = {
+            "Thakit": thakit,
+            "Dand": dand
+        }
+        # Current and Total as numbered keys
+        current = {
+            "current1": house_tax,
+            "current2": lighting_tax,
+            "current3": health_tax,
+            "current4": sapanikar,
+            "current5": cleaning_tax,
+            "current6": notice_fee,
+            "current7": warrant_fee
+        }
+        total = {
+            "total1": house_tax,
+            "total2": lighting_tax,
+            "total3": health_tax,
+            "total4": sapanikar,
+            "total5": cleaning_tax,
+            "total6": notice_fee,
+            "total7": warrant_fee
+        }
+        total_tax = sum([
+            house_tax, lighting_tax, health_tax, sapanikar, cleaning_tax, notice_fee, warrant_fee
+        ])
+        row = {
+            "gramPanchayat": prop_data.get('gramPanchayat', ''),
+            "yearSlap": yearslap,
+            "propertyNumber": prop_data.get('malmattaKramank', ''),
+            "currentDate": datetime.now().strftime('%Y-%m-%d'),
+            "ownerName": owner_names,
+            "occupantName": occupant_names,
+            "houseNumber": house_number,
+            "कराचे नाव": {
+                "घरकर": house_tax,
+                "दिवाबत्ती कर": lighting_tax,
+                "आरोग्य कर": health_tax,
+                "पाणीकर": sapanikar,
+                "सफाई कर": cleaning_tax,
+                "नोटीस फी": notice_fee,
+                "वारंट फी": warrant_fee
+            },
+            "recoverableAmounts": {
+                "arrears": arrears,
+                "current": current,
+                "total": total
+            },
+            "totalTax": total_tax
+        }
+        rows.append(row)
+    return rows 
+
+@router.get("/recordresponses/property_records_by_village/visheshpani/")
+def get_property_records_by_village_visheshpani(
+    villageId: str,
+    yearslap: str,
+    db: Session = Depends(database.get_db)
+):
+    from datetime import datetime
+    rec = db.query(namuna9_model.Namuna9).filter(
+        namuna9_model.Namuna9.villageId == villageId,
+        namuna9_model.Namuna9.yearslap == yearslap
+    ).first()
+    if not rec:
+        return []
+    property_ids = getattr(rec, 'property_ids', None)
+    if not isinstance(property_ids, list) or len(property_ids) == 0:
+        return []
+    # Fetch Namuna9Settings for notice and warrant fee
+    settings = db.query(Namuna9Settings).first()
+    notice_fee = settings.notice_fee if settings and settings.notice_fee is not None else 0
+    warrant_fee = settings.warrant_fee if settings and settings.warrant_fee is not None else 0
+    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
+    rows = []
+    for prop in properties:
+        prop_data = build_property_response(prop, db)
+        owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
+        occupant_names = ', '.join([o.get('occupantName', '') for o in prop_data.get('owners', []) if o.get('occupantName', '')])
+        house_number = prop_data.get('malmattaKramank', '')
+        # Taxes
+        house_tax = sum([(c.get('houseTax', 0) if isinstance(c, dict) else getattr(c, 'houseTax', 0) or 0) for c in getattr(prop, 'constructions', [])])
+        lighting_tax = prop_data.get('divaKar', 0) or 0
+        health_tax = prop_data.get('aarogyaKar', 0) or prop_data.get('healthTax', 0) or 0
+        sapanikar = prop_data.get('sapanikar', 0) or 0
+        vpanikar = prop_data.get('vpanikar', 0) or 0
+        # Arrears as Thakit and Dand
+        thakit = {f"Thakit{i}": 0 for i in range(1, 8)}
+        dand = {f"Dand{i}": 0 for i in range(1, 8)}
+        arrears = {
+            "Thakit": thakit,
+            "Dand": dand
+        }
+        # Current and Total as numbered keys (order: house, lighting, health, sapanikar, vpanikar, notice, warrant)
+        current = {
+            "current1": house_tax,
+            "current2": lighting_tax,
+            "current3": health_tax,
+            "current4": sapanikar,
+            "current5": vpanikar,
+            "current6": notice_fee,
+            "current7": warrant_fee
+        }
+        total = {
+            "total1": house_tax,
+            "total2": lighting_tax,
+            "total3": health_tax,
+            "total4": sapanikar,
+            "total5": vpanikar,
+            "total6": notice_fee,
+            "total7": warrant_fee
+        }
+        total_tax = sum([
+            house_tax, lighting_tax, health_tax, sapanikar, vpanikar, notice_fee, warrant_fee
+        ])
+        row = {
+            "gramPanchayat": prop_data.get('gramPanchayat', ''),
+            "yearSlap": yearslap,
+            "propertyNumber": prop_data.get('malmattaKramank', ''),
+            "currentDate": datetime.now().strftime('%Y-%m-%d'),
+            "ownerName": owner_names,
+            "occupantName": occupant_names,
+            "houseNumber": house_number,
+            "कराचे नाव": {
+                "घरकर": house_tax,
+                "दिवाबत्ती कर": lighting_tax,
+                "आरोग्य कर": health_tax,
+                "सा.पाणीकर": sapanikar,
+                "वि.पाणीकर": vpanikar,
+                "नोटीस फी": notice_fee,
+                "वारंट फी": warrant_fee
+            },
+            "recoverableAmounts": {
+                "arrears": arrears,
+                "current": current,
+                "total": total
+            },
+            "totalTax": total_tax
         }
         rows.append(row)
     return rows 
