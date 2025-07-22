@@ -12,7 +12,7 @@ router = APIRouter()
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 template_dir = os.path.join(base_dir, 'templates')
 namuna8_template_dir = os.path.join(template_dir ,'Namuna8' )
-static_dir = os.path.join(base_dir, 'static')
+static_dir = os.path.join(base_dir, 'reports')
 env = Environment(loader=FileSystemLoader(namuna8_template_dir))
 
 # API base URL
