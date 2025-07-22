@@ -79,7 +79,7 @@
         const maxZoom = 2.0;
         const zoomStep = 0.1;
         let currentPage = 1;
-        const recordsPerPage = 10; // Show 10 records per page
+        const recordsPerPage = 20; // Show 10 records per page
         let totalPages = 0;
         let allRecords = []; // Cache the records
 
@@ -144,6 +144,28 @@
         function lastPage() { showPage(totalPages); }
 
         function printPage() {
+            // Show all records before printing
+            allRecords = Array.from(document.querySelectorAll('.record-row'));
+            allRecords.forEach(el => el.style.display = '');
+
+            // Update the total for all records
+            let totalPrice = 0;
+            allRecords.forEach(el => {
+                const priceEl = el.querySelector('.price');
+                if (priceEl) {
+                    totalPrice += parseFloat(priceEl.innerText) || 0;
+                }
+            });
+            const pageTotalElement = document.getElementById('page-total-price');
+            if(pageTotalElement) {
+                pageTotalElement.innerText = totalPrice.toFixed(2);
+            }
+
+            // Print, then restore the current page view
+            window.onafterprint = function() {
+                showPage(currentPage);
+                window.onafterprint = null; // Clean up
+            };
             window.print();
         }
 
