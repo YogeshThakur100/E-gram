@@ -135,6 +135,92 @@
     }
 </style>
 <!-- Table Body: 14 columns, nested headers and rows -->
+<table style="text-align: center; width: 100%; border-collapse: collapse; border: 1px solid #000; margin-top: 0; font-size: 14px;">
+    <tr>
+        <th rowspan="2" style="width: 2.5%;">अ.क्र.</th>
+        <th rowspan="2" style="width: 8%;">रस्त्याचे नाव</th>
+        <th rowspan="2" style="width: 5%;">सिटी सर्व्हे गट</th>
+        <th rowspan="2" style="width: 6%;">मालमत्ता क्रमांक</th>
+        <th rowspan="2" style="width: 13%;">मालकाचे नाव</th>
+        <th rowspan="2" style="width: 7%;">भोगवटादाराचे नाव</th>
+        <th rowspan="2" style="width: 10%;">मालमत्तेचे वर्णन</th>
+        <th rowspan="2" style="width: 6%;">मिळकत बांधकामाचे वर्ष</th>
+        <th rowspan="2" style="width: 10%;">एकूण क्षेत्रफळ चौ.फु.चौ.मी.</th>
+        <th colspan="3" style="width: 18%;">रेडीरेकनर दर प्रती चौ.मी. (रुपये)</th>
+        <th rowspan="2" style="width: 4%;">घसारा दर</th>
+        <th rowspan="2" style="width: 4%;">इमारतीचा वापरानुसार भारांक</th>
+    </tr>
+    <tr>
+        <th style="width: 6%;">जमीन (खुली जागा)</th>
+        <th style="width: 6%;">इमारत</th>
+        <th style="width: 6%;">बांधकाम</th>
+    </tr>
+    <!-- Number series row -->
+    <tr style="text-align: center;font-weight: 700;">
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>5</td>
+        <td>6</td>
+        <td>7</td>
+        <td>8</td>
+        <td>9</td>
+        <td>10</td>
+        <td>11</td>
+        <td>12</td>
+        <td>13</td>
+        <td>14</td>
+    </tr>
+    <tr>
+        <td rowspan="2" >{{srNo|default('')}}</td>
+        <td rowspan="2" style="text-align: left;">{{roadName|default('')}}</td>
+        <td rowspan="2">{{cityWardGatNumber|default('')}}</td>
+        <td rowspan="2">{{propertyNumber|default('')}}</td>
+        <td rowspan="2" style="text-align: left;">{{ownerName|default('')}}</td>
+        <td rowspan="2">{{occupantName|default('')}}</td>
+        <td rowspan="2" style="text-align: left;">
+            {{constructionType[0].type if constructionType and constructionType|length > 0 else ''}}<br>
+            {{constructionType[1].type if constructionType and constructionType|length > 1 else ''}}<br>
+            {{khaliJaga[0].constructiontype if khaliJaga and khaliJaga|length > 0 else ''}}
+        </td>
+        <td rowspan="2">
+            {{constructionType[0].year if constructionType and constructionType|length > 0 else ''}}<br>
+            {{constructionType[1].year if constructionType and constructionType|length > 1 else ''}}<br>
+        </td>
+        <td rowspan="2">{{areaEast|default('')}} x {{areaNorth|default('')}}</td>
+        <td rowspan="2">{{khaliJaga[0].rate if khaliJaga and khaliJaga|length > 0 else ''}}-{{khaliJaga[0].length if khaliJaga and khaliJaga|length > 0 else ''}}</td>
+        <td rowspan="2"></td>
+    </tr>
+    <tr>
+        <td>{{constructionType[0].rate if constructionType and constructionType|length > 0 else ''}}-{{constructionType[0].length if constructionType and constructionType|length > 0 else ''}}x{{constructionType[0].width if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].rate if constructionType and constructionType|length > 1 else ''}}-{{constructionType[1].length if constructionType and constructionType|length > 1 else ''}}x{{constructionType[1].width if constructionType and constructionType|length > 1 else ''}}<br/></td>
+        <td>{{constructionType[0].depreciation_rate if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].depreciation_rate if constructionType and constructionType|length > 1 else ''}}<br/>0</td>
+        <td>{{constructionType[0].usageBasedBuildingWeightageFactor if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].usageBasedBuildingWeightageFactor if constructionType and constructionType|length > 1 else ''}}<br/>{{khaliJaga[0].usageBasedBuildingWeightageFactor if khaliJaga and khaliJaga|length > 0 else ''}}</td>
+    </tr>
+
+    <tr>
+        <td colspan="2" style="text-align: left; font-weight: bold;">आधार क्रमांक :</td>
+        <td> {{aadharNumber|default('')}} </td>
+        <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस फुट </td>
+        <td> {{total_arearinfoot|default('')}} </td>
+        <td> {{khaliJaga[0].totalkhalijagaareainfoot if khaliJaga and khaliJaga|length > 0 else ''}} </td>
+        <td></td>
+        <td>{{totalconstructionareainfoot|default('')}}</td>   
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="2" style="text-align: left; font-weight: bold;">मोबाईल क्रमांक :</td>
+        <td> {{mobileNumber|default('')}} </td>
+        <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस मीटर</td>
+        <td> {{totalareainmeters|default('')}} </td>
+        <td> {{khaliJaga[0].totalkhalijagaareainmeters if khaliJaga and khaliJaga|length > 0 else ''}} </td>
+        <td>0</td>
+        <td>{{totalconstructionareainmeter|default('')}}</td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
 
 
 <table style="text-align: center; width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 14px; margin-top: 0;">
