@@ -177,51 +177,25 @@
         <td rowspan="2" style="text-align: left;">{{roadName|default('')}}</td>
         <td rowspan="2">{{cityWardGatNumber|default('')}}</td>
         <td rowspan="2">{{propertyNumber|default('')}}</td>
-        <td rowspan="2" style="text-align: left;">
-            {{ownerName|default('')}}
-        </td>
+        <td rowspan="2" style="text-align: left;">{{ownerName|default('')}}</td>
         <td rowspan="2">{{occupantName|default('')}}</td>
         <td rowspan="2" style="text-align: left;">
-            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
-            {% for i in range(max_len) %}
-                {{ constructionType[i].type if i < constructionType|length else '' }}{{ khaliJaga[i].constructiontype if i < khaliJaga|length else '' }}<br>
-            {% endfor %}
+            {{constructionType[0].type if constructionType and constructionType|length > 0 else ''}}<br>
+            {{constructionType[1].type if constructionType and constructionType|length > 1 else ''}}<br>
+            {{khaliJaga[0].constructiontype if khaliJaga and khaliJaga|length > 0 else ''}}
         </td>
         <td rowspan="2">
-            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
-            {% for i in range(max_len) %}
-                {{ constructionType[i].year if i < constructionType|length else '' }}<br>
-            {% endfor %}
+            {{constructionType[0].year if constructionType and constructionType|length > 0 else ''}}<br>
+            {{constructionType[1].year if constructionType and constructionType|length > 1 else ''}}<br>
         </td>
         <td rowspan="2">{{areaEast|default('')}} x {{areaNorth|default('')}}</td>
-        <td rowspan="2">
-            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
-            {% for i in range(max_len) %}
-                {{ khaliJaga[i].rate if i < khaliJaga|length else '' }}-{{ khaliJaga[i].length if i < khaliJaga|length else '' }}<br>
-            {% endfor %}
-        </td>
+        <td rowspan="2">{{khaliJaga[0].rate if khaliJaga and khaliJaga|length > 0 else ''}}-{{khaliJaga[0].length if khaliJaga and khaliJaga|length > 0 else ''}}</td>
         <td rowspan="2"></td>
     </tr>
     <tr>
-        <td>
-            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
-            {% for i in range(max_len) %}
-                {{ constructionType[i].rate if i < constructionType|length else '' }}-{{ constructionType[i].length if i < constructionType|length else '' }}x{{ constructionType[i].width if i < constructionType|length else '' }}<br>
-            {% endfor %}
-        </td>
-        <td>
-            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
-            {% for i in range(max_len) %}
-                {{ constructionType[i].depreciation_rate if i < constructionType|length else '' }}<br>
-            {% endfor %}
-            0
-        </td>
-        <td>
-            {% set max_len = [constructionType|length, khaliJaga|length]|max %}
-            {% for i in range(max_len) %}
-                {{ constructionType[i].usageBasedBuildingWeightageFactor if i < constructionType|length else '' }}{{ khaliJaga[i].usageBasedBuildingWeightageFactor if i < khaliJaga|length else '' }}<br>
-            {% endfor %}
-        </td>
+        <td>{{constructionType[0].rate if constructionType and constructionType|length > 0 else ''}}-{{constructionType[0].length if constructionType and constructionType|length > 0 else ''}}x{{constructionType[0].width if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].rate if constructionType and constructionType|length > 1 else ''}}-{{constructionType[1].length if constructionType and constructionType|length > 1 else ''}}x{{constructionType[1].width if constructionType and constructionType|length > 1 else ''}}<br/></td>
+        <td>{{constructionType[0].depreciation_rate if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].depreciation_rate if constructionType and constructionType|length > 1 else ''}}<br/>0</td>
+        <td>{{constructionType[0].usageBasedBuildingWeightageFactor if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].usageBasedBuildingWeightageFactor if constructionType and constructionType|length > 1 else ''}}<br/>{{khaliJaga[0].usageBasedBuildingWeightageFactor if khaliJaga and khaliJaga|length > 0 else ''}}</td>
     </tr>
 
     <tr>
@@ -229,11 +203,7 @@
         <td> {{aadharNumber|default('')}} </td>
         <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस फुट </td>
         <td> {{total_arearinfoot|default('')}} </td>
-        <td>
-            {% for k in khaliJaga %}
-                {{ k.totalkhalijagaareainfoot }}<br>
-            {% endfor %}
-        </td>
+        <td> {{khaliJaga[0].totalkhalijagaareainfoot if khaliJaga and khaliJaga|length > 0 else ''}} </td>
         <td></td>
         <td>{{totalconstructionareainfoot|default('')}}</td>   
         <td></td>
@@ -244,12 +214,8 @@
         <td> {{mobileNumber|default('')}} </td>
         <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस मीटर</td>
         <td> {{totalareainmeters|default('')}} </td>
-        <td>
-            {% for k in khaliJaga %}
-                {{ k.totalkhalijagaareainmeters }}<br>
-            {% endfor %}
-        </td>
-        <td></td>
+        <td> {{khaliJaga[0].totalkhalijagaareainmeters if khaliJaga and khaliJaga|length > 0 else ''}} </td>
+        <td>0</td>
         <td>{{totalconstructionareainmeter|default('')}}</td>
         <td></td>
         <td></td>
@@ -296,9 +262,9 @@
         <td colspan="2">29</td>
     </tr>
     <tr>
-        <td>{{ khaliJaga|length > 0 and khaliJaga[0].capitalValue or '' }}<br>{% for c in constructionType %}{{ c.capitalValue }}<br>{% endfor %}</td>
-        <td>{% for c in constructionType %}{{ c.taxRates }}<br>{% endfor %}{% for k in khaliJaga %}{{ k.taxRates }}<br>{% endfor %}</td>
-        <td>{% for c in constructionType %}{{ c.houseTax }}<br>{% endfor %}{% for k in khaliJaga %}{{ k.houseTax }}<br>{% endfor %}</td>
+        <td>{{khaliJaga[0].capitalValue if khaliJaga and khaliJaga|length > 0 else ''}}<br>{{constructionType[0].capitalValue if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].capitalValue if constructionType and constructionType|length > 1 else ''}}</td>
+        <td>{{constructionType[0].taxRates if constructionType and constructionType|length > 0 else ''}}<br> {{constructionType[1].taxRates if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].taxRates if khaliJaga and khaliJaga|length > 0 else ''}} </td>
+        <td> {{constructionType[0].houseTax if constructionType and constructionType|length > 0 else ''}} <br> {{constructionType[1].houseTax if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].houseTax if khaliJaga and khaliJaga|length > 0 else ''}} </td>
         <td> {{lightingTax|default('')}} </td>
         <td> {{healthTax|default('')}} </td>
         <td> {{waterTax|default('')}} </td>
@@ -320,9 +286,8 @@
         <td> {{healthTax|default('')}} </td>
         <td> {{waterTax|default('')}} </td>
         <td> {{cleaningTax|default('')}} </td>
-        <td> {{toiletTax|default('')}} </td>
-        <td> {{totaltax|default('')}} </td>
-        <td></td>
+        <td>{{toiletTax|default('')}}</td>
+        <td>{{totaltax|default('')}} </td>
         <td></td>
         <td></td>
         <td></td>

@@ -632,49 +632,248 @@ async def prakar1(request : Request):
             raise Exception(f"API error {response.status_code}: {response.text}")
 
         data = response.json()
+        # Render template
         if not isinstance(data, list):
             data = [data]
-
-        tax_name_map = {
-            "houseTax": "घर कर",
-            "lightingTax": "दिवा बत्ती कर",
-            "healthTax": "आरोग्य कर",
-            "waterTax": "पाणी कर",
-            "cleaningTax": "सफाई कर",
-            "noticeFee": "नोटीस फी",
-            "warrantFee": "जप्ती वारंट फी"
+        # Extract top-level fields from the first record
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            'removeDhakit': requestData.get('removeDhakit', ''),
+            'removeChalu': requestData.get('removeChalu', ''),
+            'removeYekun': requestData.get('removeYekun', ''),
+            'removePurnaYekun': requestData.get('removePurnaYekun', ''),
+            'removePaniZero': requestData.get('removePaniZero', ''),
+            'removeZeroTax': requestData.get('removeZeroTax', ''),
+            'totalPrint': requestData.get('totalPrint', ''),
+            'namuna9Based': requestData.get('namuna9Based', ''),
+            'selectedVillage': requestData.get('selectedVillage', ''),
+            'selectedYear': requestData.get('selectedYear', ''),
+            'villageID': requestData.get('villageID', ''),
+            'year': requestData.get('year', ''),
+            "warrantFee" : requestData.get('warrantFee', ''),
+            "noticeFee" : requestData.get('noticeFee', ''),
+            "dandLava" : requestData.get('dandLava', ''),
         }
+        rendered_html = template.render(**context)
         
-        rendered_html_parts = []
-        for record in data:
-            taxes_list = []
-            tax_keys_in_order = ["houseTax", "lightingTax", "healthTax", "waterTax", "cleaningTax", "noticeFee", "warrantFee"]
-            
-            for i, key in enumerate(tax_keys_in_order, 1):
-                tax_row = {
-                    "name": tax_name_map.get(key, ""),
-                    "possible_rupees": record['recoverableAmounts']['arrears']['Thakit'].get(f'Thakit{i}', 0),
-                    "possible_tanch": record['recoverableAmounts']['arrears']['Dand'].get(f'Dand{i}', 0),
-                    "current_rupees": record['recoverableAmounts']['current'].get(f'current{i}', 0),
-                    "total_rupees": record['recoverableAmounts']['total'].get(f'total{i}', 0)
-                }
-                taxes_list.append(tax_row)
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
 
-            context = {
-                'village': record.get('gramPanchayat', ''),
-                'year': record.get('yearSlap', ''),
-                'receipt_no': record.get('propertyNumber', ''),
-                'date': record.get('currentDate', ''),
-                'applicant_name': record.get('ownerName', ''),
-                'owner_type': record.get('occupantName', ''),
-                'house_no': record.get('houseNumber', ''),
-                'taxes': taxes_list,
-                'grand_total': record.get('totalTax', 0)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
             }
-            
-            rendered_html_parts.append(template.render(context))
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
         
-        rendered_html = "\\n".join(rendered_html_parts)
+@router.post('/regular/namuna9k2')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
+        year = requestData.get("year")
+        template = regularEnv.get_template('namuna9k2.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        # Extract top-level fields from the first record
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            'removeDhakit': requestData.get('removeDhakit', ''),
+            'removeChalu': requestData.get('removeChalu', ''),
+            'removeYekun': requestData.get('removeYekun', ''),
+            'removePurnaYekun': requestData.get('removePurnaYekun', ''),
+            'removePaniZero': requestData.get('removePaniZero', ''),
+            'removeZeroTax': requestData.get('removeZeroTax', ''),
+            'totalPrint': requestData.get('totalPrint', ''),
+            'namuna9Based': requestData.get('namuna9Based', ''),
+            'selectedVillage': requestData.get('selectedVillage', ''),
+            'selectedYear': requestData.get('selectedYear', ''),
+            'villageID': requestData.get('villageID', ''),
+            'year': requestData.get('year', ''),
+            "warrantFee" : requestData.get('warrantFee', ''),
+            "noticeFee" : requestData.get('noticeFee', ''),
+            "dandLava" : requestData.get('dandLava', ''),
+        }
+        rendered_html = template.render(**context)
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/regular/namuna9lekh')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
+        year = requestData.get("year")
+        template = regularEnv.get_template('namuna9lekh.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        # Extract top-level fields from the first record
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            'removeDhakit': requestData.get('removeDhakit', ''),
+            'removeChalu': requestData.get('removeChalu', ''),
+            'removeYekun': requestData.get('removeYekun', ''),
+            'removePurnaYekun': requestData.get('removePurnaYekun', ''),
+            'removePaniZero': requestData.get('removePaniZero', ''),
+            'removeZeroTax': requestData.get('removeZeroTax', ''),
+            'totalPrint': requestData.get('totalPrint', ''),
+            'namuna9Based': requestData.get('namuna9Based', ''),
+            'selectedVillage': requestData.get('selectedVillage', ''),
+            'selectedYear': requestData.get('selectedYear', ''),
+            'villageID': requestData.get('villageID', ''),
+            'year': requestData.get('year', ''),
+            "warrantFee" : requestData.get('warrantFee', ''),
+            "noticeFee" : requestData.get('noticeFee', ''),
+            "dandLava" : requestData.get('dandLava', ''),
+        }
+        rendered_html = template.render(**context)
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/regular/namuna9lekh2')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
+        year = requestData.get("year")
+        template = regularEnv.get_template('namuna9lekh2.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        # Extract top-level fields from the first record
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            'removeDhakit': requestData.get('removeDhakit', ''),
+            'removeChalu': requestData.get('removeChalu', ''),
+            'removeYekun': requestData.get('removeYekun', ''),
+            'removePurnaYekun': requestData.get('removePurnaYekun', ''),
+            'removePaniZero': requestData.get('removePaniZero', ''),
+            'removeZeroTax': requestData.get('removeZeroTax', ''),
+            'totalPrint': requestData.get('totalPrint', ''),
+            'namuna9Based': requestData.get('namuna9Based', ''),
+            'selectedVillage': requestData.get('selectedVillage', ''),
+            'selectedYear': requestData.get('selectedYear', ''),
+            'villageID': requestData.get('villageID', ''),
+            'year': requestData.get('year', ''),
+            "warrantFee" : requestData.get('warrantFee', ''),
+            "noticeFee" : requestData.get('noticeFee', ''),
+            "dandLava" : requestData.get('dandLava', ''),
+        }
+        rendered_html = template.render(**context)
         
         # Save output.html
         os.makedirs(static_dir, exist_ok=True)
@@ -1374,6 +1573,150 @@ async def prakar1(request : Request):
             'selectedYear': requestData.get('selectedYear', ''),
             'villageID': requestData.get('villageID', ''),
             'year': requestData.get('year', ''),
+        }
+        rendered_html = template.render(**context)
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/visheshpani/namuna9k')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
+        year = requestData.get("year")
+        template = regularEnv.get_template('namuna9k.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/visheshpani/?villageId={villageId}&yearslap={year}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        # Extract top-level fields from the first record
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            'removeDhakit': requestData.get('removeDhakit', ''),
+            'removeChalu': requestData.get('removeChalu', ''),
+            'removeYekun': requestData.get('removeYekun', ''),
+            'removePurnaYekun': requestData.get('removePurnaYekun', ''),
+            'removePaniZero': requestData.get('removePaniZero', ''),
+            'removeZeroTax': requestData.get('removeZeroTax', ''),
+            'totalPrint': requestData.get('totalPrint', ''),
+            'namuna9Based': requestData.get('namuna9Based', ''),
+            'selectedVillage': requestData.get('selectedVillage', ''),
+            'selectedYear': requestData.get('selectedYear', ''),
+            'villageID': requestData.get('villageID', ''),
+            'year': requestData.get('year', ''),
+            'tax_names' : ['घरकर', 'दिवाबत्ती कर', 'आरोग्य कर', 'सा.पाणीकर', 'वि.पाणीकर', 'नोटीस फी', 'वारंट फी'],
+            "warrantFee" : requestData.get('warrantFee', ''),
+            "noticeFee" : requestData.get('noticeFee', ''),
+            "dandLava" : requestData.get('dandLava', ''),
+        }
+        rendered_html = template.render(**context)
+        
+        # Save output.html
+        os.makedirs(static_dir, exist_ok=True)
+        output_path = os.path.join(static_dir, 'output.html')
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "Output file is created",
+                "data": {}
+            }
+        )
+
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Error: {str(e)}",
+                "data": {}
+            }
+        )
+        
+@router.post('/visheshpani/namuna9k2')
+async def prakar1(request : Request):
+    try:
+        # Load template
+        requestData = await request.json()
+        villageId = requestData.get("villageID")
+        year = requestData.get("year")
+        template = regularEnv.get_template('namuna9k2.html')
+
+        # Call API
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/visheshpani/?villageId={villageId}&yearslap={year}')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
+
+        data = response.json()
+        # Render template
+        if not isinstance(data, list):
+            data = [data]
+        # Extract top-level fields from the first record
+        context = {
+            'data': data,
+            'gramPanchayat': data[0].get('gramPanchayat', '') if data else '',
+            'village': data[0].get('village', '') if data else '',
+            'taluka': data[0].get('taluka', '') if data else '',
+            'jilha': data[0].get('jilha', '') if data else '',
+            'yearFrom': data[0].get('yearFrom', '') if data else '',
+            'yearTo': data[0].get('yearTo', '') if data else '',
+            'removeDhakit': requestData.get('removeDhakit', ''),
+            'removeChalu': requestData.get('removeChalu', ''),
+            'removeYekun': requestData.get('removeYekun', ''),
+            'removePurnaYekun': requestData.get('removePurnaYekun', ''),
+            'removePaniZero': requestData.get('removePaniZero', ''),
+            'removeZeroTax': requestData.get('removeZeroTax', ''),
+            'totalPrint': requestData.get('totalPrint', ''),
+            'namuna9Based': requestData.get('namuna9Based', ''),
+            'selectedVillage': requestData.get('selectedVillage', ''),
+            'selectedYear': requestData.get('selectedYear', ''),
+            'villageID': requestData.get('villageID', ''),
+            'year': requestData.get('year', ''),
+            'tax_names' : ['घरकर', 'दिवाबत्ती कर', 'आरोग्य कर', 'सा.पाणीकर', 'वि.पाणीकर', 'नोटीस फी', 'वारंट फी'],
+            "warrantFee" : requestData.get('warrantFee', ''),
+            "noticeFee" : requestData.get('noticeFee', ''),
+            "dandLava" : requestData.get('dandLava', ''),
         }
         rendered_html = template.render(**context)
         
