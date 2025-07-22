@@ -329,7 +329,7 @@
 <!-- Footer/Signature/Logo area -->
 <table style="text-align: center; width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 14px; margin-top: 0;">
     <tr>
-        <td style="text-align: left; border-right: 1px solid #000;">शौचालय : {{toilet|default('')}} </td>
+        <td style="text-align: left; border-right: 1px solid #000;">शौचालय : {{row.toilet|default('')}} </td>
         <td style="text-align: left; border-right: 1px solid #000;">
             {% if row.boundaryMarking %}
             <td style="text-align: left; border-right: 1px solid #000;">चतुर्सिमा</td>
@@ -338,10 +338,10 @@
             {% endif %}
         </td>
         {% if row.boundaryMarking %}
-        <td style="text-align: left; border-right: 1px solid #000;">पूर्व : {{boundaryEast|default('')}} </td>
-        <td style="text-align: left; border-right: 1px solid #000;">पश्चिम : {{boundaryWest|default('')}} </td>
-        <td style="text-align: left; border-right: 1px solid #000;">उत्तर : {{boundaryNorth|default('')}} </td>
-        <td style="text-align: left; border-right: 1px solid #000;">दक्षिण : {{boundarySouth|default('')}} </td>
+        <td style="text-align: left; border-right: 1px solid #000;">पूर्व : {{row.boundaryEast|default('')}} </td>
+        <td style="text-align: left; border-right: 1px solid #000;">पश्चिम : {{row.boundaryWest|default('')}} </td>
+        <td style="text-align: left; border-right: 1px solid #000;">उत्तर : {{row.boundaryNorth|default('')}} </td>
+        <td style="text-align: left; border-right: 1px solid #000;">दक्षिण : {{row.boundarySouth|default('')}} </td>
         {% else %}
         <td style="text-align: left; border-right: 1px solid #000; height:30px;"></td>
         <td style="text-align: left; border-right: 1px solid #000; height:30px;"></td>
