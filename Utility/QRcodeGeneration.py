@@ -38,7 +38,7 @@ class QRCodeGeneration:
         qr.add_data(data)
         qr.make(fit=True)
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__) , '..'))
-        static_dir = os.path.join(base_dir , 'static')
+        static_dir = os.path.join(base_dir , 'reports')
         
         img = qr.make_image(fill_color="black", back_color="white")
         
