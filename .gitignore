@@ -26,4 +26,3 @@ Thumbs.db # Windows specific
 build/
 dist/
 main.spec
-reports/
