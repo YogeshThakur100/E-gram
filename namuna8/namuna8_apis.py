@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body, Query, Uplo
 from sqlalchemy.orm import Session
 import database
 from namuna8 import namuna8_model as models
+from namuna8.mastertab import mastertabmodels as settingModels
 from namuna8 import namuna8_schemas as schemas
 from fastapi.responses import JSONResponse, FileResponse
 from namuna8.namuna8_schemas import PropertyReportDTO
@@ -18,7 +19,7 @@ import time
 import re
 from Utility.QRcodeGeneration import QRCodeGeneration
 from namuna8.recordresponses.property_record_response import get_property_record
-
+from namuna8.mastertab.mastertabmodels import GeneralSetting
 
 router = APIRouter(
     prefix="/namuna8",
@@ -79,15 +80,33 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     raise HTTPException(status_code=400, detail=f"Invalid construction type: {construction_data.constructionType}")
                 # Calculate capitalValue and houseTax as per user instruction
                 
+                
+                userFormulaPreference = db.query(settingModels.GeneralSetting).filter_by().first()
+                
+                if userFormulaPreference:
+                    formula1 = userFormulaPreference.capitalFormula1
+                    formula2 = userFormulaPreference.capitalFormula2
+                else:
+                    print("No user formula preference found")
+                    
+                print("formula1", formula1)
+                print("formula2", formula2)
+                
+                # capital_value = 0
+                AnnualLandValueRate = 1000
                 #for capital_value calculation
                 AreaInMeter = construction_data.length * construction_data.width * 0.092903
-                AnnualLandValueRate = 1000
                 ConstructionRateAsPerConstruction = construction_type.bandhmastache_dar
                 depreciationRate = calculate_depreciation_rate(construction_data.constructionYear, construction_type.name)
                 usageBasedBuildingWeightageFactor = 1
-                
-
-                capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                if formula1:
+                    capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                    print("capital_value_from_formula1" , capital_value)
+                else:
+                    capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
+                    print("capital_value_from_formula2" , capital_value)
+                    
+                    
                 house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value)
                 new_construction = models.Construction(
                     construction_type_id=construction_type.id,
