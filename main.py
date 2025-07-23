@@ -34,7 +34,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Remove or comment out the old static mount
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
 app.mount("/ReportImages" , StaticFiles(directory="ReportImages") , name="ReportImages")
 # CORS (Cross-Origin Resource Sharing)
@@ -99,6 +100,23 @@ for package_name in api_packages:
     except Exception as e:
         print(f"[Auto-register] Skipped {package_name}: {e}")
 
+# After all routers are included, mount static at root
+app.mount("/reports", StaticFiles(directory="reports"), name="reports")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
+app.mount("/ReportImages", StaticFiles(directory="ReportImages"), name="ReportImages")
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
+
+# @app.get("/")
+# def read_root():
+#     return {"message": "Welcome to E-gram Panchayat API"}
+from fastapi.responses import FileResponse
+import os
+
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to E-gram Panchayat API"}
+def serve_react_index():
+    return FileResponse(os.path.join("static", "index.html"))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
