@@ -15,7 +15,7 @@ print("template dir ---> " , template_dir)
 namuna7_template_dir = os.path.join(template_dir ,'Namuna7' )
 
 print("namuna7_template dir ---> " , namuna7_template_dir)
-static_dir = os.path.join(base_dir, 'static')
+static_dir = os.path.join(base_dir, 'reports')
 env = Environment(loader=FileSystemLoader(namuna7_template_dir))
 
 # API base URL
