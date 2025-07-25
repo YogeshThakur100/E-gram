@@ -18,12 +18,14 @@ from namuna8.PropertyDocuments import property_document_apis
 from database import engine, Base
 from namuna8 import namuna8_model
 from namuna9 import namuna9_model
+from JWTapi import tokenModel
 from certificates import birth_certificate_model
 from namuna8.ReportCreationUsingJinja import namuna8Print
 from namuna9.ReportCreationUsingJinja import namuna9Print
 from Yadi.ReportCreationUsingJinja import yadiPrint
 from namuna10.ReportCreationUsingJinja import namuna10print
 from certificates.ReportCreationUsingJinja import certificate
+from JWTapi import tokenapi
 from fastapi.staticfiles import StaticFiles
 from namuna8.mastertab.mastertabapis import router as mastertab_router
 from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
@@ -66,6 +68,7 @@ app.include_router(property_record_response.router, prefix="/namuna8/recordrespo
 app.include_router(namuna8Print.router , prefix="/namuna8/print")
 app.include_router(namuna9Print.router , prefix="/namuna9/print")
 app.include_router(yadiPrint.router , prefix="/yadi/print")
+app.include_router(tokenapi.router , prefix="/license")
 app.include_router(ghoshawaraprint.router , prefix="/ghoshawara/print")
 app.include_router(namuna10print.router , prefix="/namuna10/print")
 app.include_router(certificate.router , prefix="/certificate/print")
