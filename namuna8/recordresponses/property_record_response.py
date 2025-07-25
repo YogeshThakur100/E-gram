@@ -6,6 +6,7 @@ from database import get_db
 from datetime import datetime
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
 import os
+from namuna8.mastertab.mastertabmodels import BuildingUsageWeightage
 backend_url = os.environ.get('BACKEND_URL', 'http://localhost:8000')
 
 router = APIRouter()
@@ -29,61 +30,35 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     property_types = [c.construction_type.name for c in prop.constructions]
     property_description = ", ".join(property_types)
     # khaliJaga logic
-    khali_jaga_types = [c for c in prop.constructions if c.construction_type.name.strip() == "खाली जागा"]
     khaliJaga = []
-    if khali_jaga_types:
-        for c in khali_jaga_types:
-            khali_jaga_rate = getattr(c.construction_type, 'rate', 0)
-            bandhmastache_dar = getattr(c.construction_type, 'bandhmastache_dar', 0)
-            area_foot = (c.length or 0) * (c.width or 0)
-            area_meter = round(area_foot * 0.092903, 2)
-            khaliJaga.append({
-                "constructiontype": c.construction_type.name,
-                "length": c.length,
-                "width": c.width,
-                "year": datetime.now().year,
-                "rate": bandhmastache_dar,
-                "floor": c.floor,
-                "usage": getattr(c, 'bharank', None),
-                "capitalValue": c.capitalValue,
-                "houseTax": c.houseTax,
-                "usageBasedBuildingWeightageFactor": 1,
-                "taxRates": khali_jaga_rate,
-                "totalkhalijagaareainfoot": area_foot,
-                "totalkhalijagaareainmeters": area_meter
-            })
-    else:
+    if getattr(prop, 'vacantLandType', None) not in [None, '', 'null']:
         total_area = prop.totalAreaSqFt or 0
         used_area = sum((c.length or 0) * (c.width or 0) for c in prop.constructions)
         khali_area = max(total_area - used_area, 0)
-        if khali_area > 0:
-            # Find the rate for 'खाली जागा' from constructionType (if any)
-            khali_jaga_rate = None
-            bandhmastache_dar = None
-            khali_jaga_construction = None
-            for c in prop.constructions:
-                if c.construction_type.name.strip() == "खाली जागा":
-                    khali_jaga_rate = getattr(c.construction_type, 'rate', 0)
-                    bandhmastache_dar = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                    khali_jaga_construction = c
-                    break
-            area_foot = khali_area * 1
-            area_meter = round(area_foot * 0.092903, 2)
-            khaliJaga.append({
-                "constructiontype": "खाली जागा",
-                "length": khali_area,
-                "width": 1,
-                "year": datetime.now().year,
-                "rate": bandhmastache_dar,
-                "floor": None,
-                "usage": None,
-                "capitalValue": khali_jaga_construction.capitalValue if khali_jaga_construction else None,
-                "houseTax": khali_jaga_construction.houseTax if khali_jaga_construction else None,
-                "usageBasedBuildingWeightageFactor": 1,
-                "taxRates": khali_jaga_rate,
-                "totalkhalijagaareainfoot": area_foot,
-                "totalkhalijagaareainmeters": area_meter
-            })
+        # Find the bandhmastache_dar for 'खाली जागा' construction type
+        khali_jaga_rate = 0
+        for c in prop.constructions:
+            if c.construction_type.name.strip() == "खाली जागा":
+                khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
+                break
+        khaliJaga = [{
+            "constructiontype": "खाली जागा",
+            "length": khali_area,
+            "width": 1,
+            "year": datetime.now().year,
+            "rate": khali_jaga_rate,
+            "floor": None,
+            "usage": prop.vacantLandType,
+            "capitalValue": None,  # Replace with actual value if available
+            "houseTax": None,      # Replace with actual value if available
+            "usageBasedBuildingWeightageFactor": 1,
+            "taxRates": 0,         # Replace with actual tax rate if available
+            "totalkhalijagaareainfoot": khali_area,
+            "totalkhalijagaareainmeters": round(khali_area * 0.092903, 2)
+        }]
+    # else: khaliJaga remains []
+    # Fetch weightage mapping for usage
+    weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
     constructionType = [
         {
             "type": c.construction_type.name,
@@ -96,7 +71,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             "capitalValue": c.capitalValue,
             "houseTax": c.houseTax,
             "depreciation_rate": calculate_depreciation_rate(c.constructionYear, c.construction_type.name),
-            "usageBasedBuildingWeightageFactor": 1,
+            "usageBasedBuildingWeightageFactor": weightage_map.get(getattr(c, 'bharank', None), 1),
             "taxRates": getattr(c.construction_type, 'rate', 0),
         }
         for c in prop.constructions
@@ -261,58 +236,34 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
         property_description = ", ".join(property_types)
         khali_jaga_types = [c for c in prop.constructions if c.construction_type.name.strip() == "खाली जागा"]
         khaliJaga = []
-        if khali_jaga_types:
-            for c in khali_jaga_types:
-                khali_jaga_rate = getattr(c.construction_type, 'rate', 0)
-                bandhmastache_dar = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                area_foot = (c.length or 0) * (c.width or 0)
-                area_meter = round(area_foot * 0.092903, 2)
-                khaliJaga.append({
-                    "constructiontype": c.construction_type.name,
-                    "length": c.length,
-                    "width": c.width,
-                    "year": datetime.now().year,
-                    "rate": bandhmastache_dar,
-                    "floor": c.floor,
-                    "usage": getattr(c, 'bharank', None),
-                    "capitalValue": c.capitalValue,
-                    "houseTax": c.houseTax,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": khali_jaga_rate,
-                    "totalkhalijagaareainfoot": area_foot,
-                    "totalkhalijagaareainmeters": area_meter
-                })
-        else:
+        if getattr(prop, 'vacantLandType', None) not in [None, '', 'null']:
             total_area = prop.totalAreaSqFt or 0
             used_area = sum((c.length or 0) * (c.width or 0) for c in prop.constructions)
             khali_area = max(total_area - used_area, 0)
-            if khali_area > 0:
-                khali_jaga_rate = None
-                bandhmastache_dar = None
-                khali_jaga_construction = None
-                for c in prop.constructions:
-                    if c.construction_type.name.strip() == "खाली जागा":
-                        khali_jaga_rate = getattr(c.construction_type, 'rate', 0)
-                        bandhmastache_dar = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                        khali_jaga_construction = c
-                        break
-                area_foot = khali_area * 1
-                area_meter = round(area_foot * 0.092903, 2)
-                khaliJaga.append({
-                    "constructiontype": "खाली जागा",
-                    "length": khali_area,
-                    "width": 1,
-                    "year": datetime.now().year,
-                    "rate": bandhmastache_dar,
-                    "floor": None,
-                    "usage": None,
-                    "capitalValue": khali_jaga_construction.capitalValue if khali_jaga_construction else None,
-                    "houseTax": khali_jaga_construction.houseTax if khali_jaga_construction else None,
-                    "usageBasedBuildingWeightageFactor": 1,
-                    "taxRates": khali_jaga_rate,
-                    "totalkhalijagaareainfoot": area_foot,
-                    "totalkhalijagaareainmeters": area_meter
-                })
+            # Find the bandhmastache_dar for 'खाली जागा' construction type
+            khali_jaga_rate = 0
+            for c in prop.constructions:
+                if c.construction_type.name.strip() == "खाली जागा":
+                    khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
+                    break
+            khaliJaga = [{
+                "constructiontype": "खाली जागा",
+                "length": khali_area,
+                "width": 1,
+                "year": datetime.now().year,
+                "rate": khali_jaga_rate,
+                "floor": None,
+                "usage": prop.vacantLandType,
+                "capitalValue": None,  # Replace with actual value if available
+                "houseTax": None,      # Replace with actual value if available
+                "usageBasedBuildingWeightageFactor": 1,
+                "taxRates": 0,         # Replace with actual tax rate if available
+                "totalkhalijagaareainfoot": khali_area,
+                "totalkhalijagaareainmeters": round(khali_area * 0.092903, 2)
+            }]
+        # else: khaliJaga remains []
+        # Fetch weightage mapping for usage
+        weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
         constructionType = [
             {
                 "type": c.construction_type.name,
@@ -325,7 +276,7 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
                 "capitalValue": c.capitalValue,
                 "houseTax": c.houseTax,
                 "depreciation_rate": calculate_depreciation_rate(c.constructionYear, c.construction_type.name),
-                "usageBasedBuildingWeightageFactor": 1,
+                "usageBasedBuildingWeightageFactor": weightage_map.get(getattr(c, 'bharank', None), 1),
                 "taxRates": getattr(c.construction_type, 'rate', 0),
             }
             for c in prop.constructions

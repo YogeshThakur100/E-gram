@@ -164,7 +164,7 @@ class ConstructionTypeBase(BaseModel):
     bandhmastache_dar: float
     bandhmastache_prakar: int
     gharache_prakar: int
-    # Add other fields as needed
+    annualLandValueRate: float = 0
 
 class ConstructionTypeCreate(ConstructionTypeBase):
     pass
@@ -181,6 +181,7 @@ class ConstructionTypeUpsert(BaseModel):
     bandhmastache_dar: float
     bandhmastache_prakar: int
     gharache_prakar: int
+    annualLandValueRate: float
 
 class BulkConstructionTypeUpsertRequest(BaseModel):
     construction_types: list[ConstructionTypeUpsert]
@@ -374,6 +375,11 @@ class Namuna8GeneralWaterTaxSlabSettingsUpdate(BaseModel):
     rate301To700: Optional[float] = None
     rateAbove700: Optional[float] = None
 
+class BuildingUsageWeightageItem(BaseModel):
+    serial: int
+    usage: str
+    weight: float
+
 class BulkNamuna8SettingsRequest(BaseModel):
     checklist: Optional[Namuna8SettingChecklistUpdate] = None
     dropdown: Optional[Namuna8DropdownAddSettingsUpdate] = None
@@ -381,6 +387,6 @@ class BulkNamuna8SettingsRequest(BaseModel):
     watertax: Optional[Namuna8WaterTaxSettingsUpdate] = None
     watertaxslab: Optional[Namuna8GeneralWaterTaxSlabSettingsUpdate] = None
     construction_types: Optional[list[ConstructionTypeUpsert]] = None
-
+    building_usage_weightage: Optional[List[BuildingUsageWeightageItem]] = None
     class Config:
         orm_mode = True
