@@ -93,7 +93,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 print("formula2", formula2)
                 
                 # capital_value = 0
-                AnnualLandValueRate = 1000
+                AnnualLandValueRate = getattr(construction_type, 'annualLandValueRate', 1)
                 #for capital_value calculation
                 AreaInMeter = construction_data.length * construction_data.width * 0.092903
                 ConstructionRateAsPerConstruction = construction_type.bandhmastache_dar
