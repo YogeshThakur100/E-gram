@@ -87,6 +87,7 @@ class ConstructionType(Base):
     bandhmastache_dar: Mapped[float] = mapped_column()
     bandhmastache_prakar: Mapped[int] = mapped_column()
     gharache_prakar: Mapped[int] = mapped_column()
+    annualLandValueRate: Mapped[float] = mapped_column(default=0)
     # Add other fields as needed
 
     constructions = relationship("Construction", back_populates="construction_type")
