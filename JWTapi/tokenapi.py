@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import database
 from cryptography.fernet import InvalidToken
+import bcrypt
 
 class license(BaseModel):
     license_key : str
@@ -64,10 +65,10 @@ def verfiy_token(token : str):
 def store_encrypted_license(license : license , db : Session = Depends(database.get_db)):
     try:
             license_key = license.license_key
-            decrypted_key = decrypt_token(license_key)
+            encrypted_key = bcrypt.hashpw(license_key.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             try:
                 new_license = models.license(
-                    encrypted_license_key = decrypted_key
+                    encrypted_license_key = encrypted_key
                 )
                 db.add(new_license)
                 db.commit()
@@ -79,8 +80,8 @@ def store_encrypted_license(license : license , db : Session = Depends(database.
                         "success" : True,
                         "messgae" : "Encrypted license added successfully",
                         "data" : {
-                            "decrypted_license_key" : decrypted_key,
-                            "encrypted_license_key" : license_key
+                            "encrypted_license_key" : encrypted_key,
+                            "license_key" : license_key
                         }
                     }
                 )
@@ -107,45 +108,25 @@ def store_encrypted_license(license : license , db : Session = Depends(database.
 @router.post("/verify-encrypted-license")
 def verify_encrypted_license(license : license , db : Session = Depends(database.get_db)):
     try:
-        encrypted_license_key = license.license_key
-        decrypted_license_key = decrypt_token(encrypted_license_key)
-        print('encrypted_license_key' , encrypted_license_key)
-        try:
-            decrypted_license_key_valid = db.query(models.license).filter(models.license.encrypted_license_key == decrypted_license_key).first().encrypted_license_key
-        except Exception as e:
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "success" : False,
-                    "message" : "Erorr verify the key",
-                    "data" : []
-                }
-            )
-        print("encrypted_license_key_valid" , decrypted_license_key_valid)
-        if (decrypted_license_key_valid):
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "success" : True,
-                    "message" : "License Verified Successfully",
-                    "data" : []
-                }
-            )
-        else:
-            return JSONResponse(
-                status_code=401,
-                content={
-                    "success" : False,
-                    "message" : "License Not Verified, not authorized to move forward",
-                    "data" : []
-                }
-            )
-    except InvalidToken:
+        license_key = license.license_key
+        licenses = db.query(models.license).all()
+
+        for lic in licenses:
+            if bcrypt.checkpw(license_key.encode('utf-8'), lic.encrypted_license_key.encode('utf-8')):
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "success": True,
+                        "message": "License Verified Successfully",
+                        "data": []
+                    }
+                )
+
         return JSONResponse(
-            status_code=400,
+            status_code=401,
             content={
                 "success": False,
-                "message": "Invalid license key",
+                "message": "License Not Verified, not authorized to move forward",
                 "data": []
             }
         )
@@ -153,8 +134,8 @@ def verify_encrypted_license(license : license , db : Session = Depends(database
         return JSONResponse(
             status_code=500,
             content={
-                "success" : False,
-                "message" : f"Internal server error {str(e)}",
-                "data" : []
+                "success": False,
+                "message": f"Internal server error: {str(e)}",
+                "data": []
             }
         )
