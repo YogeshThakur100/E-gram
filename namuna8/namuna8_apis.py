@@ -19,7 +19,7 @@ import time
 import re
 from Utility.QRcodeGeneration import QRCodeGeneration
 from namuna8.recordresponses.property_record_response import get_property_record
-from namuna8.mastertab.mastertabmodels import GeneralSetting
+from namuna8.mastertab.mastertabmodels import GeneralSetting, BuildingUsageWeightage
 
 router = APIRouter(
     prefix="/namuna8",
@@ -98,7 +98,9 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 AreaInMeter = construction_data.length * construction_data.width * 0.092903
                 ConstructionRateAsPerConstruction = construction_type.bandhmastache_dar
                 depreciationRate = calculate_depreciation_rate(construction_data.constructionYear, construction_type.name)
-                usageBasedBuildingWeightageFactor = 1
+                # Before using usageBasedBuildingWeightageFactor, build the mapping
+                weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
+                usageBasedBuildingWeightageFactor = weightage_map.get(getattr(construction_data, 'bharank', None), 1)
                 if formula1:
                     capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
                     print("capital_value_from_formula1" , capital_value)
@@ -1037,6 +1039,7 @@ def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRe
                 obj.bandhmastache_dar = item.bandhmastache_dar
                 obj.bandhmastache_prakar = item.bandhmastache_prakar
                 obj.gharache_prakar = item.gharache_prakar
+                obj.annualLandValueRate = item.annualLandValueRate
                 db.commit()
                 db.refresh(obj)
                 result.append(obj)
@@ -1047,7 +1050,8 @@ def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRe
                     rate=item.rate,
                     bandhmastache_dar=item.bandhmastache_dar,
                     bandhmastache_prakar=item.bandhmastache_prakar,
-                    gharache_prakar=item.gharache_prakar
+                    gharache_prakar=item.gharache_prakar,
+                    annualLandValueRate=item.annualLandValueRate
                 )
                 db.add(new_obj)
                 db.commit()
@@ -1059,7 +1063,8 @@ def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRe
                 rate=item.rate,
                 bandhmastache_dar=item.bandhmastache_dar,
                 bandhmastache_prakar=item.bandhmastache_prakar,
-                gharache_prakar=item.gharache_prakar
+                gharache_prakar=item.gharache_prakar,
+                annualLandValueRate=item.annualLandValueRate
             )
             db.add(new_obj)
             db.commit()
@@ -1165,6 +1170,7 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                     obj.bandhmastache_dar = item.bandhmastache_dar
                     obj.bandhmastache_prakar = item.bandhmastache_prakar
                     obj.gharache_prakar = item.gharache_prakar
+                    obj.annualLandValueRate = item.annualLandValueRate
                     db.commit()
                     db.refresh(obj)
                     result_construction_types.append(obj)
@@ -1174,7 +1180,8 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                         rate=item.rate,
                         bandhmastache_dar=item.bandhmastache_dar,
                         bandhmastache_prakar=item.bandhmastache_prakar,
-                        gharache_prakar=item.gharache_prakar
+                        gharache_prakar=item.gharache_prakar,
+                        annualLandValueRate=item.annualLandValueRate
                     )
                     db.add(new_obj)
                     db.commit()
@@ -1186,13 +1193,24 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                     rate=item.rate,
                     bandhmastache_dar=item.bandhmastache_dar,
                     bandhmastache_prakar=item.bandhmastache_prakar,
-                    gharache_prakar=item.gharache_prakar
+                    gharache_prakar=item.gharache_prakar,
+                    annualLandValueRate=item.annualLandValueRate
                 )
                 db.add(new_obj)
                 db.commit()
                 db.refresh(new_obj)
                 result_construction_types.append(new_obj)
         result['construction_types'] = result_construction_types
+    # Building Usage Weightage
+    if getattr(request, 'building_usage_weightage', None) is not None:
+        db.query(BuildingUsageWeightage).delete()
+        for item in request.building_usage_weightage:
+            db.add(BuildingUsageWeightage(
+                serial_number=item.serial,
+                building_usage=item.usage,
+                weightage=item.weight
+            ))
+        db.commit()
     return result
 
 # --- Village CRUD Operations ---
@@ -1384,4 +1402,16 @@ def get_property_qrcode(anu_kramank: int):
     if not os.path.exists(qr_path):
         raise HTTPException(status_code=404, detail="QR code not found")
     return FileResponse(qr_path, media_type="image/png")
+
+@router.get("/settings/building_usage_weightage/get")
+def get_building_usage_weightage(db: Session = Depends(database.get_db)):
+    rows = db.query(BuildingUsageWeightage).order_by(BuildingUsageWeightage.serial_number).all()
+    return [
+        {
+            "serial_number": row.serial_number,
+            "building_usage": row.building_usage,
+            "weightage": row.weightage
+        }
+        for row in rows
+    ]
     

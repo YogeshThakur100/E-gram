@@ -4,6 +4,8 @@ import datetime
 from database import Base
 import uuid
 
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class GeneralSetting(Base):
     __tablename__ = 'generalSetting'
@@ -24,3 +26,11 @@ class NewYojna(Base):
     consession = Column(String, nullable=True)
     createdAt = Column(DateTime, default=datetime.datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+
+class BuildingUsageWeightage(Base):
+    __tablename__ = "building_usage_weightage"
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    serial_number: Mapped[int] = mapped_column()
+    building_usage: Mapped[str] = mapped_column()
+    weightage: Mapped[float] = mapped_column()
