@@ -436,6 +436,9 @@ class BuildingUsageWeightageItem(BaseModel):
     serial: int
     usage: str
     weight: float
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class BulkNamuna8SettingsRequest(BaseModel):
     checklist: Optional[Namuna8SettingChecklistUpdate] = None

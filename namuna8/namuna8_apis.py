@@ -1146,7 +1146,10 @@ def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRe
                 bandhmastache_dar=item.bandhmastache_dar,
                 bandhmastache_prakar=item.bandhmastache_prakar,
                 gharache_prakar=item.gharache_prakar,
-                annualLandValueRate=item.annualLandValueRate
+                annualLandValueRate=item.annualLandValueRate,
+                                    district_id=getattr(item, 'district_id', None),
+                    taluka_id=getattr(item, 'taluka_id', None),
+                    gram_panchayat_id=getattr(item, 'gram_panchayat_id', None)
             )
             db.add(new_obj)
             db.commit()
@@ -1225,6 +1228,13 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                 settingtax_obj.generalWater301_700 = watertaxslab_data['rate301To700']
             if 'rateAbove700' in watertaxslab_data:
                 settingtax_obj.generalWaterAbove700 = watertaxslab_data['rateAbove700']
+            # Add location fields if provided
+            if hasattr(request.watertaxslab, 'district_id') and request.watertaxslab.district_id is not None:
+                settingtax_obj.district_id = request.watertaxslab.district_id
+            if hasattr(request.watertaxslab, 'taluka_id') and request.watertaxslab.taluka_id is not None:
+                settingtax_obj.taluka_id = request.watertaxslab.taluka_id
+            if hasattr(request.watertaxslab, 'gram_panchayat_id') and request.watertaxslab.gram_panchayat_id is not None:
+                settingtax_obj.gram_panchayat_id = request.watertaxslab.gram_panchayat_id
             db.commit()
             db.refresh(settingtax_obj)
             result['watertaxslab'] = settingtax_obj
@@ -1234,7 +1244,10 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                 id='namuna8',
                 generalWaterUpto300=watertaxslab_data.get('rateUpto300', 0),
                 generalWater301_700=watertaxslab_data.get('rate301To700', 0),
-                generalWaterAbove700=watertaxslab_data.get('rateAbove700', 0)
+                generalWaterAbove700=watertaxslab_data.get('rateAbove700', 0),
+                district_id=getattr(request.watertaxslab, 'district_id', None),
+                taluka_id=getattr(request.watertaxslab, 'taluka_id', None),
+                gram_panchayat_id=getattr(request.watertaxslab, 'gram_panchayat_id', None)
             )
             db.add(settingtax_obj)
             db.commit()
@@ -1253,6 +1266,9 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                     obj.bandhmastache_prakar = item.bandhmastache_prakar
                     obj.gharache_prakar = item.gharache_prakar
                     obj.annualLandValueRate = item.annualLandValueRate
+                    obj.district_id = item.district_id
+                    obj.taluka_id = item.taluka_id
+                    obj.gram_panchayat_id = item.gram_panchayat_id
                     db.commit()
                     db.refresh(obj)
                     result_construction_types.append(obj)
@@ -1263,7 +1279,10 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                         bandhmastache_dar=item.bandhmastache_dar,
                         bandhmastache_prakar=item.bandhmastache_prakar,
                         gharache_prakar=item.gharache_prakar,
-                        annualLandValueRate=item.annualLandValueRate
+                        annualLandValueRate=item.annualLandValueRate,
+                        district_id=item.district_id,
+                        taluka_id=item.taluka_id,
+                        gram_panchayat_id=item.gram_panchayat_id
                     )
                     db.add(new_obj)
                     db.commit()
@@ -1276,7 +1295,10 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                     bandhmastache_dar=item.bandhmastache_dar,
                     bandhmastache_prakar=item.bandhmastache_prakar,
                     gharache_prakar=item.gharache_prakar,
-                    annualLandValueRate=item.annualLandValueRate
+                    annualLandValueRate=item.annualLandValueRate,
+                    district_id=getattr(item, 'district_id', None),
+                    taluka_id=getattr(item, 'taluka_id', None),
+                    gram_panchayat_id=getattr(item, 'gram_panchayat_id', None)
                 )
                 db.add(new_obj)
                 db.commit()
@@ -1290,7 +1312,10 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
             db.add(BuildingUsageWeightage(
                 serial_number=item.serial,
                 building_usage=item.usage,
-                weightage=item.weight
+                weightage=item.weight,
+                district_id=item.district_id,
+                taluka_id=item.taluka_id,
+                gram_panchayat_id=item.gram_panchayat_id
             ))
         db.commit()
     return result
