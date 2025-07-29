@@ -15,7 +15,6 @@
         th { background: #f0f0f0; }
         .footer-summary {
             border: 3px solid #000;
-            border-top: none;
             font-size: 13px;
             font-weight: bold;
             margin-top: 0;
@@ -49,6 +48,15 @@
             }
             #toolbar {
                 display: none !important;
+            }
+            .page-footer {
+                display: none !important; /* Just in case some remnants are left */
+            }
+            /* Ensure footer appears at the end during print */
+            .footer-summary {
+                display: block !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
             }
         }
     </style>
@@ -101,12 +109,10 @@
             }
         }
         function updateFooterSummary() {
-            // Only sum visible rows
-            const visibleRows = Array.from(document.querySelectorAll('.record-row')).filter(
-                row => row.style.display !== 'none'
-            );
+            // Calculate totals for all records (not just visible ones)
+            const allRows = Array.from(document.querySelectorAll('.record-row'));
             let house = 0, lighting = 0, health = 0, water = 0, cleaning = 0, toilet = 0, total = 0;
-            visibleRows.forEach(row => {
+            allRows.forEach(row => {
                 house += parseFloat(row.dataset.houseTax) || 0;
                 lighting += parseFloat(row.dataset.lightingTax) || 0;
                 health += parseFloat(row.dataset.healthTax) || 0;
@@ -238,9 +244,7 @@
         <tfoot class="page-footer">
             <tr>
                 <td colspan="21" style="border:none; padding:0;">
-                    <div class="footer-summary" id="footerSummary">
-                        <!-- Totals will be inserted here by JS -->
-                    </div>
+                    <!-- Footer content moved outside tfoot -->
                 </td>
             </tr>
         </tfoot>
@@ -393,6 +397,11 @@
             {% endfor %}
         </tbody>
     </table>
+    
+    <!-- Footer Summary - Outside table to avoid repetition -->
+    <div class="footer-summary" id="footerSummary">
+        <!-- Totals will be inserted here by JS -->
+    </div>
 </div>
 </body>
 </html>

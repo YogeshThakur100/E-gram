@@ -229,48 +229,36 @@
             </tr>
             {% endfor  %}
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2" style="font-weight:bold; text-align:left;">गोष्टवार</td>
-                <td colspan="4" style="font-weight:bold; text-align:center;">घर कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">दिवा कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">आ. कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">पाणी कर</td>
-                <td colspan="3" style="font-weight:bold; text-align:center;">सफाई कर</td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;">19311</td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>
-                <td rowspan="3" style="font-weight:bold; text-align:center; vertical-align:middle;"></td>   
-            </tr>
-            <tr>
-                <td ></td>
-                <td ></td>
-                <td style="font-weight:normal; text-align:center;">थकित 100</td>
-                <td style="font-weight:normal; text-align:center;">दंड  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-                <td style="font-weight:normal; text-align:center;">थकित  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकूण  100</td>
-            </tr>
-        </tfoot>
+        <tr>
+            <td colspan="2" style="font-weight:bold; text-align:left;">गोष्टवार</td>
+            <td colspan="4" style="font-weight:bold; text-align:center;">घर कर</td>
+            <td colspan="3" style="font-weight:bold; text-align:center;">दिवा कर</td>
+            <td colspan="3" style="font-weight:bold; text-align:center;">आ. कर</td>
+            <td colspan="3" style="font-weight:bold; text-align:center;">पाणी कर</td>
+            <td colspan="3" style="font-weight:bold; text-align:center;">सफाई कर</td>
+            <td style="font-weight:bold; text-align:center;">एकूण </td>
+        </tr>
+        <tr>
+            <td>{% if removeDhakit != 'true' %}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitHouseTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dandHouseTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='houseTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalHouseTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitLightingTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='lightingTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalLightingTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitHealthTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='healthTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalHealthTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitSaWaterTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='saWaterTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalSaWaterTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitCleaningTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='cleaningTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalCleaningTax') }}{% endif %}</td>
+            <td>{% if removePurnaYekun != 'true' %}{{ data | sum(attribute='totaltax') }}{% endif %}</td>
+        </tr>
     </table>
 </body>
 </html>
