@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from database import Base
 
 class ReceiptCertificate(Base):
@@ -14,4 +14,7 @@ class ReceiptCertificate(Base):
     name2_en = Column(String, nullable=True)
     receipt_amount = Column(String, nullable=True)
     receipt_amount_en = Column(String, nullable=True)
-    barcode = Column(String, nullable=True) 
+    barcode = Column(String, nullable=True)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True) 

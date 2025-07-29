@@ -20,10 +20,19 @@ def create_toilet_certificate(
     applicant_name_en: str = Form(None),
     adhar_number: str = Form(None),
     adhar_number_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
     # Convert registration_date string to date object
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     cert = ToiletCertificate(
         registration_date=reg_date_obj,
         village=village,
@@ -31,7 +40,10 @@ def create_toilet_certificate(
         applicant_name=applicant_name,
         applicant_name_en=applicant_name_en,
         adhar_number=adhar_number,
-        adhar_number_en=adhar_number_en
+        adhar_number_en=adhar_number_en,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int
     )
     db.add(cert)
     db.commit()
@@ -60,14 +72,31 @@ def create_toilet_certificate(
     return cert
 
 @router.get("/toilet", response_model=list[ToiletCertificateRead])
-def list_toilet_certificates(db: Session = Depends(get_db)):
-    return db.query(ToiletCertificate).all()
+def list_toilet_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(ToiletCertificate)
+    if district_id:
+        query = query.filter(ToiletCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(ToiletCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(ToiletCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/toilet/{id}", response_model=ToiletCertificateRead)
 def get_toilet_certificate(id: int, request: Request, db: Session = Depends(get_db)):
     cert = db.query(ToiletCertificate).filter(ToiletCertificate.id == id).first()
     if not cert:
         raise HTTPException(status_code=404, detail="Toilet certificate not found")
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
     cert_data = ToiletCertificateRead.from_orm(cert)
     # Add barcode_url
     cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/toilet_barcode/{cert.id}"
@@ -84,6 +113,9 @@ def update_toilet_certificate(id: int, registration_date: str = Form(...),
     applicant_name_en: str = Form(None),
     adhar_number: str = Form(None),
     adhar_number_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)):
     cert = db.query(ToiletCertificate).filter(ToiletCertificate.id == id).first()
     if not cert:
@@ -96,6 +128,9 @@ def update_toilet_certificate(id: int, registration_date: str = Form(...),
     setattr(cert, "applicant_name_en", applicant_name_en)
     setattr(cert, "adhar_number", adhar_number)
     setattr(cert, "adhar_number_en", adhar_number_en)
+    setattr(cert, "district_id", district_id_int)
+    setattr(cert, "taluka_id", taluka_id_int)
+    setattr(cert, "gram_panchayat_id", gram_panchayat_id_int)
     db.commit()
     db.refresh(cert)
     # Regenerate barcode

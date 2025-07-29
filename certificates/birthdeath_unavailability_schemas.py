@@ -15,6 +15,9 @@ class BirthDeathUnavailabilityCertificateBase(BaseModel):
     subject: Optional[str]
     subject_en: Optional[str]
     barcode: str | None = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class BirthDeathUnavailabilityCertificateCreate(BirthDeathUnavailabilityCertificateBase):
     pass

@@ -6,6 +6,9 @@ class Namuna9YearSetupBase(BaseModel):
     year: str
     data_source: str
     notes: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
     # Add more fields as needed for section 2/3
     # previous_year: Optional[str] = None
     # shakti_option: Optional[str] = None
@@ -31,6 +34,9 @@ class Namuna9SettingsBase(BaseModel):
     notes: Optional[str] = None
     keep_namuna9_date: bool = False
     keep_notice_date: bool = False
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna9SettingsCreate(Namuna9SettingsBase):
     pass

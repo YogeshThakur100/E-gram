@@ -16,6 +16,9 @@ class FamilyCertificateBase(BaseModel):
     relation: Optional[str] = None
     relation_en: Optional[str] = None
     year: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class FamilyCertificateCreate(FamilyCertificateBase):
     pass

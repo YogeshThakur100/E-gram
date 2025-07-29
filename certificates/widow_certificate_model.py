@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from database import Base
 
 class WidowCertificate(Base):
@@ -13,4 +13,7 @@ class WidowCertificate(Base):
     husband_name_en = Column(String, nullable=True)
     adhar_number = Column(String, nullable=True)
     adhar_number_en = Column(String, nullable=True)
-    barcode = Column(String, nullable=True) 
+    barcode = Column(String, nullable=True)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True) 

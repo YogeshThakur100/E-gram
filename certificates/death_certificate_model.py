@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 
 class DeathCertificate(Base):
@@ -24,5 +25,8 @@ class DeathCertificate(Base):
     permanent_address_en = Column(String)
     remark = Column(String)
     remark_en = Column(String)
-    qrcode = Column(String, nullable=True) 
-    barcode = Column(String, nullable=True)   
+    qrcode = Column(String, nullable=True)
+    barcode = Column(String, nullable=True)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True)   

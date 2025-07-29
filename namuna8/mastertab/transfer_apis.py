@@ -21,6 +21,9 @@ class PropertyTransferCreate(BaseModel):
     new_owners: List[TransferOwner]
     doc_note: Optional[str] = None
     register_note: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class PropertyTransferLog(BaseModel):
     id: int
@@ -50,7 +53,14 @@ def transfer_property(data: PropertyTransferCreate, db: Session = Depends(get_db
             if not db_owner:
                 raise HTTPException(status_code=404, detail=f"Owner with id {owner.id} not found")
         else:
-            db_owner = models.Owner(name=owner.name, wifeName=owner.wifeName, village_id=prop.village_id)
+            db_owner = models.Owner(
+                name=owner.name, 
+                wifeName=owner.wifeName, 
+                village_id=prop.village_id,
+                district_id=data.district_id,
+                taluka_id=data.taluka_id,
+                gram_panchayat_id=data.gram_panchayat_id
+            )
             db.add(db_owner)
             db.commit()
             db.refresh(db_owner)

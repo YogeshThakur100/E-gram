@@ -24,12 +24,21 @@ def create_no_benefit_certificate(
     applicant_name_en: str = Form(...),
     adhar_number: str = Form(...),
     adhar_number_en: str = Form(...),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     image: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
     image_url = None
     # Create cert first to get ID
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     cert = NoBenefitCertificate(
         registration_date=reg_date_obj,
         village=village,
@@ -38,6 +47,9 @@ def create_no_benefit_certificate(
         applicant_name_en=applicant_name_en,
         adhar_number=adhar_number,
         adhar_number_en=adhar_number_en,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int,
         image_url=None
     )
     db.add(cert)
@@ -79,8 +91,20 @@ def create_no_benefit_certificate(
     return cert
 
 @router.get("/no-benefit", response_model=list[NoBenefitCertificateRead])
-def list_no_benefit_certificates(db: Session = Depends(get_db)):
-    return db.query(NoBenefitCertificate).all()
+def list_no_benefit_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(NoBenefitCertificate)
+    if district_id:
+        query = query.filter(NoBenefitCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(NoBenefitCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(NoBenefitCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/no-benefit/{id}", response_model=NoBenefitCertificateRead)
 def get_no_benefit_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -115,6 +139,9 @@ def update_no_benefit_certificate(
     applicant_name_en: str = Form(...),
     adhar_number: str = Form(...),
     adhar_number_en: str = Form(...),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     image: UploadFile = File(None),
     remove_image: bool = Form(False),
     db: Session = Depends(get_db)
@@ -122,6 +149,12 @@ def update_no_benefit_certificate(
     cert = db.query(NoBenefitCertificate).filter(NoBenefitCertificate.id == id).first()
     if not cert:
         raise HTTPException(status_code=404, detail="No Benefit certificate not found")
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
     setattr(cert, "registration_date", reg_date_obj)
     setattr(cert, "village", village)
@@ -130,6 +163,9 @@ def update_no_benefit_certificate(
     setattr(cert, "applicant_name_en", applicant_name_en)
     setattr(cert, "adhar_number", adhar_number)
     setattr(cert, "adhar_number_en", adhar_number_en)
+    setattr(cert, "district_id", district_id_int)
+    setattr(cert, "taluka_id", taluka_id_int)
+    setattr(cert, "gram_panchayat_id", gram_panchayat_id_int)
     # Handle image update/removal
     if remove_image and cert.image_url:
         try:

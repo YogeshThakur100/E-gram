@@ -20,9 +20,18 @@ def create_no_arrears_certificate(
     applicant_name_en: str = Form(None),
     adhar_number: str = Form(None),
     adhar_number_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     cert = NoArrearsCertificate(
         registration_date=reg_date_obj,
         village=village,
@@ -30,7 +39,10 @@ def create_no_arrears_certificate(
         applicant_name=applicant_name,
         applicant_name_en=applicant_name_en,
         adhar_number=adhar_number,
-        adhar_number_en=adhar_number_en
+        adhar_number_en=adhar_number_en,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int
     )
     db.add(cert)
     db.commit()
@@ -59,8 +71,20 @@ def create_no_arrears_certificate(
     return cert
 
 @router.get("/no_arrears", response_model=list[NoArrearsCertificateRead])
-def list_no_arrears_certificates(db: Session = Depends(get_db)):
-    return db.query(NoArrearsCertificate).all()
+def list_no_arrears_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(NoArrearsCertificate)
+    if district_id:
+        query = query.filter(NoArrearsCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(NoArrearsCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(NoArrearsCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/no_arrears/{id}", response_model=NoArrearsCertificateRead)
 def get_no_arrears_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -82,10 +106,19 @@ def update_no_arrears_certificate(id: int, registration_date: str = Form(...),
     applicant_name_en: str = Form(None),
     adhar_number: str = Form(None),
     adhar_number_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)):
     cert = db.query(NoArrearsCertificate).filter(NoArrearsCertificate.id == id).first()
     if not cert:
         raise HTTPException(status_code=404, detail="No Arrears certificate not found")
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
     setattr(cert, "registration_date", reg_date_obj)
     setattr(cert, "village", village)
@@ -94,6 +127,9 @@ def update_no_arrears_certificate(id: int, registration_date: str = Form(...),
     setattr(cert, "applicant_name_en", applicant_name_en)
     setattr(cert, "adhar_number", adhar_number)
     setattr(cert, "adhar_number_en", adhar_number_en)
+    setattr(cert, "district_id", district_id_int)
+    setattr(cert, "taluka_id", taluka_id_int)
+    setattr(cert, "gram_panchayat_id", gram_panchayat_id_int)
     db.commit()
     db.refresh(cert)
     # Regenerate barcode

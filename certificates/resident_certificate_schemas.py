@@ -13,6 +13,9 @@ class ResidentCertificateBase(BaseModel):
     adhar_no_en: Optional[str]
     image_url: Optional[str]
     barcode: Optional[str]
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class ResidentCertificateCreate(ResidentCertificateBase):
     pass

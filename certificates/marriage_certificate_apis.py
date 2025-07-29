@@ -36,6 +36,9 @@ def create_marriage_certificate(
     marriage_place_en: str = Form(None),
     remark: str = Form(None),
     remark_en: str = Form(None),
+    district_id: int = Form(None),
+    taluka_id: int = Form(None),
+    gram_panchayat_id: int = Form(None),
     db: Session = Depends(get_db)
 ):
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
@@ -63,7 +66,10 @@ def create_marriage_certificate(
         marriage_place=marriage_place,
         marriage_place_en=marriage_place_en,
         remark=remark,
-        remark_en=remark_en
+        remark_en=remark_en,
+        district_id=district_id,
+        taluka_id=taluka_id,
+        gram_panchayat_id=gram_panchayat_id
     )
     db.add(cert)
     db.commit()
@@ -104,8 +110,24 @@ def create_marriage_certificate(
     return cert
 
 @router.get("/marriage", response_model=list[MarriageCertificateRead])
-def list_marriage_certificates(request: Request, db: Session = Depends(get_db)):
-    certs = db.query(MarriageCertificate).all()
+def list_marriage_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    request: Request = None, 
+    db: Session = Depends(get_db)
+):
+    query = db.query(MarriageCertificate)
+    
+    # Apply location filters if provided
+    if district_id:
+        query = query.filter(MarriageCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(MarriageCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(MarriageCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    certs = query.all()
     result = []
     for cert in certs:
         cert_data = MarriageCertificateRead.from_orm(cert)
@@ -173,6 +195,9 @@ def update_marriage_certificate(
     marriage_place_en: str = Form(None),
     remark: str = Form(None),
     remark_en: str = Form(None),
+    district_id: int = Form(None),
+    taluka_id: int = Form(None),
+    gram_panchayat_id: int = Form(None),
     db: Session = Depends(get_db)):
     cert = db.query(MarriageCertificate).filter(MarriageCertificate.id == id).first()
     if not cert:
@@ -201,6 +226,9 @@ def update_marriage_certificate(
     setattr(cert, "marriage_place_en", marriage_place_en)
     setattr(cert, "remark", remark)
     setattr(cert, "remark_en", remark_en)
+    setattr(cert, "district_id", district_id)
+    setattr(cert, "taluka_id", taluka_id)
+    setattr(cert, "gram_panchayat_id", gram_panchayat_id)
     # Regenerate barcode
     barcode_dir = os.path.join("uploaded_images", "marriage_certificates", "barcode", str(cert.id))
     os.makedirs(barcode_dir, exist_ok=True)

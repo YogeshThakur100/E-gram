@@ -11,6 +11,9 @@ class NoBenefitCertificateBase(BaseModel):
     adhar_number: constr(min_length=4)
     adhar_number_en: constr(min_length=4)
     image_url: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
     @validator('adhar_number', 'adhar_number_en')
     def must_be_digits(cls, v):
