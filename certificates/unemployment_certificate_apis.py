@@ -20,9 +20,17 @@ def create_unemployment_certificate(
     applicant_name_en: str = Form(None),
     adhar_number: str = Form(None),
     adhar_number_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     image: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
+    # Convert empty strings to None for location fields
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
     cert = UnemploymentCertificate(
         registration_date=reg_date_obj,
@@ -31,7 +39,10 @@ def create_unemployment_certificate(
         applicant_name=applicant_name,
         applicant_name_en=applicant_name_en,
         adhar_number=adhar_number,
-        adhar_number_en=adhar_number_en
+        adhar_number_en=adhar_number_en,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int
     )
     db.add(cert)
     db.commit()
@@ -70,8 +81,24 @@ def create_unemployment_certificate(
     return cert
 
 @router.get("/unemployment", response_model=list[UnemploymentCertificateRead])
-def list_unemployment_certificates(request: Request, db: Session = Depends(get_db)):
-    certs = db.query(UnemploymentCertificate).all()
+def list_unemployment_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    request: Request = None, 
+    db: Session = Depends(get_db)
+):
+    query = db.query(UnemploymentCertificate)
+    
+    # Apply location filters if provided
+    if district_id:
+        query = query.filter(UnemploymentCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(UnemploymentCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(UnemploymentCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    certs = query.all()
     result = []
     for cert in certs:
         cert_data = UnemploymentCertificateRead.from_orm(cert)
@@ -121,6 +148,9 @@ def update_unemployment_certificate(id: int, registration_date: str = Form(...),
     applicant_name_en: str = Form(None),
     adhar_number: str = Form(None),
     adhar_number_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     image: UploadFile = File(None),
     db: Session = Depends(get_db)):
     cert = db.query(UnemploymentCertificate).filter(UnemploymentCertificate.id == id).first()
@@ -134,6 +164,9 @@ def update_unemployment_certificate(id: int, registration_date: str = Form(...),
     setattr(cert, "applicant_name_en", applicant_name_en)
     setattr(cert, "adhar_number", adhar_number)
     setattr(cert, "adhar_number_en", adhar_number_en)
+    setattr(cert, "district_id", int(district_id) if district_id and district_id.strip() else None)
+    setattr(cert, "taluka_id", int(taluka_id) if taluka_id and taluka_id.strip() else None)
+    setattr(cert, "gram_panchayat_id", int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None)
     # Handle image upload and removal
     image_dir = os.path.join("uploaded_images", "unemployment_certificates", str(cert.id))
     os.makedirs(image_dir, exist_ok=True)

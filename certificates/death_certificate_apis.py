@@ -62,12 +62,39 @@ def create_death_certificate(data: DeathCertificateCreate, db: Session = Depends
     return cert
 
 @router.get("/death", response_model=list[DeathCertificateRead])
-def list_death_certificates(db: Session = Depends(get_db)):
-    return db.query(DeathCertificate).all()
+def list_death_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(DeathCertificate)
+    if district_id:
+        query = query.filter(DeathCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(DeathCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(DeathCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/death/{id}", response_model=DeathCertificateRead)
-def get_death_certificate(id: int, request: Request, db: Session = Depends(get_db)):
-    cert = db.query(DeathCertificate).filter(DeathCertificate.id == id).first()
+def get_death_certificate(
+    id: int, 
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    request: Request = None, 
+    db: Session = Depends(get_db)
+):
+    query = db.query(DeathCertificate).filter(DeathCertificate.id == id)
+    if district_id:
+        query = query.filter(DeathCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(DeathCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(DeathCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Death certificate not found")
     cert_data = DeathCertificateRead.from_orm(cert)
@@ -80,11 +107,29 @@ def get_death_certificate(id: int, request: Request, db: Session = Depends(get_d
     return cert_data
 
 @router.put("/death/{id}", response_model=DeathCertificateRead)
-def update_death_certificate(id: int, data: DeathCertificateCreate, db: Session = Depends(get_db)):
-    cert = db.query(DeathCertificate).filter(DeathCertificate.id == id).first()
+def update_death_certificate(
+    id: int, 
+    data: DeathCertificateCreate, 
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(DeathCertificate).filter(DeathCertificate.id == id)
+    if district_id:
+        query = query.filter(DeathCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(DeathCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(DeathCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Death certificate not found")
-    for field, value in data.dict(exclude_unset=True).items():
+    
+    # Update with location fields
+    update_data = data.dict(exclude_unset=True)
+    for field, value in update_data.items():
         setattr(cert, field, value)
     db.commit()
     db.refresh(cert)

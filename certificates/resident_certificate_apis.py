@@ -25,9 +25,18 @@ def create_resident_certificate(
     adhar_no: str = Form(...),
     adhar_no_en: str = Form(...),
     image: UploadFile = File(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
     image_url = None
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     # Create a temp cert to get the id after commit
     date_obj = datetime.strptime(date, "%Y-%m-%d").date()
     cert = ResidentCertificate(
@@ -39,6 +48,9 @@ def create_resident_certificate(
         applicant_name_en=applicant_name_en,
         adhar_no=adhar_no,
         adhar_no_en=adhar_no_en,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int,
         image_url=None,
         barcode=None
     )
@@ -80,8 +92,20 @@ def create_resident_certificate(
     return cert
 
 @router.get("/resident", response_model=list[ResidentCertificateRead])
-def list_resident_certificates(db: Session = Depends(get_db)):
-    return db.query(ResidentCertificate).all()
+def list_resident_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(ResidentCertificate)
+    if district_id:
+        query = query.filter(ResidentCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(ResidentCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(ResidentCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/resident/{id}", response_model=ResidentCertificateRead)
 def get_resident_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -113,6 +137,9 @@ def update_resident_certificate(
     adhar_no_en: str = Form(...),
     image: UploadFile = File(None),
     remove_image: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
     cert = db.query(ResidentCertificate).filter(ResidentCertificate.id == id).first()

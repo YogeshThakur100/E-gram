@@ -26,8 +26,16 @@ def create_family_certificate(
     relation: str = Form(None),
     relation_en: str = Form(None),
     year: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
+    # Convert empty strings to None for location fields
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     # Convert registration_date string to date object
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
     cert = FamilyCertificate(
@@ -43,7 +51,10 @@ def create_family_certificate(
         applicant_name_en=applicant_name_en,
         relation=relation,
         relation_en=relation_en,
-        year=year
+        year=year,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int
     )
     db.add(cert)
     db.commit()
@@ -72,8 +83,23 @@ def create_family_certificate(
     return cert
 
 @router.get("/family", response_model=list[FamilyCertificateRead])
-def list_family_certificates(db: Session = Depends(get_db)):
-    return db.query(FamilyCertificate).all() 
+def list_family_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(FamilyCertificate)
+    
+    # Apply location filters if provided
+    if district_id:
+        query = query.filter(FamilyCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(FamilyCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(FamilyCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    return query.all() 
 
 @router.get("/family/{id}", response_model=FamilyCertificateRead)
 def get_family_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -102,6 +128,9 @@ def update_family_certificate(id: int, registration_date: str = Form(...),
     relation: str = Form(None),
     relation_en: str = Form(None),
     year: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)):
     cert = db.query(FamilyCertificate).filter(FamilyCertificate.id == id).first()
     if not cert:
@@ -120,6 +149,9 @@ def update_family_certificate(id: int, registration_date: str = Form(...),
     setattr(cert, "relation", relation)
     setattr(cert, "relation_en", relation_en)
     setattr(cert, "year", year)
+    setattr(cert, "district_id", int(district_id) if district_id and district_id.strip() else None)
+    setattr(cert, "taluka_id", int(taluka_id) if taluka_id and taluka_id.strip() else None)
+    setattr(cert, "gram_panchayat_id", int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None)
     db.commit()
     db.refresh(cert)
     # Regenerate barcode

@@ -32,6 +32,14 @@ os.makedirs(UPLOAD_OWNER_PHOTO_DIR, exist_ok=True)
 @router.post("/", response_model=schemas.PropertyRead, status_code=status.HTTP_201_CREATED)
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
     try:
+        # Debug logging
+        # print("=== DEBUG: Property Data Location Fields ===")
+        # print(f"property_data.district_id: {getattr(property_data, 'district_id', 'NOT_FOUND')}")
+        # print(f"property_data.taluka_id: {getattr(property_data, 'taluka_id', 'NOT_FOUND')}")
+        # print(f"property_data.gram_panchayat_id: {getattr(property_data, 'gram_panchayat_id', 'NOT_FOUND')}")
+        # print(f"property_data dict: {property_data.dict()}")
+        # print("==========================================")
+        
         with db.begin():
             owners = []
             for owner_data in property_data.owners:
@@ -56,6 +64,16 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     db.flush()
                     owners.append(db_owner)
                 else:
+                    # Debug logging for owner creation
+                    owner_district_id = getattr(property_data, 'district_id', None)
+                    owner_taluka_id = getattr(property_data, 'taluka_id', None)
+                    owner_gram_panchayat_id = getattr(property_data, 'gram_panchayat_id', None)
+                    # print(f"=== DEBUG: Creating Owner with Location ===")
+                    # print(f"owner_district_id: {owner_district_id}")
+                    # print(f"owner_taluka_id: {owner_taluka_id}")
+                    # print(f"owner_gram_panchayat_id: {owner_gram_panchayat_id}")
+                    # print("==========================================")
+                    
                     new_owner = models.Owner(
                         name=owner_data.name,
                         aadhaarNumber=owner_data.aadhaarNumber,
@@ -63,7 +81,10 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                         wifeName=owner_data.wifeName,
                         occupantName=owner_data.occupantName,
                         ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
-                        village_id=owner_data.village_id
+                        village_id=owner_data.village_id,
+                        district_id=owner_district_id,
+                        taluka_id=owner_taluka_id,
+                        gram_panchayat_id=owner_gram_panchayat_id
                     )
                     new_owner.created_at = datetime.now()
                     db.add(new_owner)
@@ -110,6 +131,17 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     
                     
                 house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value)
+                
+                # Debug logging for construction creation
+                construction_district_id = getattr(property_data, 'district_id', None)
+                construction_taluka_id = getattr(property_data, 'taluka_id', None)
+                construction_gram_panchayat_id = getattr(property_data, 'gram_panchayat_id', None)
+                # print(f"=== DEBUG: Creating Construction with Location ===")
+                # print(f"construction_district_id: {construction_district_id}")
+                # print(f"construction_taluka_id: {construction_taluka_id}")
+                # print(f"construction_gram_panchayat_id: {construction_gram_panchayat_id}")
+                # print("==========================================")
+                
                 new_construction = models.Construction(
                     construction_type_id=construction_type.id,
                     length=construction_data.length,
@@ -119,6 +151,9 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     bharank=construction_data.bharank,
                     capitalValue=capital_value,
                     houseTax=house_tax,
+                    district_id=construction_district_id,
+                    taluka_id=construction_taluka_id,
+                    gram_panchayat_id=construction_gram_panchayat_id
                 )
                 constructions.append(new_construction)
             # --- END FIX ---
@@ -160,34 +195,34 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 )
                 remaining_area = total_area - used_area
                 print("remaining_area:", remaining_area)
-                if remaining_area > 0:
-                    print("greater")
-                    vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
-                    if vacant_type_obj:
+                # if remaining_area > 0:
+                #     print("greater")
+                #     vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
+                #     if vacant_type_obj:
                        
-                        length = remaining_area
-                        width = 1
-                        constructionYear = str(datetime.now().year)
-                        floor = "तळमजला"
-                        bharank = "औद्योगिक"
-                        AreaInMeter = length * width * 0.092903
-                        AnnualLandValueRate = 1000
-                        ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
-                        depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
-                        usageBasedBuildingWeightageFactor = 1
-                        capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
-                        house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
-                        new_vacant_land = models.Construction(
-                            construction_type_id=vacant_type_obj.id,
-                            length=length,
-                            width=width,
-                            constructionYear=constructionYear,
-                            floor=floor,
-                            bharank=bharank,
-                            capitalValue=capital_value,
-                            houseTax=house_tax,
-                        )
-                        constructions.append(new_vacant_land)
+                #         length = remaining_area
+                #         width = 1
+                #         constructionYear = str(datetime.now().year)
+                #         floor = "तळमजला"
+                #         bharank = "औद्योगिक"
+                #         AreaInMeter = length * width * 0.092903
+                #         AnnualLandValueRate = 1000
+                #         ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
+                #         depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
+                #         usageBasedBuildingWeightageFactor = 1
+                #         capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                #         house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
+                #         new_vacant_land = models.Construction(
+                #             construction_type_id=vacant_type_obj.id,
+                #             length=length,
+                #             width=width,
+                #             constructionYear=constructionYear,
+                #             floor=floor,
+                #             bharank=bharank,
+                #             capitalValue=capital_value,
+                #             houseTax=house_tax,
+                #         )
+                #         constructions.append(new_vacant_land)
             # --- END ADDITION ---
 
             # Map totalArea to totalAreaSqFt if present in dict
@@ -280,12 +315,38 @@ def get_property_list(village: str, db: Session = Depends(database.get_db)):
     return result
 
 @router.get("/get-all-constructiontypes", response_model=List[schemas.ConstructionType])
-def get_all_construction_types(db: Session = Depends(database.get_db)):
-    return db.query(models.ConstructionType).all()
+def get_all_construction_types(
+    district_id: Optional[int] = Query(None, description="Filter by district ID"),
+    taluka_id: Optional[int] = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: Optional[int] = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    query = db.query(models.ConstructionType)
+    
+    # Apply location filters if provided
+    if district_id is not None:
+        query = query.filter(models.ConstructionType.district_id == district_id)
+    if taluka_id is not None:
+        query = query.filter(models.ConstructionType.taluka_id == taluka_id)
+    if gram_panchayat_id is not None:
+        query = query.filter(models.ConstructionType.gram_panchayat_id == gram_panchayat_id)
+    
+    return query.all()
 
 @router.get("/{anu_kramank}", response_model=schemas.PropertyRead)
-def get_property_details(anu_kramank: int, db: Session = Depends(database.get_db)):
-    db_property = db.query(models.Property).filter(models.Property.anuKramank == anu_kramank).first()
+def get_property_details(
+    anu_kramank: int,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    db_property = db.query(models.Property).filter(
+        models.Property.anuKramank == anu_kramank,
+        models.Property.district_id == district_id,
+        models.Property.taluka_id == taluka_id,
+        models.Property.gram_panchayat_id == gram_panchayat_id
+    ).first()
     if not db_property:
         raise HTTPException(status_code=404, detail="Property not found")
     return build_property_response(db_property, db)
@@ -358,7 +419,10 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
                     wifeName=owner_data.wifeName,
                     occupantName=owner_data.occupantName,
                     ownerPhoto=getattr(owner_data, 'ownerPhoto', None) if getattr(owner_data, 'ownerPhoto', None) is not None and isinstance(getattr(owner_data, 'ownerPhoto', None), str) and getattr(owner_data, 'ownerPhoto', None) != '' else None,
-                    village_id=owner_data.village_id
+                    village_id=owner_data.village_id,
+                    district_id=getattr(property_data, 'district_id', None),
+                    taluka_id=getattr(property_data, 'taluka_id', None),
+                    gram_panchayat_id=getattr(property_data, 'gram_panchayat_id', None)
                 )
                 db.add(owner)
                 db.commit()
@@ -386,6 +450,9 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
                 bharank=construction_data.bharank,
                 capitalValue=capital_value,
                 houseTax=house_tax,
+                district_id=getattr(property_data, 'district_id', None),
+                taluka_id=getattr(property_data, 'taluka_id', None),
+                gram_panchayat_id=getattr(property_data, 'gram_panchayat_id', None)
             )
             new_constructions.append(new_construction)
         # --- ADDITION: Handle vacant land construction if needed (like POST) ---
@@ -444,6 +511,9 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
                         bharank=bharank,
                         capitalValue=capital_value,
                         houseTax=house_tax,
+                        district_id=getattr(property_data, 'district_id', None),
+                        taluka_id=getattr(property_data, 'taluka_id', None),
+                        gram_panchayat_id=getattr(property_data, 'gram_panchayat_id', None)
                     )
                     new_constructions.append(new_vacant_land)
         # --- END ADDITION ---
@@ -662,6 +732,9 @@ def create_owner(
     mobileNumber: str = Body(...),
     village_id: int = Body(...),
     wifeName: str = Body(None),
+    district_id: int = Body(None),
+    taluka_id: int = Body(None),
+    gram_panchayat_id: int = Body(None),
     db: Session = Depends(database.get_db)
 ):
     # Check if owner with same aadhaarNumber exists, only if aadhaarNumber is provided
@@ -674,7 +747,10 @@ def create_owner(
         aadhaarNumber=aadhaarNumber,
         mobileNumber=mobileNumber,
         wifeName=wifeName,
-        village_id=village_id
+        village_id=village_id,
+        district_id=district_id,
+        taluka_id=taluka_id,
+        gram_panchayat_id=gram_panchayat_id
     )
     db.add(new_owner)
     db.commit()
@@ -722,6 +798,9 @@ def build_property_response(db_property, db):
             "constructionYear": c.constructionYear,
             "floor": c.floor,
             "bharank": c.bharank,
+            "district_id": c.district_id,
+            "taluka_id": c.taluka_id,
+            "gram_panchayat_id": c.gram_panchayat_id,
         })
     # Build owners as needed
     owners = []
@@ -735,6 +814,9 @@ def build_property_response(db_property, db):
             "occupantName": o.occupantName,
             "ownerPhoto": o.ownerPhoto,
             "village_id": o.village_id,
+            "district_id": o.district_id,
+            "taluka_id": o.taluka_id,
+            "gram_panchayat_id": o.gram_panchayat_id,
         })
     # Calculate taxes and water charges on the fly
     settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
@@ -1228,8 +1310,20 @@ def create_village(village_data: schemas.VillageCreate, db: Session = Depends(da
     return new_village
 
 @router.get("/village/", response_model=List[schemas.VillageRead])
-def get_all_villages(db: Session = Depends(database.get_db)):
-    return db.query(models.Village).all()
+def get_all_villages(
+    district_id: Optional[int] = Query(None, description="Filter by district ID"),
+    taluka_id: Optional[int] = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: Optional[int] = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    query = db.query(models.Village)
+    if district_id is not None:
+        query = query.filter(models.Village.district_id == district_id)
+    if taluka_id is not None:
+        query = query.filter(models.Village.taluka_id == taluka_id)
+    if gram_panchayat_id is not None:
+        query = query.filter(models.Village.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/village/{village_id}", response_model=schemas.VillageRead)
 def get_village(village_id: int, db: Session = Depends(database.get_db)):
@@ -1298,8 +1392,20 @@ def create_bulk_villages(villages: List[schemas.VillageCreate], db: Session = De
     return created_villages
 
 @router.get("/owners/", response_model=List[schemas.Owner])
-def get_all_owners(db: Session = Depends(database.get_db)):
-    return db.query(models.Owner).all()
+def get_all_owners(
+    district_id: Optional[int] = Query(None, description="Filter by district ID"),
+    taluka_id: Optional[int] = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: Optional[int] = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    query = db.query(models.Owner)
+    if district_id is not None:
+        query = query.filter(models.Owner.district_id == district_id)
+    if taluka_id is not None:
+        query = query.filter(models.Owner.taluka_id == taluka_id)
+    if gram_panchayat_id is not None:
+        query = query.filter(models.Owner.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/owners_by_village/", response_model=List[schemas.Owner])
 def get_owners_by_village(village_id: int, db: Session = Depends(database.get_db)):
@@ -1362,8 +1468,23 @@ def recalculate_all_property_taxes(db: Session = Depends(database.get_db)):
     return {"detail": "All property taxes recalculated and updated."}
 
 @router.get("/all_properties/")
-def get_all_properties(db: Session = Depends(database.get_db)):
-    return db.query(models.Property).all()
+def get_all_properties(
+    district_id: Optional[int] = Query(None, description="Filter by district ID"),
+    taluka_id: Optional[int] = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: Optional[int] = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    query = db.query(models.Property)
+    
+    # Apply location filters if provided
+    if district_id is not None:
+        query = query.filter(models.Property.district_id == district_id)
+    if taluka_id is not None:
+        query = query.filter(models.Property.taluka_id == taluka_id)
+    if gram_panchayat_id is not None:
+        query = query.filter(models.Property.gram_panchayat_id == gram_panchayat_id)
+    
+    return query.all()
 
 @router.delete("/{anu_kramank}", status_code=200)
 def delete_property(anu_kramank: int, db: Session = Depends(database.get_db)):

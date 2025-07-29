@@ -13,6 +13,9 @@ class ReceiptCertificateBase(BaseModel):
     name2_en: Optional[str] = None
     receipt_amount: Optional[str] = None
     receipt_amount_en: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class ReceiptCertificateCreate(ReceiptCertificateBase):
     pass

@@ -23,9 +23,18 @@ def create_receipt_certificate(
     name2_en: str = Form(None),
     receipt_amount: str = Form(None),
     receipt_amount_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)
 ):
     date_obj = datetime.strptime(receipt_date, "%Y-%m-%d").date()
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     cert = ReceiptCertificate(
         receipt_date=date_obj,
         receipt_id=receipt_id,
@@ -36,7 +45,10 @@ def create_receipt_certificate(
         name2=name2,
         name2_en=name2_en,
         receipt_amount=receipt_amount,
-        receipt_amount_en=receipt_amount_en
+        receipt_amount_en=receipt_amount_en,
+        district_id=district_id_int,
+        taluka_id=taluka_id_int,
+        gram_panchayat_id=gram_panchayat_id_int
     )
     db.add(cert)
     db.commit()
@@ -65,8 +77,21 @@ def create_receipt_certificate(
     return cert
 
 @router.get("/receipt", response_model=list[ReceiptCertificateRead])
-def list_receipt_certificates(request: Request, db: Session = Depends(get_db)):
-    certs = db.query(ReceiptCertificate).all()
+def list_receipt_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    request: Request = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(ReceiptCertificate)
+    if district_id:
+        query = query.filter(ReceiptCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(ReceiptCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(ReceiptCertificate.gram_panchayat_id == gram_panchayat_id)
+    certs = query.all()
     result = []
     for cert in certs:
         cert_data = ReceiptCertificateRead.from_orm(cert)
@@ -108,10 +133,19 @@ def update_receipt_certificate(id: int, receipt_date: str = Form(...),
     name2_en: str = Form(None),
     receipt_amount: str = Form(None),
     receipt_amount_en: str = Form(None),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     db: Session = Depends(get_db)):
     cert = db.query(ReceiptCertificate).filter(ReceiptCertificate.id == id).first()
     if not cert:
         raise HTTPException(status_code=404, detail="Receipt certificate not found")
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     date_obj = datetime.strptime(receipt_date, "%Y-%m-%d").date()
     setattr(cert, "receipt_date", date_obj)
     setattr(cert, "receipt_id", receipt_id)
@@ -123,6 +157,9 @@ def update_receipt_certificate(id: int, receipt_date: str = Form(...),
     setattr(cert, "name2_en", name2_en)
     setattr(cert, "receipt_amount", receipt_amount)
     setattr(cert, "receipt_amount_en", receipt_amount_en)
+    setattr(cert, "district_id", district_id_int)
+    setattr(cert, "taluka_id", taluka_id_int)
+    setattr(cert, "gram_panchayat_id", gram_panchayat_id_int)
     # Regenerate barcode
     barcode_dir = os.path.join("uploaded_images", "receipt_certificates", str(cert.id))
     os.makedirs(barcode_dir, exist_ok=True)

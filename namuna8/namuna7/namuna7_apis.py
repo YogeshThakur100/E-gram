@@ -19,13 +19,28 @@ def create_namuna7(item: Namuna7Create, db: Session = Depends(get_db)):
     return db_item
 
 @router.get("/", response_model=List[Namuna7Read])
-def get_all_namuna7(db: Session = Depends(get_db)):
-    return db.query(Namuna7).all()
+def get_all_namuna7(
+    district_id: int = Query(None, description="Filter by district ID"),
+    taluka_id: int = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    query = db.query(Namuna7)
+    if district_id:
+        query = query.filter(Namuna7.district_id == district_id)
+    if taluka_id:
+        query = query.filter(Namuna7.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(Namuna7.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/getall_receipts")
 def get_namuna7_custom_list(
     startdate: str = Query(..., description="Start date in YYYY-MM-DD format"),
     enddate: str = Query(..., description="End date in YYYY-MM-DD format"),
+    district_id: int = Query(None, description="Filter by district ID"),
+    taluka_id: int = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
     db: Session = Depends(get_db)
 ):
     from datetime import datetime, timedelta
@@ -34,7 +49,14 @@ def get_namuna7_custom_list(
         end_dt = datetime.strptime(enddate, "%Y-%m-%d") + timedelta(days=1)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
-    items = db.query(Namuna7).filter(Namuna7.createdAt >= start_dt, Namuna7.createdAt < end_dt).all()
+    query = db.query(Namuna7).filter(Namuna7.createdAt >= start_dt, Namuna7.createdAt < end_dt)
+    if district_id:
+        query = query.filter(Namuna7.district_id == district_id)
+    if taluka_id:
+        query = query.filter(Namuna7.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(Namuna7.gram_panchayat_id == gram_panchayat_id)
+    items = query.all()
     result = []
     today = datetime.now().strftime("%d/%m/%Y")
     for idx, item in enumerate(items, start=1):
@@ -88,6 +110,9 @@ def get_namuna7_by_date(
     from_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
     to_date: str = Query(..., description="End date in YYYY-MM-DD format"),
     village_id: int = Query(None, description="Village ID to filter by"),
+    district_id: int = Query(None, description="Filter by district ID"),
+    taluka_id: int = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
     db: Session = Depends(get_db)
 ):
     try:
@@ -102,6 +127,12 @@ def get_namuna7_by_date(
     )
     if village_id is not None:
         query = query.filter(Namuna7.villageId == village_id)
+    if district_id:
+        query = query.filter(Namuna7.district_id == district_id)
+    if taluka_id:
+        query = query.filter(Namuna7.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(Namuna7.gram_panchayat_id == gram_panchayat_id)
     results = query.order_by(Namuna7.createdAt, Namuna7.receiptNumber).all()
     response = [
         {

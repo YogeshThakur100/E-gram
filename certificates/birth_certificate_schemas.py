@@ -25,6 +25,9 @@ class BirthCertificateBase(BaseModel):
     remark: Optional[str]
     remark_en: str
     barcode: str | None = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class BirthCertificateCreate(BirthCertificateBase):
     id: Optional[int] = None

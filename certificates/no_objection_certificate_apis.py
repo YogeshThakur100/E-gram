@@ -27,10 +27,19 @@ def create_no_objection_certificate(
     prop_gut_number: str = Form(None),
     subject: str = Form(...),
     subject_en: str = Form(...),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     image: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
     image_url = None
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     if image:
         # Always replace spaces with underscores in filename
         safe_filename = image.filename.replace(' ', '_')
@@ -75,6 +84,9 @@ def create_no_objection_certificate(
             prop_gut_number=prop_gut_number,
             subject=subject,
             subject_en=subject_en,
+            district_id=district_id_int,
+            taluka_id=taluka_id_int,
+            gram_panchayat_id=gram_panchayat_id_int,
             image_url=None
         )
         db.add(cert)
@@ -104,8 +116,20 @@ def create_no_objection_certificate(
     return cert
 
 @router.get("/no-objection", response_model=list[NoObjectionCertificateRead])
-def list_no_objection_certificates(db: Session = Depends(get_db)):
-    return db.query(NoObjectionCertificate).all() 
+def list_no_objection_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(NoObjectionCertificate)
+    if district_id:
+        query = query.filter(NoObjectionCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(NoObjectionCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(NoObjectionCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all() 
 
 @router.get("/no-objection/{id}", response_model=NoObjectionCertificateRead)
 def get_no_objection_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -141,12 +165,21 @@ def update_no_objection_certificate(id: int,
     prop_gut_number: str = Form(None),
     subject: str = Form(...),
     subject_en: str = Form(...),
+    district_id: str = Form(None),
+    taluka_id: str = Form(None),
+    gram_panchayat_id: str = Form(None),
     image: UploadFile = File(None),
     remove_image: bool = Form(False),
     db: Session = Depends(get_db)):
     cert = db.query(NoObjectionCertificate).filter(NoObjectionCertificate.id == id).first()
     if not cert:
         raise HTTPException(status_code=404, detail="No Objection certificate not found")
+    
+    # Convert location fields to integers
+    district_id_int = int(district_id) if district_id and district_id.strip() else None
+    taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
+    gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
+    
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
     setattr(cert, "registration_date", reg_date_obj)
     setattr(cert, "village", village)
@@ -158,6 +191,9 @@ def update_no_objection_certificate(id: int,
     setattr(cert, "prop_gut_number", prop_gut_number)
     setattr(cert, "subject", subject)
     setattr(cert, "subject_en", subject_en)
+    setattr(cert, "district_id", district_id_int)
+    setattr(cert, "taluka_id", taluka_id_int)
+    setattr(cert, "gram_panchayat_id", gram_panchayat_id_int)
     # Handle image update/removal
     if remove_image and cert.image_url:
         try:

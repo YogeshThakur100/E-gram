@@ -28,6 +28,9 @@ class MarriageCertificateBase(BaseModel):
     remark_en: Optional[str] = None
     barcode: Optional[str] = None
     qrcode: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class MarriageCertificateCreate(MarriageCertificateBase):
     pass

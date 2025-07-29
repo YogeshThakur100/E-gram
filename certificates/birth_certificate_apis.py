@@ -67,12 +67,39 @@ def create_birth_certificate(data: BirthCertificateCreate, db: Session = Depends
     return cert
 
 @router.get("/birth", response_model=list[BirthCertificateRead])
-def list_birth_certificates(db: Session = Depends(get_db)):
-    return db.query(BirthCertificate).all()
+def list_birth_certificates(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(BirthCertificate)
+    if district_id:
+        query = query.filter(BirthCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(BirthCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(BirthCertificate.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/birth/{id}", response_model=BirthCertificateRead)
-def get_birth_certificate(id: int, db: Session = Depends(get_db), request: Request = None):
-    cert = db.query(BirthCertificate).filter(BirthCertificate.id == id).first()
+def get_birth_certificate(
+    id: int, 
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db), 
+    request: Request = None
+):
+    query = db.query(BirthCertificate).filter(BirthCertificate.id == id)
+    if district_id:
+        query = query.filter(BirthCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(BirthCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(BirthCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Birth certificate not found")
     cert_data = BirthCertificateRead.from_orm(cert)
@@ -85,11 +112,29 @@ def get_birth_certificate(id: int, db: Session = Depends(get_db), request: Reque
     return cert_data
 
 @router.put("/birth/{id}", response_model=BirthCertificateRead)
-def update_birth_certificate(id: int, data: BirthCertificateCreate, db: Session = Depends(get_db)):
-    cert = db.query(BirthCertificate).filter(BirthCertificate.id == id).first()
+def update_birth_certificate(
+    id: int, 
+    data: BirthCertificateCreate, 
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(BirthCertificate).filter(BirthCertificate.id == id)
+    if district_id:
+        query = query.filter(BirthCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(BirthCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(BirthCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Birth certificate not found")
-    for field, value in data.dict(exclude_unset=True).items():
+    
+    # Update with location fields
+    update_data = data.dict(exclude_unset=True)
+    for field, value in update_data.items():
         setattr(cert, field, value)
     db.commit()
     db.refresh(cert)

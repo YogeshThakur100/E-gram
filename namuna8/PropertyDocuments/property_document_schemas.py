@@ -6,6 +6,9 @@ class PropertyDocumentBase(BaseModel):
     document_path: Optional[str] = None
     document_image: Optional[str] = None
     property_anuKramank: int
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class PropertyDocumentCreate(PropertyDocumentBase):
     pass

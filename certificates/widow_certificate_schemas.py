@@ -12,6 +12,9 @@ class WidowCertificateBase(BaseModel):
     husband_name_en: Optional[str] = None
     adhar_number: Optional[str] = None
     adhar_number_en: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class WidowCertificateCreate(WidowCertificateBase):
     pass

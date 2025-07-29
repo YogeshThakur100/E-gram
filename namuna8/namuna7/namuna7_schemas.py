@@ -10,6 +10,9 @@ class Namuna7Base(BaseModel):
     receivedMoney: int
     userId: int
     villageId: int
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna7Create(Namuna7Base):
     pass
@@ -21,6 +24,9 @@ class Namuna7Update(BaseModel):
     receivedMoney: Optional[int] = None
     userId: Optional[int] = None
     villageId: Optional[int] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna7Read(Namuna7Base):
     id: int

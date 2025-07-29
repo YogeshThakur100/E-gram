@@ -29,8 +29,20 @@ def create_or_update_general_setting(setting: GeneralSettingCreate, db: Session 
         return db_setting
 
 @router.get("/", response_model=List[GeneralSettingRead])
-def get_all_general_settings(db: Session = Depends(get_db)):
-    return db.query(GeneralSetting).all()
+def get_all_general_settings(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(GeneralSetting)
+    if district_id:
+        query = query.filter(GeneralSetting.district_id == district_id)
+    if taluka_id:
+        query = query.filter(GeneralSetting.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(GeneralSetting.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get("/{setting_id}", response_model=GeneralSettingRead)
 def get_general_setting(setting_id: str, db: Session = Depends(get_db)):
@@ -69,8 +81,20 @@ def create_new_yojna(yojna: NewYojnaCreate, db: Session = Depends(get_db)):
     return db_yojna
 
 @router.get('/new-yojna/', response_model=List[NewYojnaRead])
-def get_all_new_yojna(db: Session = Depends(get_db)):
-    return db.query(NewYojna).all()
+def get_all_new_yojna(
+    district_id: int = None,
+    taluka_id: int = None,
+    gram_panchayat_id: int = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(NewYojna)
+    if district_id:
+        query = query.filter(NewYojna.district_id == district_id)
+    if taluka_id:
+        query = query.filter(NewYojna.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(NewYojna.gram_panchayat_id == gram_panchayat_id)
+    return query.all()
 
 @router.get('/new-yojna/{yojna_id}', response_model=NewYojnaRead)
 def get_new_yojna(yojna_id: int, db: Session = Depends(get_db)):

@@ -10,6 +10,9 @@ class OwnerBase(BaseModel):
     occupantName: Optional[str] = None
     ownerPhoto: Optional[str] = None
     village_id: int
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class OwnerCreate(OwnerBase):
     id: Optional[int] = None
@@ -23,6 +26,9 @@ class Owner(BaseModel):
     occupantName: Optional[str] = None
     ownerPhoto: Optional[str] = None
     village_id: int
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
     holderno: Optional[int] = None
 
     class Config:
@@ -40,6 +46,9 @@ class ConstructionBase(BaseModel):
     floor: str
     # usage: str
     bharank: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class ConstructionCreate(ConstructionBase):
     pass
@@ -52,6 +61,9 @@ class Construction(BaseModel):
     constructionYear: str
     floor: str
     bharank: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +71,9 @@ class Construction(BaseModel):
 # --- Property Schemas ---
 class PropertyBase(BaseModel):
     village_id: int
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
     anuKramank: int
     malmattaKramank: int
     streetName: Optional[str] = None
@@ -165,6 +180,9 @@ class ConstructionTypeBase(BaseModel):
     bandhmastache_prakar: int
     gharache_prakar: int
     annualLandValueRate: float = 0
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class ConstructionTypeCreate(ConstructionTypeBase):
     pass
@@ -182,12 +200,18 @@ class ConstructionTypeUpsert(BaseModel):
     bandhmastache_prakar: int
     gharache_prakar: int
     annualLandValueRate: float
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class BulkConstructionTypeUpsertRequest(BaseModel):
     construction_types: list[ConstructionTypeUpsert]
 
 class VillageBase(BaseModel):
     name: str
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class VillageCreate(VillageBase):
     pass
@@ -206,6 +230,9 @@ class Namuna8SettingChecklistBase(BaseModel):
     tipRelatedPropertyDescription: bool = False
     roundupArea: bool = False
     boundaryMarking: bool = False
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8SettingChecklistCreate(Namuna8SettingChecklistBase):
     pass
@@ -228,6 +255,9 @@ class Namuna8SettingChecklistUpdate(BaseModel):
     tipRelatedPropertyDescription: Optional[bool] = None
     roundupArea: Optional[bool] = None
     boundaryMarking: Optional[bool] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8DropdownAddSettingsBase(BaseModel):
     divaArogya: str
@@ -236,6 +266,9 @@ class Namuna8DropdownAddSettingsBase(BaseModel):
     reassessmentYear: int
     exemptionCount: int
     anukramank_id: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8DropdownAddSettingsCreate(Namuna8DropdownAddSettingsBase):
     pass
@@ -256,6 +289,9 @@ class Namuna8DropdownAddSettingsUpdate(BaseModel):
     reassessmentYear: Optional[int] = None
     exemptionCount: Optional[int] = None
     anukramank_id: Optional[str] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8SettingTaxBase(BaseModel):
     lightUpto300: int
@@ -277,6 +313,9 @@ class Namuna8SettingTaxBase(BaseModel):
     houseWater: Optional[int] = None
     commercialWater: Optional[int] = None
     exemptBuilding: Optional[int] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8SettingTaxCreate(Namuna8SettingTaxBase):
     pass
@@ -304,6 +343,9 @@ class Namuna8SettingTaxRead(BaseModel):
     exemptBuilding: Optional[int] = 0
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
     class Config:
         orm_mode = True
 
@@ -328,12 +370,18 @@ class Namuna8SettingTaxUpdate(BaseModel):
     houseWater: Optional[int] = None
     commercialWater: Optional[int] = None
     exemptBuilding: Optional[int] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8WaterTaxSettingsBase(BaseModel):
     generalWater: int
     houseTax: float
     commercialTax: int
     exemptRate: float
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8WaterTaxSettingsCreate(Namuna8WaterTaxSettingsBase):
     pass
@@ -352,11 +400,17 @@ class Namuna8WaterTaxSettingsUpdate(BaseModel):
     houseTax: Optional[float] = None
     commercialTax: Optional[int] = None
     exemptRate: Optional[float] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8GeneralWaterTaxSlabSettingsBase(BaseModel):
     rateUpto300: Optional[float] = None
     rate301To700: Optional[float] = None
     rateAbove700: Optional[float] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class Namuna8GeneralWaterTaxSlabSettingsCreate(Namuna8GeneralWaterTaxSlabSettingsBase):
     pass
@@ -374,6 +428,9 @@ class Namuna8GeneralWaterTaxSlabSettingsUpdate(BaseModel):
     rateUpto300: Optional[float] = None
     rate301To700: Optional[float] = None
     rateAbove700: Optional[float] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class BuildingUsageWeightageItem(BaseModel):
     serial: int

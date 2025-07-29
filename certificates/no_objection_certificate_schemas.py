@@ -14,6 +14,9 @@ class NoObjectionCertificateBase(BaseModel):
     prop_gut_number_en: Optional[str] = None
     subject: str
     subject_en: str
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
     @validator('adhar_number', 'adhar_number_en')
     def must_be_digits(cls, v):

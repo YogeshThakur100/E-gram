@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from database import Base
 
 class ResidentCertificate(Base):
@@ -13,4 +13,7 @@ class ResidentCertificate(Base):
     adhar_no = Column(String)
     adhar_no_en = Column(String)
     image_url = Column(String)
-    barcode = Column(String, nullable=True) 
+    barcode = Column(String, nullable=True)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True) 

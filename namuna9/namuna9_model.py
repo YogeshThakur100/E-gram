@@ -18,6 +18,9 @@ class Namuna9YearSetup(Base):
     year = Column(String, index=True)
     data_source = Column(String)
     notes = Column(Text, nullable=True)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True)
     # Add more fields as needed for section 2/3
     # e.g., previous_year, shakti_option, etc. 
 
@@ -33,3 +36,6 @@ class Namuna9(Base):
     property_ids = Column(PickleType, nullable=True)  # List of property IDs
     createdAt = Column(DateTime(timezone=True), server_default=func.now())
     updatedAt = Column(DateTime(timezone=True), onupdate=func.now())
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True)

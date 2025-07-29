@@ -16,5 +16,8 @@ class Namuna7(Base):
     receivedMoney = Column(Integer, nullable=False)
     userId = Column(Integer, ForeignKey('owners.id'), nullable=False)
     villageId = Column(Integer, ForeignKey('villages.id'), nullable=False)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True)
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 

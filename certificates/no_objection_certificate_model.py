@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from database import Base
 
 class NoObjectionCertificate(Base):
@@ -15,4 +15,7 @@ class NoObjectionCertificate(Base):
     subject = Column(String, nullable=True)
     subject_en = Column(String, nullable=True)
     image_url = Column(String, nullable=True)
-    barcode = Column(String, nullable=True) 
+    barcode = Column(String, nullable=True)
+    district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
+    taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
+    gram_panchayat_id = Column(Integer, ForeignKey("gram_panchayats.id"), nullable=True) 
