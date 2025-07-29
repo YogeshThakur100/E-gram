@@ -409,28 +409,24 @@
                 {% endif %}
             {% endfor %}
             <!-- Per-page footer summary table -->
-            <tfoot class="page-footer">
-                <tr>
-                    <td colspan="21" style="border:none; padding:0;">
-                        <table class="footer-summary" id="footerSummary" style="width:100%; border-collapse: collapse; font-size: 15px; font-weight:bold;">
-                            <tr>
-                                <td style="text-align: left; width: 10%;">एकूण कर :</td>
-                                <td id="footerHouseTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerLightingTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerHealthTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerSaWaterTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerVsaWaterTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerCleaningTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerToiletTax" style="text-align: left; width: 10%;"></td>
-                                <td id="footerTotalTax" style="text-align: left; width: 10%;"></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </tfoot>
+            <!-- Removed tfoot and footer summary from here -->
         </div>
     {% endfor %}
-    </div>
+    <!-- Footer summary table moved here to appear only once at the end -->
+    <table class="footer-summary" id="footerSummary" style="width:100%; border-collapse: collapse; font-size: 15px; font-weight:bold">
+        <tr>
+            <td style="text-align: left; width: 10%;">एकूण कर :</td>
+            <td id="footerHouseTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerLightingTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerHealthTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerSaWaterTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerVsaWaterTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerCleaningTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerToiletTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerTotalTax" style="text-align: left; width: 10%;"></td>
+        </tr>
+    </table>
+</div>
 
 <style>
 @media print {

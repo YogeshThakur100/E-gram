@@ -50,6 +50,19 @@
             #toolbar {
                 display: none !important;
             }
+            /* Ensure footer appears at the end during print */
+            .footer-summary {
+                display: table !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                page-break-before: avoid;
+                break-before: avoid;
+            }
+            /* Keep footer with the last page content */
+            #mainContent {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
         }
     </style>
 </head>
@@ -101,12 +114,10 @@
             }
         }
         function updateFooterSummary() {
-            // Only sum visible rows
-            const visibleRows = Array.from(document.querySelectorAll('.record-row')).filter(
-                row => row.style.display !== 'none'
-            );
+            // Calculate totals for all records (not just visible ones)
+            const allRows = Array.from(document.querySelectorAll('.record-row'));
             let house = 0, lighting = 0, health = 0, saWater = 0, vsaWater = 0, cleaning = 0, toilet = 0, total = 0;
-            visibleRows.forEach(row => {
+            allRows.forEach(row => {
                 house += parseFloat(row.dataset.houseTax) || 0;
                 lighting += parseFloat(row.dataset.lightingTax) || 0;
                 health += parseFloat(row.dataset.healthTax) || 0;
@@ -249,26 +260,7 @@
             </tr>
         </thead>
         
-        <!-- Page Footer - Repeats on every page -->
-        <tfoot class="page-footer">
-            <tr>
-                <td colspan="21" style="border:none; padding:0;">
-                    <table style="width:100%; border-collapse: collapse; font-size: 15px; font-weight:bold;">
-                        <tr>
-                            <td style="text-align: left; width: 10%;">एकूण कर :</td>
-                            <td id="footerHouseTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerLightingTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerHealthTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerSaWaterTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerVsaWaterTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerCleaningTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerToiletTax" style="text-align: left; width: 10%;"></td>
-                            <td id="footerTotalTax" style="text-align: left; width: 10%;"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </tfoot>
+
         <tbody>
             {% for row in data %}
             <tr class="record-row"
@@ -405,13 +397,28 @@
                 </td>
                 <td>{{ row.lightingTax | default('') }}</td>
                 <td>{{ row.healthTax | default('') }}</td>
-                <td>{{ row.saWaterTax | default('') }}</td>
-                <td>{{ row.vsaWaterTax | default('') }}</td>
+                <td>{{ row.sapanikar | default('') }}</td>
+                <td>{{ row.vpanikar | default('') }}</td>
                 <td>{{ row.cleaningTax | default('') }}</td>
                 <td>{{ row.totaltax | default('') }}</td>
             </tr>
             {% endfor %}
         </tbody>
+    </table>
+
+    <!-- Footer Summary - Outside main content to avoid repetition -->
+    <table class="footer-summary" id="footerSummary" style="width: 100%; border-collapse: collapse; font-size: 15px; font-weight: bold; margin-top: 20px;">
+        <tr>
+            <td style="text-align: left; width: 10%;">एकूण कर :</td>
+            <td id="footerHouseTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerLightingTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerHealthTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerSaWaterTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerVsaWaterTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerCleaningTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerToiletTax" style="text-align: left; width: 10%;"></td>
+            <td id="footerTotalTax" style="text-align: left; width: 10%;"></td>
+        </tr>
     </table>
 </body>
 </body>
