@@ -80,6 +80,19 @@
         #toolbar {
           display: none !important;
         }
+        /* Ensure footer appears at the end during print */
+        .footer-summary {
+          display: table !important;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          page-break-before: avoid;
+          break-before: avoid;
+        }
+        /* Keep footer with the last page content */
+        #mainContent {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
       }
     </style>
   </head>
@@ -248,12 +261,10 @@
         }
       }
       function updateFooterSummary() {
-          // Only sum visible rows
-          const visibleRows = Array.from(document.querySelectorAll('.record-row')).filter(
-              row => row.style.display !== 'none'
-          );
+          // Calculate totals for all records (not just visible ones)
+          const allRows = Array.from(document.querySelectorAll('.record-row'));
           let house = 0, lighting = 0, health = 0, water = 0, cleaning = 0, toilet = 0, total = 0;
-          visibleRows.forEach(row => {
+          allRows.forEach(row => {
               house += parseFloat(row.dataset.houseTax) || 0;
               lighting += parseFloat(row.dataset.lightingTax) || 0;
               health += parseFloat(row.dataset.healthTax) || 0;
@@ -547,21 +558,6 @@
               </div>
             {% endif %}
           {% endfor %}
-          <div class="report-footer">
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 14px; margin-top: 20px;">
-              <tr>
-                <td style="border: 1px solid #000; text-align: left; width: 15%;">एकूण कर :</td>
-                <td id="footerHouseTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-                <td id="footerLightingTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-                <td id="footerHealthTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-                <td id="footerWaterTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-                <td id="footerCleaningTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-                <td id="footerToiletTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-                <td id="footerTotalTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
-              </tr>
-            </table>
-          </div>
-
           <style>
             @media print {
               @page {
@@ -585,6 +581,17 @@
               table {
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
+              }
+              /* Ensure footer stays with the last page */
+              .footer-summary {
+                page-break-before: avoid !important;
+                break-before: avoid !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+              #mainContent {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
               }
               table {
                 font-size: 10px !important;
@@ -623,5 +630,19 @@
         </div>
       {% endfor %}
     </div>
+
+    <!-- Footer Summary - Outside main content to avoid repetition -->
+    <table class="footer-summary" id="footerSummary" style="width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 14px; margin-top: 20px;">
+        <tr>
+          <td style="border: 1px solid #000; text-align: left; width: 15%;">एकूण कर :</td>
+          <td id="footerHouseTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerLightingTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerHealthTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerWaterTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerCleaningTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerToiletTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerTotalTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+        </tr>
+    </table>
   </body>
 </html>

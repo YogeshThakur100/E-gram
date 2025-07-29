@@ -198,24 +198,21 @@
             </tr>
             {% endfor  %}
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2"></td>
-                <td style="font-weight:normal; text-align:right;">गोषवारा</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;"></td>     
-            </tr>
-        </tfoot>
+        <tr>
+            <td colspan="2"></td>
+            <td style="font-weight:normal; text-align:right;">गोषवारा</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitHouseTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dandHouseTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='houseTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalHouseTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitLightingTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='lightingTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalLightingTax') }}{% endif %}</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitHealthTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='healthTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalHealthTax') }}{% endif %}</td>
+            <td>{% if removePurnaYekun != 'true' %}{{ data | sum(attribute='totaltax') }}{% endif %}</td>
+        </tr>
     </table>
 </body>
 </html>

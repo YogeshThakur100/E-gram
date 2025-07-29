@@ -195,20 +195,14 @@
             </tr>
             {% endfor  %}
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2" style="font-weight:bold; text-align:left;">गोष्टवार</td>
-                <td colspan="4" style="font-weight:bold; text-align:center;">पाणी कर</td>
-            </tr>
-            <tr>
-                <td colspan="1"></td>
-                <td colspan="1"></td>
-                <td style="font-weight:normal; text-align:center;">थकित 100</td>
-                <td style="font-weight:normal; text-align:center;">दंड  100</td>
-                <td style="font-weight:normal; text-align:center;">चालु  100</td>
-                <td style="font-weight:normal; text-align:center;">एकुण  100</td>
-            </tr>
-        </tfoot>
+        <tr>
+            <td colspan="1"></td>
+            <td style="font-weight:normal; text-align:right;">गोषवारा</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitSaWaterTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='saWaterTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalSaWaterTax') }}{% endif %}</td>
+            <td>{% if removePurnaYekun != 'true' %}{{ data | sum(attribute='totaltax') }}{% endif %}</td>
+        </tr>
     </table>
 </body>
 </html>
