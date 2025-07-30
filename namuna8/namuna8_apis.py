@@ -159,35 +159,35 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     for c in constructions
                 )
                 remaining_area = total_area - used_area
-                print("remaining_area:", remaining_area)
-                if remaining_area > 0:
-                    print("greater")
-                    vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
-                    if vacant_type_obj:
+                # print("remaining_area:", remaining_area)
+                # if remaining_area > 0:
+                #     print("greater")
+                #     vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
+                #     if vacant_type_obj:
                        
-                        length = remaining_area
-                        width = 1
-                        constructionYear = str(datetime.now().year)
-                        floor = "तळमजला"
-                        bharank = "औद्योगिक"
-                        AreaInMeter = length * width * 0.092903
-                        AnnualLandValueRate = 1000
-                        ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
-                        depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
-                        usageBasedBuildingWeightageFactor = 1
-                        capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
-                        house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
-                        new_vacant_land = models.Construction(
-                            construction_type_id=vacant_type_obj.id,
-                            length=length,
-                            width=width,
-                            constructionYear=constructionYear,
-                            floor=floor,
-                            bharank=bharank,
-                            capitalValue=capital_value,
-                            houseTax=house_tax,
-                        )
-                        constructions.append(new_vacant_land)
+                #         length = remaining_area
+                #         width = 1
+                #         constructionYear = str(datetime.now().year)
+                #         floor = "तळमजला"
+                #         bharank = "औद्योगिक"
+                #         AreaInMeter = length * width * 0.092903
+                #         AnnualLandValueRate = 1000
+                #         ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
+                #         depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
+                #         usageBasedBuildingWeightageFactor = 1
+                #         capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                #         house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
+                #         new_vacant_land = models.Construction(
+                #             construction_type_id=vacant_type_obj.id,
+                #             length=length,
+                #             width=width,
+                #             constructionYear=constructionYear,
+                #             floor=floor,
+                #             bharank=bharank,
+                #             capitalValue=capital_value,
+                #             houseTax=house_tax,
+                #         )
+                #         constructions.append(new_vacant_land)
             # --- END ADDITION ---
 
             # Map totalArea to totalAreaSqFt if present in dict

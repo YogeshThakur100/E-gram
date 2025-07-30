@@ -30,6 +30,7 @@ from fastapi.staticfiles import StaticFiles
 from namuna8.mastertab.mastertabapis import router as mastertab_router
 from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
 from LogBook.ReportCreationUsingJinja import logbookPrint
+from reportstab.outward_entries_apis import router as outward_entries_router
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -81,6 +82,7 @@ app.include_router(mastertab_router)
 app.include_router(transfer_router, prefix="/transfer-setting")
 app.include_router(madhila_router)
 app.include_router(property_document_apis.router)
+app.include_router(outward_entries_router)
 # --- Auto-register routers in E-gram submodules ---
 import importlib
 import pkgutil
