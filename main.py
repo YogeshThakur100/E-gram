@@ -13,6 +13,7 @@ from namuna8.utilitytab.owners_with_properties_api import router as owners_with_
 from namuna8.mastertab.transfer_apis import router as transfer_router
 from namuna8.madhila.madhila_apis import router as madhila_router
 from namuna8.PropertyDocuments import property_document_apis
+from ferfar.ReportCreationUsingJinja import ferfarprint
 
 # Import database components and models
 from database import engine, Base
@@ -74,6 +75,7 @@ app.include_router(ghoshawaraprint.router , prefix="/ghoshawara/print")
 app.include_router(namuna10print.router , prefix="/namuna10/print")
 app.include_router(certificate.router , prefix="/certificate/print")
 app.include_router(logbookPrint.router , prefix="/logbook/print")
+app.include_router(ferfarprint.router , prefix="/ferfar/print")
 app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")
 app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")
