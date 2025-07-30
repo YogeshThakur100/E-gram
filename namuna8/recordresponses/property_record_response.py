@@ -7,6 +7,7 @@ from datetime import datetime
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
 import os
 from namuna8.mastertab.mastertabmodels import BuildingUsageWeightage
+from namuna8.mastertab import mastertabmodels as settingModels
 backend_url = os.environ.get('BACKEND_URL', 'http://localhost:8000')
 
 router = APIRouter()
@@ -41,18 +42,59 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             if c.construction_type.name.strip() == "खाली जागा":
                 khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
                 break
+        # Calculate capital value and house tax for khali jaga using same logic as Namuna8
+        if khali_area > 0:
+            # Get construction type for khali jaga
+            khali_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == "खाली जागा").first()
+            
+            if khali_construction_type:
+                # Get user formula preference - same as Namuna8
+                userFormulaPreference = db.query(settingModels.GeneralSetting).filter_by().first()
+                
+                if userFormulaPreference:
+                    formula1 = userFormulaPreference.capitalFormula1
+                    formula2 = userFormulaPreference.capitalFormula2
+                else:
+                    formula1 = None
+                    formula2 = None
+                
+                # Calculate area in meters - same as Namuna8
+                AreaInMeter = khali_area * 1 * 0.092903  # length * width * 0.092903
+                AnnualLandValueRate = getattr(khali_construction_type, 'annualLandValueRate', 1)
+                ConstructionRateAsPerConstruction = khali_construction_type.bandhmastache_dar
+                depreciationRate = calculate_depreciation_rate(datetime.now().year, khali_construction_type.name)
+                
+                # Get usage weightage factor - same as Namuna8
+                weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
+                usageBasedBuildingWeightageFactor = weightage_map.get(prop.vacantLandType, 1)
+                
+                # Calculate capital value - exact same logic as Namuna8
+                if formula1:
+                    capital_value = ((AreaInMeter * AnnualLandValueRate) + (AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                else:
+                    capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
+                
+                # Calculate house tax - exact same logic as Namuna8
+                house_tax = round((getattr(khali_construction_type, 'rate', 0) / 1000) * capital_value)
+            else:
+                capital_value = 0
+                house_tax = 0
+        else:
+            capital_value = 0
+            house_tax = 0
+            
         khaliJaga = [{
             "constructiontype": "खाली जागा",
             "length": khali_area,
             "width": 1,
             "year": datetime.now().year,
             "rate": khali_jaga_rate,
-            "floor": None,
+            "floor": "तळमजला",
             "usage": prop.vacantLandType,
-            "capitalValue": None,  # Replace with actual value if available
-            "houseTax": None,      # Replace with actual value if available
+            "capitalValue": capital_value,
+            "houseTax": house_tax,
             "usageBasedBuildingWeightageFactor": 1,
-            "taxRates": 0,         # Replace with actual tax rate if available
+            "taxRates": getattr(khali_construction_type, 'rate', 0) if khali_area > 0 else 0,
             "totalkhalijagaareainfoot": khali_area,
             "totalkhalijagaareainmeters": round(khali_area * 0.092903, 2)
         }]
@@ -246,18 +288,59 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
                 if c.construction_type.name.strip() == "खाली जागा":
                     khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
                     break
+            # Calculate capital value and house tax for khali jaga using same logic as Namuna8
+            if khali_area > 0:
+                # Get construction type for khali jaga
+                khali_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == "खाली जागा").first()
+                
+                if khali_construction_type:
+                    # Get user formula preference - same as Namuna8
+                    userFormulaPreference = db.query(settingModels.GeneralSetting).filter_by().first()
+                    
+                    if userFormulaPreference:
+                        formula1 = userFormulaPreference.capitalFormula1
+                        formula2 = userFormulaPreference.capitalFormula2
+                    else:
+                        formula1 = None
+                        formula2 = None
+                    
+                    # Calculate area in meters - same as Namuna8
+                    AreaInMeter = khali_area * 1 * 0.092903  # length * width * 0.092903
+                    AnnualLandValueRate = getattr(khali_construction_type, 'annualLandValueRate', 1)
+                    ConstructionRateAsPerConstruction = khali_construction_type.bandhmastache_dar
+                    depreciationRate = calculate_depreciation_rate(datetime.now().year, khali_construction_type.name)
+                    
+                    # Get usage weightage factor - same as Namuna8
+                    weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
+                    usageBasedBuildingWeightageFactor = weightage_map.get(prop.vacantLandType, 1)
+                    
+                    # Calculate capital value - exact same logic as Namuna8
+                    if formula1:
+                        capital_value = ((AreaInMeter * AnnualLandValueRate) + (AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                    else:
+                        capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
+                    
+                    # Calculate house tax - exact same logic as Namuna8
+                    house_tax = round((getattr(khali_construction_type, 'rate', 0) / 1000) * capital_value)
+                else:
+                    capital_value = 0
+                    house_tax = 0
+            else:
+                capital_value = 0
+                house_tax = 0
+                
             khaliJaga = [{
                 "constructiontype": "खाली जागा",
                 "length": khali_area,
                 "width": 1,
                 "year": datetime.now().year,
                 "rate": khali_jaga_rate,
-                "floor": None,
+                "floor": "तळमजला",
                 "usage": prop.vacantLandType,
-                "capitalValue": None,  # Replace with actual value if available
-                "houseTax": None,      # Replace with actual value if available
+                "capitalValue": capital_value,
+                "houseTax": house_tax,
                 "usageBasedBuildingWeightageFactor": 1,
-                "taxRates": 0,         # Replace with actual tax rate if available
+                "taxRates": getattr(khali_construction_type, 'rate', 0) if khali_area > 0 else 0,
                 "totalkhalijagaareainfoot": khali_area,
                 "totalkhalijagaareainmeters": round(khali_area * 0.092903, 2)
             }]
