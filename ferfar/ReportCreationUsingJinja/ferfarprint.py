@@ -23,46 +23,46 @@ async def prakar1():
         template = env.get_template('registerPrakar1.html')
 
         # Call API
-        # async with httpx.AsyncClient() as client:
-        #     response = await client.get(f'{localhost}/ferfar/recordresponses')
-        # if response.status_code != 200:
-        #     raise Exception(f"API error {response.status_code}: {response.text}")
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/ferfar/recordresponses')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
 
-        # data = response.json()
-        data = {
-            "village": 'nanded',
-            "gramPanchayat": 'vadi',
-            "jilha": 'nanded',
-            "taluk": 'nanded',
-            "2": [
-                {
-                    "entry_number": "",
-                    "village": "गट नं 1",
-                    "transaction_date": "30/07/2025",
-                    "roadName": "",
-                    "propertyNumber": "2",
-                    "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
-                    "previousOwnerName": "Aditya hhjhfjhfj",
-                    "currentOwnerName": "Kalyan",
-                    "modification_reference_remarks": "sample ",
-                    "assessment_register_entry_details": "sample"
-                }
-            ],
-            "1": [
-                {
-                    "entry_number": "",
-                    "village": "गट नं 1",
-                    "transaction_date": "30/07/2025",
-                    "roadName": "",
-                    "propertyNumber": "1",
-                    "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
-                    "previousOwnerName": "sdsadasdsadsad",
-                    "currentOwnerName": "Aditya",
-                    "modification_reference_remarks": "sample",
-                    "assessment_register_entry_details": "normally"
-                }
-            ]
-        }
+        data = response.json()
+        # data = {
+        #     "village": 'nanded',
+        #     "gramPanchayat": 'vadi',
+        #     "jilha": 'nanded',
+        #     "taluk": 'nanded',
+        #     "2": [
+        #         {
+        #             "entry_number": "",
+        #             "village": "गट नं 1",
+        #             "transaction_date": "30/07/2025",
+        #             "roadName": "",
+        #             "propertyNumber": "2",
+        #             "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
+        #             "previousOwnerName": "Aditya hhjhfjhfj",
+        #             "currentOwnerName": "Kalyan",
+        #             "modification_reference_remarks": "sample ",
+        #             "assessment_register_entry_details": "sample"
+        #         }
+        #     ],
+        #     "1": [
+        #         {
+        #             "entry_number": "",
+        #             "village": "गट नं 1",
+        #             "transaction_date": "30/07/2025",
+        #             "roadName": "",
+        #             "propertyNumber": "1",
+        #             "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
+        #             "previousOwnerName": "sdsadasdsadsad",
+        #             "currentOwnerName": "Aditya",
+        #             "modification_reference_remarks": "sample",
+        #             "assessment_register_entry_details": "normally"
+        #         }
+        #     ]
+        # }
 
         # Render template
         context = {
@@ -101,46 +101,46 @@ async def prakar1():
         template = env.get_template('registerPrakar2.html')
 
         # Call API
-        # async with httpx.AsyncClient() as client:
-        #     response = await client.get(f'{localhost}/ferfar/recordresponses')
-        # if response.status_code != 200:
-        #     raise Exception(f"API error {response.status_code}: {response.text}")
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'{localhost}/ferfar/recordresponses')
+        if response.status_code != 200:
+            raise Exception(f"API error {response.status_code}: {response.text}")
 
-        # data = response.json()
-        data = {
-            "village": 'nanded',
-            "gramPanchayat": 'vadi',
-            "jilha": 'nanded',
-            "taluk": 'nanded',
-            "2": [
-                {
-                    "entry_number": "",
-                    "village": "गट नं 1",
-                    "transaction_date": "30/07/2025",
-                    "roadName": "",
-                    "propertyNumber": "2",
-                    "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
-                    "previousOwnerName": "Aditya hhjhfjhfj",
-                    "currentOwnerName": "Kalyan",
-                    "modification_reference_remarks": "sample ",
-                    "assessment_register_entry_details": "sample"
-                }
-            ],
-            "1": [
-                {
-                    "entry_number": "",
-                    "village": "गट नं 1",
-                    "transaction_date": "30/07/2025",
-                    "roadName": "",
-                    "propertyNumber": "1",
-                    "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
-                    "previousOwnerName": "sdsadasdsadsad",
-                    "currentOwnerName": "Aditya",
-                    "modification_reference_remarks": "sample",
-                    "assessment_register_entry_details": "normally"
-                }
-            ]
-        }
+        data = response.json()
+        # data = {
+        #     "village": 'nanded',
+        #     "gramPanchayat": 'vadi',
+        #     "jilha": 'nanded',
+        #     "taluk": 'nanded',
+        #     "2": [
+        #         {
+        #             "entry_number": "",
+        #             "village": "गट नं 1",
+        #             "transaction_date": "30/07/2025",
+        #             "roadName": "",
+        #             "propertyNumber": "2",
+        #             "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
+        #             "previousOwnerName": "Aditya hhjhfjhfj",
+        #             "currentOwnerName": "Kalyan",
+        #             "modification_reference_remarks": "sample ",
+        #             "assessment_register_entry_details": "sample"
+        #         }
+        #     ],
+        #     "1": [
+        #         {
+        #             "entry_number": "",
+        #             "village": "गट नं 1",
+        #             "transaction_date": "30/07/2025",
+        #             "roadName": "",
+        #             "propertyNumber": "1",
+        #             "propertyDescription": "क्षेत्र: 10000.0 चौ.फूट",
+        #             "previousOwnerName": "sdsadasdsadsad",
+        #             "currentOwnerName": "Aditya",
+        #             "modification_reference_remarks": "sample",
+        #             "assessment_register_entry_details": "normally"
+        #         }
+        #     ]
+        # }
 
         # Render template
         context = {
