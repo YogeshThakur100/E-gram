@@ -60,7 +60,7 @@ class Construction(BaseModel):
 class PropertyBase(BaseModel):
     village_id: int
     anuKramank: int
-    malmattaKramank: int
+    malmattaKramank: str
     streetName: Optional[str] = None
     citySurveyOrGatNumber: Optional[str] = None
     length: Optional[float] = None
@@ -115,14 +115,14 @@ class PropertyUpdate(PropertyBase):
 
 # --- Schema for the property list on the side ---
 class PropertyList(BaseModel):
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     anuKramank: int
     holderno: Optional[int] = None
 
 class BulkEditPropertyRow(BaseModel):
     serial_no: int
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     occupant: str  # always 'स्वतः' for now
     gharKar: float
@@ -135,7 +135,7 @@ class BulkEditPropertyRow(BaseModel):
         orm_mode = True
 
 class BulkEditUpdateRequest(BaseModel):
-    property_ids: list[int]
+    property_ids: list[str]
     waterFacility1: Optional[str] = None
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None
