@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <title>फेरफार रजिस्टर</title>
+    <style>
+        body { 
+            font-family: 'Mangal', Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+        }
+        .header-container {
+            width: 100%;
+            border: 2px solid #000;
+            margin-bottom: 20px;
+        }
+        .header-title {
+            background-color: #e0e0e0;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #000;
+        }
+        .header-title h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+        .header-info {
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            background-color: #fff;
+        }
+        .header-left {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .header-right {
+            font-size: 12px;
+            font-weight: bold;
+            text-align: right;
+        }
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 15mm;
+            }
+            .header-container {
+                page-break-inside: avoid;
+            }
+            #toolbar {
+                display: none !important;
+            }
+        }
+        table th, table td {
+            padding: 2px 4px !important;
+            border: 1px solid #000 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+        <!-- Left: Icon Buttons & Navigation -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+            <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+            <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+            <span style="font-size: 14px; color: #888;">/1</span>
+            <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+            <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+            <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+            <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+            <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+        </div>
+        <!-- Right: Print & Exit Buttons -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+            <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+        </div>
+    </div>
+    <script>
+        let zoomLevel = 1.0;
+        const minZoom = 0.5;
+        const maxZoom = 2.0;
+        const zoomStep = 0.1;
+        function updateZoom() {
+            document.getElementById('mainContent').style.zoom = zoomLevel;
+            document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
+        }
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                zoomLevel = Math.min(maxZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                zoomLevel = Math.max(minZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function printPage() {
+            window.print();
+        }
+        function exitPage() {
+            window.close();
+        }
+        // Initialize zoom display
+        window.onload = updateZoom;
+    </script>
+    <div id="mainContent">
+    <div class="report-container">
+        <!-- Header Section - Repeats on every page -->
+        <div class="header-container">
+            <div class="header-title">
+                <h1>फेरफार रजिस्टर</h1>
+            </div>
+            <div class="header-info">
+                <div class="header-left">
+                    ग्रामपंचायत : {{gramPanchayat|default('')}}
+                </div>
+                <div class="header-right">
+                    जिल्हा : {{ district|default('') }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    तालुका : {{ taluka|default('') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content will go here -->
+        <div id="mainContent">
+            {% for property_number, entries in data.items() %}
+                <div style="margin-bottom: 18px;">
+                    <div style="font-weight: bold; font-size: 13px; margin-top: 10px; margin-bottom: 4px;">
+                        मालमत्ता क्रमांक : {{ property_number }}
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px;">
+                        <tr style="background: #f5f5f5;">
+                            <th rowspan='2' style="border: 1px solid #888;">फेरफार अ.क्र.</th>
+                            <th rowspan='2' style="border: 1px solid #888;">तारीख</th>
+                            <th colspan="2" style="border: 1px solid #888;">मिळकती बद्दल तपशील</th>
+                            <th rowspan='2' style="border: 1px solid #888;">मिळकतीचे वर्णन</th>
+                            <th rowspan='2' style="border: 1px solid #888;">मुळ मालकाचे नाव</th>
+                            <th rowspan='2' style="border: 1px solid #888;">नवीन मालकाचे नाव </th>
+                            <th rowspan='2' style="border: 1px solid #888;">ज्या कागदपत्राच्या आधारे फेरफार करण्यात आले त्याचे थोडक्यात टिप्पण</th>
+                            <th rowspan='2' style="border: 1px solid #888;">फेरफारची नोंद आकारणी रजिस्टरच्या जया पानावर नोंद केली ते पान नंबर व ठराव क्रमांक दिनांकासह</th>
+                            <th rowspan='2' style="border: 1px solid #888;">सरपंच सही</th>
+                        </tr>
+                        <tr style="background: #f5f5f5;">
+                            <th style="border: 1px solid #888;">रस्त्याचे नाव</th>
+                            <th style="border: 1px solid #888;">मिळकत नंबर</th>
+                        </tr>
+                        {% for entry in entries %}
+                        <tr>
+                            <td style="border: 1px solid #888;">{{ entry.entry_number }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.transaction_date }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.roadName }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.propertyNumber }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.propertyDescription }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.previousOwnerName }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.currentOwnerName }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.modification_reference_remarks }}</td>
+                            <td style="border: 1px solid #888;">{{ entry.assessment_register_entry_details }}</td>
+                            <td style="border: 1px solid #888;"></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    </div>
+</body>
+</html>

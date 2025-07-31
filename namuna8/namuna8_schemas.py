@@ -206,6 +206,8 @@ class Namuna8SettingChecklistBase(BaseModel):
     tipRelatedPropertyDescription: bool = False
     roundupArea: bool = False
     boundaryMarking: bool = False
+    aadharCard: bool = False
+    mobileNumber: bool = False
 
 class Namuna8SettingChecklistCreate(Namuna8SettingChecklistBase):
     pass
@@ -228,6 +230,8 @@ class Namuna8SettingChecklistUpdate(BaseModel):
     tipRelatedPropertyDescription: Optional[bool] = None
     roundupArea: Optional[bool] = None
     boundaryMarking: Optional[bool] = None
+    aadharCard: Optional[bool] = None
+    mobileNumberAdd: Optional[bool] = None
 
 class Namuna8DropdownAddSettingsBase(BaseModel):
     divaArogya: str

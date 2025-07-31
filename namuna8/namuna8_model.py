@@ -122,6 +122,8 @@ class Namuna8SettingChecklist(Base):
     tipRelatedPropertyDescription = Column(Boolean, default=False)
     roundupArea = Column(Boolean, default=False)
     boundaryMarking = Column(Boolean, default=False)
+    aadharCard = Column(Boolean, default=False)
+    mobileNumberAdd = Column(Boolean, default=False)
 
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

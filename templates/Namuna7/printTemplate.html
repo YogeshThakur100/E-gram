@@ -157,8 +157,8 @@
                     <table class="header-table" style="width:100%; margin:0;">
                         <tr>
                             <td class="center bold" style="font-size:22px; width:34%"><span style="font-size:15px; font-weight:normal;"> जावक रजिस्टर नोंदवही</span></td>
-                            <td class="left" style="width:33%">दिनांक : </td>
-                            <td class="right" style="width:33%">पासून : {{yearFrom}} <br> पर्यंत : {{yearTo}} </br> </td>
+                            <td class="left" style="width:33%">दिनांक : {{currentDate}}</td>
+                            <td class="right" style="width:33%">पासून : {{startDate}} <br> पर्यंत : {{endDate}} </br> </td>
                         </tr>
                     </table>
                 </td>
@@ -175,11 +175,11 @@
         <tbody>
             {% for row in data %}
             <tr class="record-row">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ row.srNo }}</td>
+                <td>{{ row.jaKramank }}</td>
+                <td>{{ row.reportType }}</td>
+                <td>{{ row.timeNDate }}</td>
+                <td>{{ row.name }}</td>
             </tr>
             {% endfor %}
         </tbody>
