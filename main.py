@@ -13,6 +13,7 @@ from namuna8.utilitytab.owners_with_properties_api import router as owners_with_
 from namuna8.mastertab.transfer_apis import router as transfer_router
 from namuna8.madhila.madhila_apis import router as madhila_router
 from namuna8.PropertyDocuments import property_document_apis
+from namuna8 import ferfar_apis
 
 # Import database components and models
 from database import engine, Base
@@ -83,6 +84,7 @@ app.include_router(transfer_router, prefix="/transfer-setting")
 app.include_router(madhila_router)
 app.include_router(property_document_apis.router)
 app.include_router(outward_entries_router)
+app.include_router(ferfar_apis.router, prefix="/ferfar")
 # --- Auto-register routers in E-gram submodules ---
 import importlib
 import pkgutil
