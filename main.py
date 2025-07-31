@@ -14,6 +14,8 @@ from namuna8.utilitytab.owners_with_properties_api import router as owners_with_
 from namuna8.mastertab.transfer_apis import router as transfer_router
 from namuna8.madhila.madhila_apis import router as madhila_router
 from namuna8.PropertyDocuments import property_document_apis
+from ferfar.ReportCreationUsingJinja import ferfarprint
+from namuna8 import ferfar_apis
 
 # Import database components and models
 from database import engine, Base
@@ -32,6 +34,7 @@ from fastapi.staticfiles import StaticFiles
 from namuna8.mastertab.mastertabapis import router as mastertab_router
 from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
 from LogBook.ReportCreationUsingJinja import logbookPrint
+from reportstab.outward_entries_apis import router as outward_entries_router
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
@@ -76,6 +79,7 @@ app.include_router(ghoshawaraprint.router , prefix="/ghoshawara/print")
 app.include_router(namuna10print.router , prefix="/namuna10/print")
 app.include_router(certificate.router , prefix="/certificate/print")
 app.include_router(logbookPrint.router , prefix="/logbook/print")
+app.include_router(ferfarprint.router , prefix="/ferfar/print")
 app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")
 app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")
@@ -84,6 +88,8 @@ app.include_router(mastertab_router)
 app.include_router(transfer_router, prefix="/transfer-setting")
 app.include_router(madhila_router)
 app.include_router(property_document_apis.router)
+app.include_router(outward_entries_router)
+app.include_router(ferfar_apis.router, prefix="/ferfar")
 app.include_router(location_apis.router)
 # --- Auto-register routers in E-gram submodules ---
 import importlib

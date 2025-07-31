@@ -134,20 +134,40 @@ async def receipt(request : Request):
         )
         
 @router.post('/logbook/print')
-def receipt():
+async def receipt(request : Request):
     try:
         # Load template
+        requestDate = await request.json()
+        stateDate = requestDate.get("startDate")
+        endDate = requestDate.get("endDate")
         template = env.get_template('printTemplate.html')
-
-        # Call API
-        response = requests.get(f'{localhost}/namuna7/prints/get/2')
+        
+        # Call APIf
+        async with httpx.AsyncClient() as client:    
+            response = await client.get(f'{localhost}/outward-entries/date-range/?from_date={stateDate}&to_date={endDate}')
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
+
         data = response.json()
 
+        # Extract currentDate from response if available, else use today's date
+        currentDate = None
+        if isinstance(data, dict) and 'currentDate' in data:
+            currentDate = data['currentDate']
+        elif isinstance(data, list) and data and 'currentDate' in data[0]:
+            currentDate = data[0]['currentDate']
+        else:
+            from datetime import datetime
+            currentDate = datetime.now().strftime('%Y-%m-%d')
+
         # Render template
-        rendered_html = template.render(data)
+        rendered_html = template.render(
+            data=data,
+            startDate=stateDate,
+            endDate=endDate,
+            currentDate=currentDate
+        )
 
         # Save output.html
         os.makedirs(static_dir, exist_ok=True)

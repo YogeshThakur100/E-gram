@@ -52,7 +52,7 @@ class Property(Base):
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"), nullable=True)
     gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), nullable=True)
     village = relationship("Village", back_populates="properties")
-    malmattaKramank: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    malmattaKramank: Mapped[str] = mapped_column(String, unique=False, index=True)
     streetName: Mapped[str] = mapped_column(nullable=True)
     citySurveyOrGatNumber: Mapped[str] = mapped_column(nullable=True)
     length: Mapped[float] = mapped_column(nullable=True)
@@ -139,6 +139,8 @@ class Namuna8SettingChecklist(Base):
     tipRelatedPropertyDescription = Column(Boolean, default=False)
     roundupArea = Column(Boolean, default=False)
     boundaryMarking = Column(Boolean, default=False)
+    aadharCard = Column(Boolean, default=False)
+    mobileNumberAdd = Column(Boolean, default=False)
 
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

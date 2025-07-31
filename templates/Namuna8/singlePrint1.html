@@ -200,7 +200,7 @@
 
     <tr>
         <td colspan="2" style="text-align: left; font-weight: bold;">आधार क्रमांक :</td>
-        <td> {{aadharNumber|default('')}} </td>
+        <td>{% if aadharCard %}{{aadharNumber|default('')}}{% endif %}</td>
         <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस फुट </td>
         <td> {{total_arearinfoot|default('')}} </td>
         <td> {{khaliJaga[0].totalkhalijagaareainfoot if khaliJaga and khaliJaga|length > 0 else ''}} </td>
@@ -211,7 +211,7 @@
     </tr>
     <tr>
         <td colspan="2" style="text-align: left; font-weight: bold;">मोबाईल क्रमांक :</td>
-        <td> {{mobileNumber|default('')}} </td>
+        <td>{% if mobileNumberAdd %}{{mobileNumber|default('')}}{% endif %}</td>
         <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस मीटर</td>
         <td> {{totalareainmeters|default('')}} </td>
         <td> {{khaliJaga[0].totalkhalijagaareainmeters if khaliJaga and khaliJaga|length > 0 else ''}} </td>
@@ -262,7 +262,7 @@
         <td colspan="2">29</td>
     </tr>
     <tr>
-        <td>{{khaliJaga[0].capitalValue if khaliJaga and khaliJaga|length > 0 else ''}}<br>{{constructionType[0].capitalValue if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].capitalValue if constructionType and constructionType|length > 1 else ''}}</td>
+        <td>{{constructionType[0].capitalValue if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].capitalValue if constructionType and constructionType|length > 1 else ''}}<br>{{khaliJaga[0].capitalValue if khaliJaga and khaliJaga|length > 0 else ''}}</td>
         <td>{{constructionType[0].taxRates if constructionType and constructionType|length > 0 else ''}}<br> {{constructionType[1].taxRates if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].taxRates if khaliJaga and khaliJaga|length > 0 else ''}} </td>
         <td> {{constructionType[0].houseTax if constructionType and constructionType|length > 0 else ''}} <br> {{constructionType[1].houseTax if constructionType and constructionType|length > 1 else ''}} <br> {{khaliJaga[0].houseTax if khaliJaga and khaliJaga|length > 0 else ''}} </td>
         <td> {{lightingTax|default('')}} </td>

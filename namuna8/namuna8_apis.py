@@ -194,7 +194,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     for c in constructions
                 )
                 remaining_area = total_area - used_area
-                print("remaining_area:", remaining_area)
+                # print("remaining_area:", remaining_area)
                 # if remaining_area > 0:
                 #     print("greater")
                 #     vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()

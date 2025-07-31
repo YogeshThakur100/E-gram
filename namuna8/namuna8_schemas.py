@@ -75,7 +75,7 @@ class PropertyBase(BaseModel):
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
     anuKramank: int
-    malmattaKramank: int
+    malmattaKramank: str
     streetName: Optional[str] = None
     citySurveyOrGatNumber: Optional[str] = None
     length: Optional[float] = None
@@ -130,14 +130,14 @@ class PropertyUpdate(PropertyBase):
 
 # --- Schema for the property list on the side ---
 class PropertyList(BaseModel):
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     anuKramank: int
     holderno: Optional[int] = None
 
 class BulkEditPropertyRow(BaseModel):
     serial_no: int
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     occupant: str  # always 'स्वतः' for now
     gharKar: float
@@ -150,7 +150,7 @@ class BulkEditPropertyRow(BaseModel):
         orm_mode = True
 
 class BulkEditUpdateRequest(BaseModel):
-    property_ids: list[int]
+    property_ids: list[str]
     waterFacility1: Optional[str] = None
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None
@@ -230,6 +230,8 @@ class Namuna8SettingChecklistBase(BaseModel):
     tipRelatedPropertyDescription: bool = False
     roundupArea: bool = False
     boundaryMarking: bool = False
+    aadharCard: bool = False
+    mobileNumber: bool = False
     district_id: Optional[int] = None
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
@@ -255,6 +257,8 @@ class Namuna8SettingChecklistUpdate(BaseModel):
     tipRelatedPropertyDescription: Optional[bool] = None
     roundupArea: Optional[bool] = None
     boundaryMarking: Optional[bool] = None
+    aadharCard: Optional[bool] = None
+    mobileNumberAdd: Optional[bool] = None
     district_id: Optional[int] = None
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None

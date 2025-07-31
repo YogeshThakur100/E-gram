@@ -1,183 +1,180 @@
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>जन्म प्रमाणपत्र</title>
+    <title>जावक रजिस्टर नोंदवही</title>
     <style>
+        body { font-family: 'Mangal', Arial, sans-serif; }
+        table { border-collapse: collapse; width: 100%; font-size: 13px; }
+        .header-table td { border: none; padding: 2px 4px; }
+        .center { text-align: center; }
+        .left { text-align: left; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; vertical-align: middle; }
+        th { background: #f0f0f0; }
+        .footer-summary {
+            border: 3px solid #000;
+            border-top: none;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding: 2px 8px;
+            display: inline-block;
+            background: #fff;
+        }
+        tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        .nested-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .nested-table tr, .nested-table td {
+            height: 100%;
+            vertical-align: stretch;
+            padding: 0;
+            text-align: center;
+            word-break: break-word;
+        }
         @media print {
             @page {
-                size: A4;
+                size: A4 portrait;
             }
             #toolbar {
                 display: none !important;
             }
         }
-        #mainContent {
-          max-width: 800px;
-          margin: 32px auto 32px auto;
-          padding: 32px 32px 32px 32px;
-          border-radius: 8px;
-      }
     </style>
 </head>
-<div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
-    <!-- Left: Icon Buttons & Navigation -->
-    <div style="display: flex; align-items: center; gap: 6px;">
-        <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
-        <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
-        <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
-        <span style="font-size: 14px; color: #888;">/1</span>
-        <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
-        <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
-        <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
-        <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
-        <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+<body>
+    <div id="toolbar" style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8f8f8; border-bottom: 1px solid #ccc;">
+        <!-- Left: Icon Buttons & Navigation -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+            <button title="First Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏮️</button>
+            <button title="Previous Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">◀️</button>
+            <input type="text" value="1" id="pageInput" style="width: 32px; text-align: center; font-size: 14px; border: 1px solid #ccc; border-radius: 2px; margin: 0 2px;" />
+            <span id="pageTotal" style="font-size: 14px; color: #888;"></span>
+            <button title="Next Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">▶️</button>
+            <button title="Last Page" style="background: none; border: none; font-size: 16px; cursor: pointer;">⏭️</button>
+            <button title="Zoom Out" onclick="zoomOut()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➖</button>
+            <span id="zoomPercent" style="min-width: 40px; text-align: center; font-size: 14px;">100%</span>
+            <button title="Zoom In" onclick="zoomIn()" style="background: none; border: none; font-size: 18px; cursor: pointer;">➕</button>
+        </div>
+        <!-- Right: Print & Exit Buttons -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
+            <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
+        </div>
     </div>
-    <!-- Right: Print & Exit Buttons -->
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <button onclick="printPage()" style="background: #4CAF50; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">Print</button>
-        <button onclick="exitPage()" style="background: #b71c1c; color: #fff; font-weight: bold; font-size: 20px; border: none; border-radius: 20px; padding: 2px 24px; cursor: pointer;">EXIT</button>
-    </div>
-</div>
-<script>
-    let zoomLevel = 1.0;
-    const minZoom = 0.5;
-    const maxZoom = 2.0;
-    const zoomStep = 0.1;
-    function updateZoom() {
-        document.getElementById('mainContent').style.zoom = zoomLevel;
-        document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
-    }
-    function zoomIn() {
-        if (zoomLevel < maxZoom) {
-            zoomLevel += zoomStep;
-            zoomLevel = Math.min(maxZoom, zoomLevel);
-            updateZoom();
+    <script>
+        let zoomLevel = 1.0;
+        const minZoom = 0.5;
+        const maxZoom = 2.0;
+        const zoomStep = 0.1;
+        let currentPage = 1;
+        const recordsPerPage = 10; // Show 10 records per page
+        let totalPages = 0;
+
+        function updateZoom() {
+            document.getElementById('mainContent').style.zoom = zoomLevel;
+            document.getElementById('zoomPercent').innerText = Math.round(zoomLevel * 100) + '%';
         }
-    }
-    function zoomOut() {
-        if (zoomLevel > minZoom) {
-            zoomLevel -= zoomStep;
-            zoomLevel = Math.max(minZoom, zoomLevel);
-            updateZoom();
+        function zoomIn() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                zoomLevel = Math.min(maxZoom, zoomLevel);
+                updateZoom();
+            }
         }
-    }
-    function printPage() {
-        window.print();
-    }
-    function exitPage() {
-        window.close();
-    }
-    // Initialize zoom display
-    window.onload = updateZoom;
-</script>
-<div id="mainContent">
-<div style="padding-left:10px; padding-right:10px;">
-<table style="width:100%;border:1px solid black ; background:#ccc;">
-  <tr>
-    <td style="border:none width:20%; text-align:center; vertical-align:center;">
-      <img src="/ReportImages/satyamevijayate.png" alt="Ashoka Emblem" style="height:130px;" />
-    </td>
-    <td style="width:60%; text-align:center; vertical-align:top;">
-      <div style="font-size:18px; font-weight:bold;">
-        महाराष्ट्र शासन<br/>
-        Goverment of Maharashtra<br/>
-        आरोग्य विभाग<br/>
-        Health Department<br/>
-        प्रमाणपत्र निर्गमित करणार्‍या स्थानिक क्षेत्राचे नाव<br/>
-        Name of local body issuing<br/>
-        Certificate
-      </div>
-    </td>
-    <td style="width:20%; text-align:center; vertical-align:center;">
-      <img src="/ReportImages/image.png" alt="Blue Logo" style="height:130px;" />
-    </td>
-  </tr>
-</table>
-
-<!-- Second part: Title and legal/certification text -->
-<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0;">
-  <tr>
-    <td style="text-align:center; font-size:20px; font-weight:bold; padding:6px;">
-      जन्म प्रमाणपत्र / <span style="font-size:22px;">BIRTH CERTIFICATE</span>
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align:center; font-size:14px; padding:6px;">
-      जन्म व मृत्यू नोंदणी अधिनियम, १९६९ च्या कलम १२/१७ आणि महाराष्ट्र जन्म व मृत्यू नोंदणी नियम २००० चे नियम ८/१३ अन्वये देण्यात आले असे.<br/>
-      <span style="font-size:12px;">(issued under section 12/17 of the registration of births & deaths act,1969 and rule 8/13 of the maharashtra registration of births and deaths rules 2000)</span>
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align:center; font-size:14px; border-bottom:1px solid #000; padding:6px;">
-      ्रमाणित करण्यात येत आहे कि खालील माहिती जन्माच्या मुल अभिलेखाच्या नोंदवहीतून घेण्यात आली आहे. जी की स्थानिक क्षेत्र -, तालुका-, जिल्हा- महाराष्ट्र राज्याच्या नोंदवहीत उल्लेख आहे.<br/>
-      <span style="font-size:12px;">This is to cetify that the following inforation has been taken from the original record of birth which is the register for (local area / local body) Panhera. of tahsil/block Motala of district  Buldhana of maharashtra sate.</span>
-    </td>
-  </tr>
-</table>
-
-<!-- Main details table -->
-<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
-  <tr>
-    <td style="text-align:left; width:50%; padding:4px;">नोंद क्रमांक : 1</td>
-    <td style="text-align:right; width:50%; padding:4px;">Registration No : 1</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">बाळाचे नाव : sdsad <br>Name of Child : sadasdas </td>
-    <td style="text-align:right; padding:4px;">लिंग : पुरुष <br>Sex : Male </td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">जन्म तारीख : 2025-07-18<br>Date of Birth : 2025-07-18</td>
-    <td style="text-align:right; padding:4px;">जन्म ठिकाण : sdasdasd<br>Place of Birth : asdasdasd</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">आईचे नाव : sdasd<br>Name of Mother : sadsad</td>
-    <td style="text-align:right; padding:4px;">वडिलांचे नाव : asdasd<br>Name of Father : asdasd</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">बाळाचे जन्माचे वेळी आई वडिलांचा पत्ता : asdasd <br> Address of parents at the time of birth of the child : asdsad</td>
-    <td style="text-align:right; padding:4px;">आई वडिलांचा कायमचा पत्ता : asdasdsadsad <br>  Permanent address of parents : asdasd</td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">नोंद दिनांक : 2025-07-29<br>Date of Registration : 2025-07-29</td>
-    <td style="text-align:right; padding:4px;" rowspan="2">
-      <img src="http://127.0.0.1:8000/certificates/birth_qrcode/1" alt="QR Code" style="height:80px;" /><br/>
-      <img src="http://127.0.0.1:8000/certificates/birth_barcode/1" alt="Barcode" style="height:40px;" />
-    </td>
-  </tr>
-  <tr>
-    <td style="text-align:left; padding:4px;">शेरा : sdasdasd<br>Remarks (if any): sadsadsa</td>
-  </tr>
-</table>
-
-<!-- Bottom info and slogan section -->
-<table style="width:100%; border:1px solid #000; border-collapse:collapse; margin-top:0; font-size:15px;">
-  <tr>
-    <td style="width:33%; vertical-align:top; padding:8px; border-right : 1px solid black ">
-      गाव : Atreyapuram<br>
-      Village : Atreyapuram<br>
-      प्रपत्र दिल्याचा दिनांक : 2025-07-29<br>
-      Certificate Issue Date : 2025-07-29
-    </td>
-    <td style="width:34%; text-align:center; vertical-align:bottom; padding:8px;  border-right : 1px solid black ">
-      शिक्का / seal
-    </td>
-    <td style="width:33%; text-align:right; vertical-align:top; padding:8px;">
-      निबंधक, जन्म मृत्यू नोंदणी <br>
-      अधिकारी, ग्रामपंचायत None <br>
-      ता. None, जि. None
-    </td>
+        function zoomOut() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                zoomLevel = Math.max(minZoom, zoomLevel);
+                updateZoom();
+            }
+        }
+        function showPage(page) {
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            totalPages = Math.ceil(records.length / recordsPerPage);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+            currentPage = page;
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            document.getElementById('pageInput').value = currentPage;
+            document.getElementById('pageTotal').innerText = '/' + totalPages;
+        }
+        function nextPage() { showPage(currentPage + 1); }
+        function prevPage() { showPage(currentPage - 1); }
+        function firstPage() { showPage(1); }
+        function lastPage() { showPage(totalPages); }
+        function printPage() {
+            // Show only current page's records before printing, then restore
+            const records = Array.from(document.querySelectorAll('.record-row'));
+            const prevStates = records.map(el => el.style.display);
+            records.forEach((el, idx) => {
+                const pageIdx = Math.floor(idx / recordsPerPage) + 1;
+                el.style.display = (pageIdx === currentPage) ? '' : 'none';
+            });
+            setTimeout(() => {
+                window.print();
+                setTimeout(() => {
+                    records.forEach((el, idx) => {
+                        el.style.display = prevStates[idx];
+                    });
+                }, 100);
+            }, 50);
+        }
+        function exitPage() {
+            window.close();
+        }
+        window.onload = function() {
+            updateZoom();
+            showPage(1);
+            // Wire up navigation buttons
+            document.querySelector('button[title="First Page"]').onclick = firstPage;
+            document.querySelector('button[title="Previous Page"]').onclick = prevPage;
+            document.querySelector('button[title="Next Page"]').onclick = nextPage;
+            document.querySelector('button[title="Last Page"]').onclick = lastPage;
+        };
+    </script>
+    <div id="mainContent">
+    <!-- Main Data Table -->
+    <table class="main-table" style="margin-top:0; width:95%; margin-left:auto; margin-right:auto;">
+        <!-- Page Header - Repeats on every page -->
+        <thead class="page-header">
+            <tr>
+                <td colspan="21" style="border:none; padding:0;">
+                    <table class="header-table" style="width:100%; margin:0;">
+                        <tr>
+                            <td class="center bold" style="font-size:22px; width:34%"><span style="font-size:15px; font-weight:normal;"> जावक रजिस्टर नोंदवही</span></td>
+                            <td class="left" style="width:33%">दिनांक : </td>
+                            <td class="right" style="width:33%">पासून :  <br> पर्यंत :  </br> </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <th>अ क्र.</th>
+                <th>जा.क्र.</th>
+                <th>दस्त प्रकार</th>
+                <th>दिनांक व वेळ</th>
+                <th>नाव</th>
+            </tr>
+        </thead>
     
-
-
-  </tr>
-  <tr>
-    <td colspan="3" style="background:#ccc; text-align:left; font-size:14px; font-weight:bold; padding:6px; border-top:1px solid #000;">
-      प्रत्येक जन्म आणि मृत्यू नोंदवल्याची खात्री करा
-      <span style="float:right; font-size:14px; font-weight:normal;">"Ensure Registration of every Birth & Death"</span>
-    </td>
-  </tr>
-</table>
-</div>
-</div>
+        <tbody>
+            
+        </tbody>
+    </table>
 </body>
+</html>
