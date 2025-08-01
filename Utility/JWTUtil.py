@@ -10,12 +10,16 @@ load_dotenv(find_dotenv())
 
 
 # Secret key and algorithm
-SECRET_KEY = os.getenv('SECRET_KEY')
-ALGORITHM = os.getenv('ALGORITHM')
-FERNET_KEY = os.getenv('FERNET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY') or "your-secret-key-here-make-it-long-and-secure"
+ALGORITHM = os.getenv('ALGORITHM') or "HS256"
+FERNET_KEY = os.getenv('FERNET_KEY') or "your-32-byte-base64-encoded-fernet-key-here"
 LICENSE_VALIDITY_DAYS = 30
 
-fernet = Fernet(FERNET_KEY)
+# Only initialize fernet if FERNET_KEY is properly set
+if FERNET_KEY and FERNET_KEY != "your-32-byte-base64-encoded-fernet-key-here":
+    fernet = Fernet(FERNET_KEY)
+else:
+    fernet = None
 
 
 def create_license_token():
@@ -38,8 +42,12 @@ def verify_license_token(token : str):
     
 
 def encrypt_token(token : str) -> str:
+    if fernet is None:
+        raise ValueError("Fernet key not properly configured")
     return fernet.encrypt(token.encode()).decode()
 
 def decrypt_token(token : str) -> str:
+    if fernet is None:
+        raise ValueError("Fernet key not properly configured")
     return fernet.decrypt(token.encode()).decode()
 
