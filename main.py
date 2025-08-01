@@ -27,6 +27,7 @@ from namuna9.ReportCreationUsingJinja import namuna9Print
 from Yadi.ReportCreationUsingJinja import yadiPrint
 from namuna10.ReportCreationUsingJinja import namuna10print
 from certificates.ReportCreationUsingJinja import certificate
+from reportRoute import reportAPI
 from JWTapi import tokenapi
 from fastapi.staticfiles import StaticFiles
 from namuna8.mastertab.mastertabapis import router as mastertab_router
@@ -77,6 +78,7 @@ app.include_router(namuna10print.router , prefix="/namuna10/print")
 app.include_router(certificate.router , prefix="/certificate/print")
 app.include_router(logbookPrint.router , prefix="/logbook/print")
 app.include_router(ferfarprint.router , prefix="/ferfar/print")
+app.include_router(reportAPI.router , prefix="/reports")
 app.include_router(namuna7_apis.router)
 app.include_router(namuna7Print.router , prefix="/namuna7")
 app.include_router(owner_transfer_router, prefix="/namuna8/utilitytab")
