@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
 from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
-from . import models, schemas
+from . import models, schemas, helpers
 
 router = APIRouter(prefix="/location", tags=["Location Management"])
 
@@ -147,12 +148,23 @@ def get_gram_panchayats_by_taluka(taluka_id: int, db: Session = Depends(get_db))
     return gram_panchayats
 
 @router.get("/gram-panchayats/{gram_panchayat_id}", response_model=schemas.GramPanchayatRead)
-def get_gram_panchayat(gram_panchayat_id: int, db: Session = Depends(get_db)):
+def get_gram_panchayat(gram_panchayat_id: int, request: Request, db: Session = Depends(get_db)):
     """Get a specific gram panchayat by ID"""
     gram_panchayat = db.query(models.GramPanchayat).filter(models.GramPanchayat.id == gram_panchayat_id).first()
     if not gram_panchayat:
         raise HTTPException(status_code=404, detail="Gram Panchayat not found")
-    return gram_panchayat
+    
+    # Convert to response model
+    gram_panchayat_data = schemas.GramPanchayatRead.from_orm(gram_panchayat)
+    
+    # Add absolute URL for image if present
+    if gram_panchayat.image_url:
+        if gram_panchayat.image_url.startswith("http"):
+            gram_panchayat_data.image_url = gram_panchayat.image_url
+        else:
+            gram_panchayat_data.image_url = str(request.base_url)[:-1] + f"/{gram_panchayat.image_url}"
+    
+    return gram_panchayat_data
 
 @router.post("/gram-panchayats", response_model=schemas.GramPanchayatRead, status_code=status.HTTP_201_CREATED)
 def create_gram_panchayat(gram_panchayat: schemas.GramPanchayatCreate, db: Session = Depends(get_db)):
@@ -198,6 +210,136 @@ def delete_gram_panchayat(gram_panchayat_id: int, db: Session = Depends(get_db))
     if not db_gram_panchayat:
         raise HTTPException(status_code=404, detail="Gram Panchayat not found")
     
+    # Remove image file if exists
+    if db_gram_panchayat.image_url:
+        helpers.remove_gram_panchayat_image(db, gram_panchayat_id)
+    
     db.delete(db_gram_panchayat)
     db.commit()
-    return {"message": "Gram Panchayat deleted successfully"} 
+    return {"message": "Gram Panchayat deleted successfully"}
+
+
+# ==================== GRAM PANCHAYAT IMAGE APIs ====================
+
+@router.post("/gram-panchayats/{gram_panchayat_id}/image", response_model=schemas.GramPanchayatRead)
+def upload_gram_panchayat_image(
+    gram_panchayat_id: int,
+    image: UploadFile = File(...),
+    request: Request = None,
+    db: Session = Depends(get_db)
+):
+    """Upload image for a gram panchayat"""
+    # Check if gram panchayat exists
+    gram_panchayat = db.query(models.GramPanchayat).filter(models.GramPanchayat.id == gram_panchayat_id).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=404, detail="Gram Panchayat not found")
+    
+    # Validate image file
+    if not image.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    try:
+        # Remove existing image if any
+        if gram_panchayat.image_url:
+            helpers.remove_gram_panchayat_image(db, gram_panchayat_id)
+        
+        # Save new image
+        image_path = helpers.save_gram_panchayat_image(db, gram_panchayat_id, image)
+        
+        # Update database
+        gram_panchayat.image_url = image_path
+        db.commit()
+        db.refresh(gram_panchayat)
+        
+        # Convert to response model
+        gram_panchayat_data = schemas.GramPanchayatRead.from_orm(gram_panchayat)
+        
+        # Add absolute URL for image
+        if request:
+            gram_panchayat_data.image_url = str(request.base_url)[:-1] + f"/{image_path}"
+        
+        return gram_panchayat_data
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")
+
+
+@router.put("/gram-panchayats/{gram_panchayat_id}/image", response_model=schemas.GramPanchayatRead)
+def update_gram_panchayat_image(
+    gram_panchayat_id: int,
+    image: UploadFile = File(...),
+    request: Request = None,
+    db: Session = Depends(get_db)
+):
+    """Update image for a gram panchayat"""
+    # Check if gram panchayat exists
+    gram_panchayat = db.query(models.GramPanchayat).filter(models.GramPanchayat.id == gram_panchayat_id).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=404, detail="Gram Panchayat not found")
+    
+    # Validate image file
+    if not image.content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    try:
+        # Remove existing image
+        if gram_panchayat.image_url:
+            helpers.remove_gram_panchayat_image(db, gram_panchayat_id)
+        
+        # Save new image
+        image_path = helpers.save_gram_panchayat_image(db, gram_panchayat_id, image)
+        
+        # Update database
+        gram_panchayat.image_url = image_path
+        db.commit()
+        db.refresh(gram_panchayat)
+        
+        # Convert to response model
+        gram_panchayat_data = schemas.GramPanchayatRead.from_orm(gram_panchayat)
+        
+        # Add absolute URL for image
+        if request:
+            gram_panchayat_data.image_url = str(request.base_url)[:-1] + f"/{image_path}"
+        
+        return gram_panchayat_data
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update image: {str(e)}")
+
+
+@router.delete("/gram-panchayats/{gram_panchayat_id}/image")
+def remove_gram_panchayat_image(gram_panchayat_id: int, db: Session = Depends(get_db)):
+    """Remove image from a gram panchayat"""
+    # Check if gram panchayat exists
+    gram_panchayat = db.query(models.GramPanchayat).filter(models.GramPanchayat.id == gram_panchayat_id).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=404, detail="Gram Panchayat not found")
+    
+    if not gram_panchayat.image_url:
+        raise HTTPException(status_code=404, detail="No image found for this gram panchayat")
+    
+    try:
+        # Remove image file
+        if helpers.remove_gram_panchayat_image(db, gram_panchayat_id):
+            # Update database
+            gram_panchayat.image_url = None
+            db.commit()
+            return {"message": "Image removed successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to remove image file")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to remove image: {str(e)}")
+
+
+@router.get("/gram-panchayats/{gram_panchayat_id}/image")
+def serve_gram_panchayat_image(gram_panchayat_id: int, db: Session = Depends(get_db)):
+    """Serve gram panchayat image"""
+    from fastapi.responses import FileResponse
+    
+    # Get image path
+    image_path = helpers.get_gram_panchayat_image_path(db, gram_panchayat_id)
+    if not image_path or not os.path.exists(image_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    return FileResponse(image_path) 

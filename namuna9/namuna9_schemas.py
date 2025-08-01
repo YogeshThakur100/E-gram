@@ -42,7 +42,7 @@ class Namuna9SettingsCreate(Namuna9SettingsBase):
     pass
 
 class Namuna9SettingsRead(Namuna9SettingsBase):
-    id: str
+    id: int
     class Config:
         orm_mode = True
 class Namuna9SettingsUpdate(BaseModel):

@@ -23,7 +23,11 @@ def calc_house_tax(rate):
         return 0
 
 @router.get("/property_record/{anuKramank}")
-def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
+def get_property_record(
+    anuKramank: int, 
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
     prop = db.query(models.Property).filter(models.Property.anuKramank == anuKramank).first()
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
@@ -126,9 +130,9 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             photo_url = f"{backend_url}/{o.ownerPhoto.replace(os.sep, '/')}"
             break
     # Fetch Namuna8SettingTax row
-    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
-    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
-    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
+    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
+    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
     def get_tax_by_area(area, field):
         if not settings:
             return 0
@@ -263,7 +267,11 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     return response 
 
 @router.get("/property_records_by_village/{village_id}")
-def get_property_records_by_village(village_id: int, db: Session = Depends(get_db)):
+def get_property_records_by_village(
+    village_id: int, 
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     results = []
     # Fetch Namuna8SettingChecklist row only once
@@ -365,9 +373,9 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             for c in prop.constructions
         ]
         owner = prop.owners[0] if prop.owners else None
-        settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
-        water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
-        water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+        settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
+        water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
+        water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
         def get_tax_by_area(area, field):
             if not settings:
                 return 0

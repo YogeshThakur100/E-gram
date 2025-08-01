@@ -16,11 +16,14 @@ namuna8_template_dir = os.path.join(template_dir ,'Namuna8' )
 # static_dir = os.path.join(base_dir, 'reports')
 env = Environment(loader=FileSystemLoader(namuna8_template_dir))
 
-# Get the user home directory
-home_path = os.path.expanduser("~")
+# # Get the user home directory
+# home_path = os.path.expanduser("~")
 
-# Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
-static_dir = os.path.join(home_path, 'AppData', 'Local', 'grampanchayat', 'reports')
+# # Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
+# static_dir = os.path.join(home_path, 'AppData', 'Local', 'grampanchayat', 'reports')
+
+home_path = os.path.expanduser("~")
+static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
 
 # Create the full directory path if it doesn't exist
 # os.makedirs(reports_path, exist_ok=True)  
@@ -34,7 +37,7 @@ localhost = "http://127.0.0.1:8000"
 @router.get("/reports/output.html")
 def serve_output_html():
     home_path = os.path.expanduser("~")
-    file_path = os.path.join(home_path, "AppData", "Local", "grampanchayat", "reports", "output.html")
+    file_path = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
     print('file_path ---->' , file_path)
     if os.path.exists(file_path):
         return FileResponse(file_path, media_type="text/html")

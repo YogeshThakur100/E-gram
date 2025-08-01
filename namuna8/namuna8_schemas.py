@@ -240,7 +240,7 @@ class Namuna8SettingChecklistCreate(Namuna8SettingChecklistBase):
     pass
 
 class Namuna8SettingChecklistRead(Namuna8SettingChecklistBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -248,7 +248,7 @@ class Namuna8SettingChecklistRead(Namuna8SettingChecklistBase):
         orm_mode = True
 
 class Namuna8SettingChecklistUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     tip: Optional[bool] = None
     date: Optional[bool] = None
     stamp: Optional[bool] = None
@@ -278,7 +278,7 @@ class Namuna8DropdownAddSettingsCreate(Namuna8DropdownAddSettingsBase):
     pass
 
 class Namuna8DropdownAddSettingsRead(Namuna8DropdownAddSettingsBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -286,7 +286,7 @@ class Namuna8DropdownAddSettingsRead(Namuna8DropdownAddSettingsBase):
         orm_mode = True
 
 class Namuna8DropdownAddSettingsUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     divaArogya: Optional[str] = None
     khalijagevarAarogya: Optional[bool] = None
     manoreDiva: Optional[bool] = None
@@ -325,7 +325,7 @@ class Namuna8SettingTaxCreate(Namuna8SettingTaxBase):
     pass
 
 class Namuna8SettingTaxRead(BaseModel):
-    id: str
+    id: int
     lightUpto300: Optional[int] = 0
     healthUpto300: Optional[int] = 0
     cleaningUpto300: Optional[int] = 0
@@ -354,7 +354,7 @@ class Namuna8SettingTaxRead(BaseModel):
         orm_mode = True
 
 class Namuna8SettingTaxUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     lightUpto300: Optional[int] = None
     healthUpto300: Optional[int] = None
     cleaningUpto300: Optional[int] = None

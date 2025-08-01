@@ -127,10 +127,10 @@ class Construction(Base):
 class Namuna8SettingChecklist(Base):
     __tablename__ = "namuna8_setting_checklist"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True)
     district_id: Mapped[int] = mapped_column(ForeignKey("districts.id", ondelete="CASCADE"), nullable=True)
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"), nullable=True)
-    gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), nullable=True)
+    gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), unique=True, nullable=False)
     tip = Column(Boolean, default=False)
     date = Column(Boolean, default=False)
     stamp = Column(Boolean, default=False)
@@ -148,10 +148,10 @@ class Namuna8SettingChecklist(Base):
 class Namuna8DropdownAddSettings(Base):
     __tablename__ = "namuna8DropdownAddSettings"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True)
     district_id: Mapped[int] = mapped_column(ForeignKey("districts.id", ondelete="CASCADE"), nullable=True)
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"), nullable=True)
-    gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), nullable=True)
+    gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), unique=True, nullable=False)
     divaArogya = Column(String)
     khalijagevarAarogya = Column(Boolean)
     manoreDiva = Column(Boolean)
@@ -164,10 +164,10 @@ class Namuna8DropdownAddSettings(Base):
 class Namuna8SettingTax(Base):
     __tablename__ = "namuna8SettingTax"
 
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(Integer, primary_key=True, autoincrement=True)
     district_id: Mapped[int] = mapped_column(ForeignKey("districts.id", ondelete="CASCADE"), nullable=True)
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"), nullable=True)
-    gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), nullable=True)
+    gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), unique=True, nullable=False)
     lightUpto300 = Column(Integer)
     healthUpto300 = Column(Integer)
     cleaningUpto300 = Column(Integer)

@@ -74,19 +74,21 @@ def create_namuna9_settings(settings: Namuna9SettingsCreate, db: Session = Depen
     db.refresh(db_settings)
     return db_settings
 
-@router.get("/settings/{settings_id}", response_model=Namuna9SettingsRead)
-def get_namuna9_settings(settings_id: str, db: Session = Depends(database.get_db)):
-    db_settings = db.query(Namuna9Settings).filter(Namuna9Settings.id == settings_id).first()
+@router.get("/settings/{gram_panchayat_id}", response_model=Namuna9SettingsRead)
+def get_namuna9_settings(gram_panchayat_id: int, db: Session = Depends(database.get_db)):
+    db_settings = db.query(Namuna9Settings).filter(Namuna9Settings.gram_panchayat_id == gram_panchayat_id).first()
     if not db_settings:
         raise HTTPException(status_code=404, detail="Settings not found")
     return db_settings
 
-@router.put("/settings/{settings_id}", response_model=Namuna9SettingsRead)
-def update_namuna9_settings(settings_id: str, settings: Namuna9SettingsUpdate, db: Session = Depends(database.get_db)):
-    db_settings = db.query(Namuna9Settings).filter(Namuna9Settings.id == settings_id).first()
+@router.put("/settings/{gram_panchayat_id}", response_model=Namuna9SettingsRead)
+def update_namuna9_settings(gram_panchayat_id: int, settings: Namuna9SettingsUpdate, db: Session = Depends(database.get_db)):
+    db_settings = db.query(Namuna9Settings).filter(Namuna9Settings.gram_panchayat_id == gram_panchayat_id).first()
     if not db_settings:
         # Create new row if not found (upsert)
-        new_settings = Namuna9Settings(id=settings_id, **settings.dict(exclude_unset=True))
+        settings_data = settings.dict(exclude_unset=True)
+        settings_data['gram_panchayat_id'] = gram_panchayat_id
+        new_settings = Namuna9Settings(**settings_data)
         db.add(new_settings)
         db.commit()
         db.refresh(new_settings)
@@ -220,6 +222,7 @@ def get_delete_options(db: Session = Depends(database.get_db)):
 def get_table_data(
     villageId: int,
     yearslap: str,
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     applyWarrantFee: bool = Query(False),
     applyNoticeFee: bool = Query(False),
     applyPenalty: bool = Query(False),
@@ -243,7 +246,7 @@ def get_table_data(
     properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
     rows = []
     for idx, prop in enumerate(properties, 1):
-        prop_data = build_property_response(prop, db)
+        prop_data = build_property_response(prop, db, gram_panchayat_id)
         # Query constructions directly for this property
         constructions = db.query(namuna8_model.Construction).filter(
             namuna8_model.Construction.property_anuKramank == prop.anuKramank
@@ -298,7 +301,12 @@ def get_table_data(
     return rows 
 
 @router.get("/recordresponses/property_records_by_village")
-def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = Depends(database.get_db)):
+def get_namuna9_table_data_custom(
+    villageId: str, 
+    yearslap: str, 
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
     rec = db.query(namuna9_model.Namuna9).filter(
         namuna9_model.Namuna9.villageId == villageId,
         namuna9_model.Namuna9.yearslap == yearslap
@@ -311,7 +319,7 @@ def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = D
     properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
     rows = []
     for idx, prop in enumerate(properties, 1):
-        prop_data = build_property_response(prop, db)
+        prop_data = build_property_response(prop, db, gram_panchayat_id)
         constructions = db.query(namuna8_model.Construction).filter(
             namuna8_model.Construction.property_anuKramank == prop.anuKramank
         ).all()
@@ -367,6 +375,7 @@ def get_namuna9_table_data_custom(villageId: str, yearslap: str, db: Session = D
 def get_property_records_by_village_regular(
     villageId: str,
     yearslap: str,
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
     from datetime import datetime
@@ -386,7 +395,7 @@ def get_property_records_by_village_regular(
     properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
     rows = []
     for prop in properties:
-        prop_data = build_property_response(prop, db)
+        prop_data = build_property_response(prop, db, gram_panchayat_id)
         owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
         occupant_names = ', '.join([o.get('occupantName', '') for o in prop_data.get('owners', []) if o.get('occupantName', '')])
         house_number = prop_data.get('malmattaKramank', '')
@@ -456,6 +465,7 @@ def get_property_records_by_village_regular(
 def get_property_records_by_village_visheshpani(
     villageId: str,
     yearslap: str,
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
     from datetime import datetime
@@ -475,7 +485,7 @@ def get_property_records_by_village_visheshpani(
     properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
     rows = []
     for prop in properties:
-        prop_data = build_property_response(prop, db)
+        prop_data = build_property_response(prop, db, gram_panchayat_id)
         owner_names = ', '.join([o.get('name', '') for o in prop_data.get('owners', [])])
         occupant_names = ', '.join([o.get('occupantName', '') for o in prop_data.get('owners', []) if o.get('occupantName', '')])
         house_number = prop_data.get('malmattaKramank', '')
