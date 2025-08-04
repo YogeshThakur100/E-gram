@@ -158,6 +158,12 @@
             if(document.getElementById('pageTotal'))
                 document.getElementById('pageTotal').innerText = '/' + totalPages;
             updateFooterSummary(); // <-- Add this line
+            const footerElement = document.getElementById('footerSummary');
+            if (currentPage === totalPages) {
+                footerElement.style.display = 'block';
+            } else {
+                footerElement.style.display = 'none';
+            }
         }
         function nextPage() { showPage(currentPage + 1); }
         function prevPage() { showPage(currentPage - 1); }
