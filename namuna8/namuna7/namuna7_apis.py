@@ -7,6 +7,7 @@ from database import get_db
 from uuid import UUID
 from datetime import datetime, timedelta
 from ..namuna8_model import Owner, Village, Property
+from location_management import models as location_models
 
 router = APIRouter(prefix="/namuna7", tags=["Namuna7"])
 
@@ -25,6 +26,32 @@ def get_all_namuna7(
     gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
     db: Session = Depends(get_db)
 ):
+    # Validate location hierarchy if any of the three fields are provided
+    if district_id is not None:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+    
+    if taluka_id is not None:
+        if district_id is None:
+            raise HTTPException(status_code=400, detail="District ID is required when Taluka ID is provided")
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    if gram_panchayat_id is not None:
+        if taluka_id is None:
+            raise HTTPException(status_code=400, detail="Taluka ID is required when Gram Panchayat ID is provided")
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     query = db.query(Namuna7)
     if district_id:
         query = query.filter(Namuna7.district_id == district_id)
@@ -49,6 +76,33 @@ def get_namuna7_custom_list(
         end_dt = datetime.strptime(enddate, "%Y-%m-%d") + timedelta(days=1)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+    
+    # Validate location hierarchy if any of the three fields are provided
+    if district_id is not None:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+    
+    if taluka_id is not None:
+        if district_id is None:
+            raise HTTPException(status_code=400, detail="District ID is required when Taluka ID is provided")
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    if gram_panchayat_id is not None:
+        if taluka_id is None:
+            raise HTTPException(status_code=400, detail="Taluka ID is required when Gram Panchayat ID is provided")
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     query = db.query(Namuna7).filter(Namuna7.createdAt >= start_dt, Namuna7.createdAt < end_dt)
     if district_id:
         query = query.filter(Namuna7.district_id == district_id)

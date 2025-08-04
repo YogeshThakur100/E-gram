@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Form, Request, HTTPException
+from fastapi import APIRouter, Depends, status, Form, Request, HTTPException, Query
 from sqlalchemy.orm import Session
 from database import get_db
 from .marriage_certificate_model import MarriageCertificate
@@ -8,6 +8,7 @@ import os
 from barcode import Code39
 from barcode.writer import ImageWriter
 import qrcode
+from location_management import models as location_models
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
 
@@ -111,12 +112,38 @@ def create_marriage_certificate(
 
 @router.get("/marriage", response_model=list[MarriageCertificateRead])
 def list_marriage_certificates(
-    district_id: int = None,
-    taluka_id: int = None,
-    gram_panchayat_id: int = None,
+    district_id: int = Query(None, description="Filter by district ID"),
+    taluka_id: int = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
     request: Request = None, 
     db: Session = Depends(get_db)
 ):
+    # Validate location hierarchy if any of the three fields are provided
+    if district_id is not None:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+    
+    if taluka_id is not None:
+        if district_id is None:
+            raise HTTPException(status_code=400, detail="District ID is required when Taluka ID is provided")
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    if gram_panchayat_id is not None:
+        if taluka_id is None:
+            raise HTTPException(status_code=400, detail="Taluka ID is required when Gram Panchayat ID is provided")
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     query = db.query(MarriageCertificate)
     
     # Apply location filters if provided
@@ -149,8 +176,49 @@ def list_marriage_certificates(
     return result
 
 @router.get("/marriage/{id}", response_model=MarriageCertificateRead)
-def get_marriage_certificate(id: int, request: Request, db: Session = Depends(get_db)):
-    cert = db.query(MarriageCertificate).filter(MarriageCertificate.id == id).first()
+def get_marriage_certificate(
+    id: int, 
+    district_id: int = Query(None, description="Filter by district ID"),
+    taluka_id: int = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    request: Request = None, 
+    db: Session = Depends(get_db)
+):
+    # Validate location hierarchy if any of the three fields are provided
+    if district_id is not None:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+    
+    if taluka_id is not None:
+        if district_id is None:
+            raise HTTPException(status_code=400, detail="District ID is required when Taluka ID is provided")
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    if gram_panchayat_id is not None:
+        if taluka_id is None:
+            raise HTTPException(status_code=400, detail="Taluka ID is required when Gram Panchayat ID is provided")
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    query = db.query(MarriageCertificate).filter(MarriageCertificate.id == id)
+    if district_id:
+        query = query.filter(MarriageCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(MarriageCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(MarriageCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Marriage certificate not found")
     cert_data = MarriageCertificateRead.from_orm(cert)
@@ -199,7 +267,41 @@ def update_marriage_certificate(
     taluka_id: int = Form(None),
     gram_panchayat_id: int = Form(None),
     db: Session = Depends(get_db)):
-    cert = db.query(MarriageCertificate).filter(MarriageCertificate.id == id).first()
+    # Validate location hierarchy if any of the three fields are provided
+    if district_id is not None:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+    
+    if taluka_id is not None:
+        if district_id is None:
+            raise HTTPException(status_code=400, detail="District ID is required when Taluka ID is provided")
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    if gram_panchayat_id is not None:
+        if taluka_id is None:
+            raise HTTPException(status_code=400, detail="Taluka ID is required when Gram Panchayat ID is provided")
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    query = db.query(MarriageCertificate).filter(MarriageCertificate.id == id)
+    if district_id:
+        query = query.filter(MarriageCertificate.district_id == district_id)
+    if taluka_id:
+        query = query.filter(MarriageCertificate.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(MarriageCertificate.gram_panchayat_id == gram_panchayat_id)
+    
+    cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Marriage certificate not found")
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()

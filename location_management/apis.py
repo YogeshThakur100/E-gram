@@ -1,5 +1,6 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
@@ -25,10 +26,15 @@ def get_district(district_id: int, db: Session = Depends(get_db)):
 
 @router.post("/districts", response_model=schemas.DistrictRead, status_code=status.HTTP_201_CREATED)
 def create_district(district: schemas.DistrictCreate, db: Session = Depends(get_db)):
-    """Create a new district"""
-    # Check if district with same name already exists
-    existing_district = db.query(models.District).filter(models.District.name == district.name).first()
+    """Create a new district - Only one district allowed"""
+    # Check if any district already exists
+    existing_district = db.query(models.District).first()
     if existing_district:
+        raise HTTPException(status_code=400, detail="Only one district is allowed. Please use the existing district.")
+    
+    # Check if district with same name already exists
+    existing_district_by_name = db.query(models.District).filter(models.District.name == district.name).first()
+    if existing_district_by_name:
         raise HTTPException(status_code=400, detail="District with this name already exists")
     
     db_district = models.District(**district.dict())
@@ -87,7 +93,12 @@ def get_taluka(taluka_id: int, db: Session = Depends(get_db)):
 
 @router.post("/talukas", response_model=schemas.TalukaRead, status_code=status.HTTP_201_CREATED)
 def create_taluka(taluka: schemas.TalukaCreate, db: Session = Depends(get_db)):
-    """Create a new taluka"""
+    """Create a new taluka - Only one taluka allowed"""
+    # Check if any taluka already exists
+    existing_taluka_any = db.query(models.Taluka).first()
+    if existing_taluka_any:
+        raise HTTPException(status_code=400, detail="Only one taluka is allowed. Please use the existing taluka.")
+    
     # Check if district exists
     district = db.query(models.District).filter(models.District.id == taluka.district_id).first()
     if not district:
@@ -168,7 +179,12 @@ def get_gram_panchayat(gram_panchayat_id: int, request: Request, db: Session = D
 
 @router.post("/gram-panchayats", response_model=schemas.GramPanchayatRead, status_code=status.HTTP_201_CREATED)
 def create_gram_panchayat(gram_panchayat: schemas.GramPanchayatCreate, db: Session = Depends(get_db)):
-    """Create a new gram panchayat"""
+    """Create a new gram panchayat - Only one gram panchayat allowed"""
+    # Check if any gram panchayat already exists
+    existing_gram_panchayat_any = db.query(models.GramPanchayat).first()
+    if existing_gram_panchayat_any:
+        raise HTTPException(status_code=400, detail="Only one gram panchayat is allowed. Please use the existing gram panchayat.")
+    
     # Check if taluka exists
     taluka = db.query(models.Taluka).filter(models.Taluka.id == gram_panchayat.taluka_id).first()
     if not taluka:
@@ -333,13 +349,65 @@ def remove_gram_panchayat_image(gram_panchayat_id: int, db: Session = Depends(ge
 
 
 @router.get("/gram-panchayats/{gram_panchayat_id}/image")
-def serve_gram_panchayat_image(gram_panchayat_id: int, db: Session = Depends(get_db)):
-    """Serve gram panchayat image"""
-    from fastapi.responses import FileResponse
-    
+def serve_gram_panchayat_image(
+    gram_panchayat_id: int, 
+    district_id: int = None,
+    taluka_id: int = None,
+    db: Session = Depends(get_db)
+):
+    """Serve gram panchayat image with optional district and taluka validation"""
     # Get image path
     image_path = helpers.get_gram_panchayat_image_path(db, gram_panchayat_id)
     if not image_path or not os.path.exists(image_path):
         raise HTTPException(status_code=404, detail="Image not found")
+    
+    # Optional validation: Check if the gram panchayat belongs to the specified district and taluka
+    if district_id is not None or taluka_id is not None:
+        gram_panchayat = db.query(models.GramPanchayat).filter(models.GramPanchayat.id == gram_panchayat_id).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=404, detail="Gram Panchayat not found")
+        
+        # Validate taluka_id if provided
+        if taluka_id is not None and gram_panchayat.taluka_id != taluka_id:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+        
+        # Validate district_id if provided
+        if district_id is not None:
+            taluka = db.query(models.Taluka).filter(models.Taluka.id == gram_panchayat.taluka_id).first()
+            if not taluka or taluka.district_id != district_id:
+                raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified district")
+    
+    return FileResponse(image_path)
+
+
+@router.get("/districts/{district_id}/talukas/{taluka_id}/gram-panchayats/{gram_panchayat_id}/image")
+def serve_gram_panchayat_image_with_path_params(
+    district_id: int,
+    taluka_id: int,
+    gram_panchayat_id: int,
+    db: Session = Depends(get_db)
+):
+    """Serve gram panchayat image with district, taluka, and gram panchayat validation"""
+    # Get image path
+    image_path = helpers.get_gram_panchayat_image_path(db, gram_panchayat_id)
+    if not image_path or not os.path.exists(image_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    # Validate that the gram panchayat belongs to the specified district and taluka
+    gram_panchayat = db.query(models.GramPanchayat).filter(models.GramPanchayat.id == gram_panchayat_id).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=404, detail="Gram Panchayat not found")
+    
+    # Validate taluka_id
+    if gram_panchayat.taluka_id != taluka_id:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    # Validate district_id
+    taluka = db.query(models.Taluka).filter(models.Taluka.id == taluka_id).first()
+    if not taluka:
+        raise HTTPException(status_code=404, detail="Taluka not found")
+    
+    if taluka.district_id != district_id:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
     
     return FileResponse(image_path) 

@@ -13,6 +13,12 @@
         .bold { font-weight: bold; }
         th, td { border: 1px solid #000; padding: 2px 4px; text-align: center; vertical-align: middle; }
         th { background: #f0f0f0; }
+        .record-page {
+        page-break-after: always;  /* All pages break to new page */
+        }
+        .record-page:last-child {
+            page-break-after: avoid;   /* EXCEPT the last page - no page break */
+        }
         .footer-summary {
             border: 3px solid #000;
             border-top: none;
@@ -55,6 +61,7 @@
                 display: table !important;
                 page-break-inside: avoid;
                 break-inside: avoid;
+                page-break-before: avoid;
             }
         }
     </style>
@@ -119,6 +126,12 @@
             if(document.getElementById('pageTotal'))
                 document.getElementById('pageTotal').innerText = '/' + totalPages;
             updateFooterSummary(); // <-- Add this line
+            const footerElement = document.getElementById('footerSummary');
+            if (currentPage === totalPages) {
+                footerElement.style.display = 'block';
+            } else {
+                footerElement.style.display = 'none';
+            }
         }
         function nextPage() { showPage(currentPage + 1); }
         function prevPage() { showPage(currentPage - 1); }
