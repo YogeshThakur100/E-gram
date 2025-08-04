@@ -52,6 +52,16 @@ def get_property_record(
     prop = db.query(models.Property).filter(models.Property.anuKramank == anuKramank).first()
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
+    
+    # Validate that the property's location fields match the specified parameters
+    if prop.district_id != district_id:
+        raise HTTPException(status_code=400, detail="Property does not belong to the specified district")
+    
+    if prop.taluka_id != taluka_id:
+        raise HTTPException(status_code=400, detail="Property does not belong to the specified taluka")
+    
+    if prop.gram_panchayat_id != gram_panchayat_id:
+        raise HTTPException(status_code=400, detail="Property does not belong to the specified gram panchayat")
     owner_ids = [o.id for o in prop.owners]
     property_types = [c.construction_type.name for c in prop.constructions]
     property_description = ", ".join(property_types)
@@ -206,13 +216,14 @@ def get_property_record(
         "srNo": prop.anuKramank,
         "propertyNumber": str(prop.malmattaKramank),
         "propertyDescription": property_description,
-        "gramPanchayat": prop.village.name if hasattr(prop, 'village') and prop.village else None,
+        "gramPanchayat": gram_panchayat.name if gram_panchayat else None,
         "village": prop.village.name if hasattr(prop, 'village') and prop.village else None,
-        "taluka": None,
-        "jilha": None,
+        "taluka": taluka.name if taluka else None,
+        "jilha": district.name if district else None,
         "yearFrom": 2024,
         "yearTo": 2027,
         "photoURL": photo_url,
+        "bank_qr_code": None,
         "QRcodeURL": None,
         "total_arearinfoot": prop.totalAreaSqFt,
         "totalareainmeters": round((prop.totalAreaSqFt or 0) * 0.092903, 2),
@@ -285,6 +296,13 @@ def get_property_record(
         response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}"
     else:
         response["QRcodeURL"] = None
+    
+    # Set bank_qr_code only if gram panchayat image exists
+    from location_management import helpers
+    image_path = helpers.get_gram_panchayat_image_path(db, gram_panchayat_id)
+    if image_path and os.path.exists(image_path):
+        response["bank_qr_code"] = f"{backend_url}/location/districts/{district_id}/talukas/{taluka_id}/gram-panchayats/{gram_panchayat_id}/image"
+    
     return response 
 
 @router.get("/property_records_by_village/{village_id}")
@@ -313,6 +331,15 @@ def get_property_records_by_village(
     ).first()
     if not gram_panchayat:
         raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    # Validate that the village belongs to the specified gram panchayat
+    village = db.query(location_models.Village).filter(location_models.Village.id == village_id).first()
+    if not village:
+        raise HTTPException(status_code=404, detail="Village not found")
+    
+    if village.gram_panchayat_id != gram_panchayat_id:
+        raise HTTPException(status_code=400, detail="Village does not belong to the specified gram panchayat")
+    
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     results = []
     # Fetch Namuna8SettingChecklist row only once
@@ -464,10 +491,10 @@ def get_property_records_by_village(
             "srNo": prop.anuKramank,
             "propertyNumber": str(prop.malmattaKramank),
             "propertyDescription": property_description,
-            "gramPanchayat": prop.village.name if hasattr(prop, 'village') and prop.village else None,
+            "gramPanchayat": gram_panchayat.name if gram_panchayat else None,
             "village": prop.village.name if hasattr(prop, 'village') and prop.village else None,
-            "taluka": None,
-            "jilha": None,
+            "taluka": taluka.name if taluka else None,
+            "jilha": district.name if district else None,
             "yearFrom": 2024,
             "yearTo": 2027,
             "photoURL": None,
@@ -536,12 +563,20 @@ def get_property_records_by_village(
                 photo_url = f"{backend_url}/{o.ownerPhoto.replace(os.sep, '/')}"
                 break
         response["photoURL"] = photo_url
+        response["bank_qr_code"] = None
         # Set QRcodeURL if QR code exists (bulk)
         qr_path = os.path.join("uploaded_images", "qrcode", str(prop.anuKramank), "qrcode.png")
         if os.path.exists(qr_path):
             response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}"
         else:
             response["QRcodeURL"] = None
+        
+        # Set bank_qr_code only if gram panchayat image exists (bulk)
+        from location_management import helpers
+        image_path = helpers.get_gram_panchayat_image_path(db, gram_panchayat_id)
+        if image_path and os.path.exists(image_path):
+            response["bank_qr_code"] = f"{backend_url}/location/districts/{district_id}/talukas/{taluka_id}/gram-panchayats/{gram_panchayat_id}/image"
+        
         # Add checklist fields to the response
         response.update(checklist_fields)
         results.append(response)

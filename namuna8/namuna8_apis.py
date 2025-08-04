@@ -342,6 +342,25 @@ def get_property_details(
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     db_property = db.query(models.Property).filter(
         models.Property.anuKramank == anu_kramank,
         models.Property.district_id == district_id,
@@ -1151,7 +1170,34 @@ def delete_watertaxslab(gram_panchayat_id: int, db: Session = Depends(database.g
     return {"detail": "Deleted"}
 
 @router.post("/construction_type/bulk_upsert", response_model=List[schemas.ConstructionType])
-def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRequest, db: Session = Depends(database.get_db)):
+def bulk_upsert_construction_types(
+    request: schemas.BulkConstructionTypeUpsertRequest, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    # Validate location hierarchy
+    from location_management import models as location_models
+    
+    # Check if district exists
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    # Check if taluka exists and belongs to the district
+    taluka = db.query(location_models.Taluka).filter(location_models.Taluka.id == taluka_id).first()
+    if not taluka:
+        raise HTTPException(status_code=404, detail="Taluka not found")
+    if taluka.district_id != district_id:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    # Check if gram panchayat exists and belongs to the taluka
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == gram_panchayat_id).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=404, detail="Gram Panchayat not found")
+    if gram_panchayat.taluka_id != taluka_id:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     result = []
     for item in request.construction_types:
         if item.id is not None:
@@ -1163,6 +1209,10 @@ def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRe
                 obj.bandhmastache_prakar = item.bandhmastache_prakar
                 obj.gharache_prakar = item.gharache_prakar
                 obj.annualLandValueRate = item.annualLandValueRate
+                # Update location fields for existing items
+                obj.district_id = district_id
+                obj.taluka_id = taluka_id
+                obj.gram_panchayat_id = gram_panchayat_id
                 db.commit()
                 db.refresh(obj)
                 result.append(obj)
@@ -1188,9 +1238,9 @@ def bulk_upsert_construction_types(request: schemas.BulkConstructionTypeUpsertRe
                 bandhmastache_prakar=item.bandhmastache_prakar,
                 gharache_prakar=item.gharache_prakar,
                 annualLandValueRate=item.annualLandValueRate,
-                                    district_id=getattr(item, 'district_id', None),
-                    taluka_id=getattr(item, 'taluka_id', None),
-                    gram_panchayat_id=getattr(item, 'gram_panchayat_id', None)
+                district_id=district_id,
+                taluka_id=taluka_id,
+                gram_panchayat_id=gram_panchayat_id
             )
             db.add(new_obj)
             db.commit()
@@ -1697,7 +1747,42 @@ def set_holdernos(assignments: List[HolderNoAssignment], db: Session = Depends(d
     return {"detail": "Holder numbers set for all provided owners."}
 
 @router.get("/property_qrcode/{anu_kramank}")
-def get_property_qrcode(anu_kramank: int):
+def get_property_qrcode(
+    anu_kramank: int,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    # Validate that the property belongs to the specified location hierarchy
+    property_obj = db.query(models.Property).filter(
+        models.Property.anuKramank == anu_kramank,
+        models.Property.district_id == district_id,
+        models.Property.taluka_id == taluka_id,
+        models.Property.gram_panchayat_id == gram_panchayat_id
+    ).first()
+    if not property_obj:
+        raise HTTPException(status_code=404, detail="Property not found in the specified location")
+    
     qr_path = os.path.join("uploaded_images", "qrcode", str(anu_kramank), "qrcode.png")
     if not os.path.exists(qr_path):
         raise HTTPException(status_code=404, detail="QR code not found")

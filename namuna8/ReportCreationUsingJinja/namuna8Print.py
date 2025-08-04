@@ -624,7 +624,11 @@ async def singlePrint(request : Request):
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
+                'district_id': requestData.get('district_id'),
+                'taluka_id': requestData.get('taluka_id'),
+                'gram_panchayat_id': requestData.get('gram_panchayat_id')
+            })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -677,7 +681,11 @@ async def singlePrint(request : Request):
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
+                'district_id': requestData.get('district_id'),
+                'taluka_id': requestData.get('taluka_id'),
+                'gram_panchayat_id': requestData.get('gram_panchayat_id')
+            })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
