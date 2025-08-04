@@ -391,7 +391,7 @@ class Namuna8WaterTaxSettingsCreate(Namuna8WaterTaxSettingsBase):
     pass
 
 class Namuna8WaterTaxSettingsRead(Namuna8WaterTaxSettingsBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -399,7 +399,7 @@ class Namuna8WaterTaxSettingsRead(Namuna8WaterTaxSettingsBase):
         orm_mode = True
 
 class Namuna8WaterTaxSettingsUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     generalWater: Optional[int] = None
     houseTax: Optional[float] = None
     commercialTax: Optional[int] = None
@@ -420,7 +420,7 @@ class Namuna8GeneralWaterTaxSlabSettingsCreate(Namuna8GeneralWaterTaxSlabSetting
     pass
 
 class Namuna8GeneralWaterTaxSlabSettingsRead(Namuna8GeneralWaterTaxSlabSettingsBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -428,7 +428,7 @@ class Namuna8GeneralWaterTaxSlabSettingsRead(Namuna8GeneralWaterTaxSlabSettingsB
         orm_mode = True
 
 class Namuna8GeneralWaterTaxSlabSettingsUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     rateUpto300: Optional[float] = None
     rate301To700: Optional[float] = None
     rateAbove700: Optional[float] = None

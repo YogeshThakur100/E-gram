@@ -20,6 +20,7 @@ import re
 from Utility.QRcodeGeneration import QRCodeGeneration
 from namuna8.recordresponses.property_record_response import get_property_record
 from namuna8.mastertab.mastertabmodels import GeneralSetting, BuildingUsageWeightage
+from location_management import models as location_models
 
 router = APIRouter(
     prefix="/namuna8",
@@ -567,9 +568,29 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
 @router.get("/bulk_edit_list/", response_model=list[schemas.BulkEditPropertyRow])
 def get_bulk_edit_property_list(
     village: str, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     village_obj = db.query(models.Village).filter(models.Village.name == village).first()
     if not village_obj:
         return []
@@ -1020,8 +1041,11 @@ def delete_tax(gram_panchayat_id: int, db: Session = Depends(database.get_db)):
     return {"detail": "Deleted"}
 
 @router.get("/settings/tax/waterslab/fields", response_model=dict)
-def get_water_slab_fields(db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8SettingTax).first()
+def get_water_slab_fields(
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    obj = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         return {"generalWaterUpto300": 0, "generalWater301_700": 0, "generalWaterAbove700": 0}
     return {
@@ -1033,12 +1057,15 @@ def get_water_slab_fields(db: Session = Depends(database.get_db)):
 # --- Namuna8WaterTaxSettings CRUD ---
 @router.post("/settings/watertax/save", response_model=schemas.Namuna8WaterTaxSettingsRead)
 def create_watertax(data: schemas.Namuna8WaterTaxSettingsCreate, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
+    if not data.gram_panchayat_id:
+        raise HTTPException(status_code=400, detail="gram_panchayat_id is required")
+    
+    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == data.gram_panchayat_id).first()
     if obj:
         for k, v in data.dict().items():
             setattr(obj, k, v)
     else:
-        obj = models.Namuna8WaterTaxSettings(id='namuna8', **data.dict())
+        obj = models.Namuna8WaterTaxSettings(**data.dict())
         db.add(obj)
     db.commit()
     db.refresh(obj)
@@ -1048,16 +1075,16 @@ def create_watertax(data: schemas.Namuna8WaterTaxSettingsCreate, db: Session = D
 def get_all_watertax(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8WaterTaxSettings).all()
 
-@router.get("/settings/watertax/get/{id}", response_model=schemas.Namuna8WaterTaxSettingsRead)
-def get_watertax(id: str, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == id).first()
+@router.get("/settings/watertax/get/{gram_panchayat_id}", response_model=schemas.Namuna8WaterTaxSettingsRead)
+def get_watertax(gram_panchayat_id: int, db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Water tax setting not found")
     return obj
 
-@router.put("/settings/watertax/update/{id}", response_model=schemas.Namuna8WaterTaxSettingsRead)
-def update_watertax(id: str, data: schemas.Namuna8WaterTaxSettingsCreate, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
+@router.put("/settings/watertax/update/{gram_panchayat_id}", response_model=schemas.Namuna8WaterTaxSettingsRead)
+def update_watertax(gram_panchayat_id: int, data: schemas.Namuna8WaterTaxSettingsCreate, db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Water tax setting not found")
     for k, v in data.dict().items():
@@ -1066,9 +1093,9 @@ def update_watertax(id: str, data: schemas.Namuna8WaterTaxSettingsCreate, db: Se
     db.refresh(obj)
     return obj
 
-@router.delete("/settings/watertax/delete/{id}")
-def delete_watertax(id: str, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == id).first()
+@router.delete("/settings/watertax/delete/{gram_panchayat_id}")
+def delete_watertax(gram_panchayat_id: int, db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Water tax setting not found")
     db.delete(obj)
@@ -1078,12 +1105,15 @@ def delete_watertax(id: str, db: Session = Depends(database.get_db)):
 # --- Namuna8GeneralWaterTaxSlabSettings CRUD ---
 @router.post("/settings/watertaxslab/save", response_model=schemas.Namuna8GeneralWaterTaxSlabSettingsRead)
 def create_watertaxslab(data: schemas.Namuna8GeneralWaterTaxSlabSettingsCreate, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.id == 'namuna8').first()
+    if not data.gram_panchayat_id:
+        raise HTTPException(status_code=400, detail="gram_panchayat_id is required")
+    
+    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.gram_panchayat_id == data.gram_panchayat_id).first()
     if obj:
         for k, v in data.dict().items():
             setattr(obj, k, v)
     else:
-        obj = models.Namuna8GeneralWaterTaxSlabSettings(id='namuna8', **data.dict())
+        obj = models.Namuna8GeneralWaterTaxSlabSettings(**data.dict())
         db.add(obj)
     db.commit()
     db.refresh(obj)
@@ -1093,16 +1123,16 @@ def create_watertaxslab(data: schemas.Namuna8GeneralWaterTaxSlabSettingsCreate, 
 def get_all_watertaxslab(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8GeneralWaterTaxSlabSettings).all()
 
-@router.get("/settings/watertaxslab/get/{id}", response_model=schemas.Namuna8GeneralWaterTaxSlabSettingsRead)
-def get_watertaxslab(id: str, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.id == id).first()
+@router.get("/settings/watertaxslab/get/{gram_panchayat_id}", response_model=schemas.Namuna8GeneralWaterTaxSlabSettingsRead)
+def get_watertaxslab(gram_panchayat_id: int, db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Water tax slab setting not found")
     return obj
 
-@router.put("/settings/watertaxslab/update/{id}", response_model=schemas.Namuna8GeneralWaterTaxSlabSettingsRead)
-def update_watertaxslab(id: str, data: schemas.Namuna8GeneralWaterTaxSlabSettingsCreate, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.id == 'namuna8').first()
+@router.put("/settings/watertaxslab/update/{gram_panchayat_id}", response_model=schemas.Namuna8GeneralWaterTaxSlabSettingsRead)
+def update_watertaxslab(gram_panchayat_id: int, data: schemas.Namuna8GeneralWaterTaxSlabSettingsCreate, db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Water tax slab setting not found")
     for k, v in data.dict().items():
@@ -1111,9 +1141,9 @@ def update_watertaxslab(id: str, data: schemas.Namuna8GeneralWaterTaxSlabSetting
     db.refresh(obj)
     return obj
 
-@router.delete("/settings/watertaxslab/delete/{id}")
-def delete_watertaxslab(id: str, db: Session = Depends(database.get_db)):
-    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.id == id).first()
+@router.delete("/settings/watertaxslab/delete/{gram_panchayat_id}")
+def delete_watertaxslab(gram_panchayat_id: int, db: Session = Depends(database.get_db)):
+    obj = db.query(models.Namuna8GeneralWaterTaxSlabSettings).filter(models.Namuna8GeneralWaterTaxSlabSettings.gram_panchayat_id == gram_panchayat_id).first()
     if not obj:
         raise HTTPException(status_code=404, detail="Water tax slab setting not found")
     db.delete(obj)
@@ -1173,13 +1203,17 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
     result = {}
     # Checklist
     if request.checklist:
-        checklist_id = request.checklist.id or 'namuna8'
-        checklist_obj = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == checklist_id).first()
+        checklist_data = request.checklist.dict(exclude_unset=True)
+        checklist_data.pop('id', None)
+        if not checklist_data.get('gram_panchayat_id'):
+            raise HTTPException(status_code=400, detail="gram_panchayat_id is required for checklist settings")
+        
+        checklist_obj = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.gram_panchayat_id == checklist_data['gram_panchayat_id']).first()
         if checklist_obj:
-            for k, v in request.checklist.dict(exclude_unset=True, exclude={'id'}).items():
+            for k, v in checklist_data.items():
                 setattr(checklist_obj, k, v)
         else:
-            checklist_obj = models.Namuna8SettingChecklist(id=checklist_id, **request.checklist.dict(exclude_unset=True, exclude={'id'}))
+            checklist_obj = models.Namuna8SettingChecklist(**checklist_data)
             db.add(checklist_obj)
         db.commit()
         db.refresh(checklist_obj)
@@ -1222,12 +1256,15 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
     if request.watertax:
         watertax_data = request.watertax.dict(exclude_unset=True)
         watertax_data.pop('id', None)
-        watertax_obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
+        if not watertax_data.get('gram_panchayat_id'):
+            raise HTTPException(status_code=400, detail="gram_panchayat_id is required for water tax settings")
+        
+        watertax_obj = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == watertax_data['gram_panchayat_id']).first()
         if watertax_obj:
             for k, v in watertax_data.items():
                 setattr(watertax_obj, k, v)
         else:
-            watertax_obj = models.Namuna8WaterTaxSettings(id='namuna8', **watertax_data)
+            watertax_obj = models.Namuna8WaterTaxSettings(**watertax_data)
             db.add(watertax_obj)
         db.commit()
         db.refresh(watertax_obj)
@@ -1249,12 +1286,12 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
             if 'rateAbove700' in watertaxslab_data:
                 settingtax_obj.generalWaterAbove700 = watertaxslab_data['rateAbove700']
             # Add location fields if provided
-            if hasattr(request.watertaxslab, 'district_id') and request.watertaxslab.district_id is not None:
-                settingtax_obj.district_id = request.watertaxslab.district_id
-            if hasattr(request.watertaxslab, 'taluka_id') and request.watertaxslab.taluka_id is not None:
-                settingtax_obj.taluka_id = request.watertaxslab.taluka_id
-            if hasattr(request.watertaxslab, 'gram_panchayat_id') and request.watertaxslab.gram_panchayat_id is not None:
-                settingtax_obj.gram_panchayat_id = request.watertaxslab.gram_panchayat_id
+            if 'district_id' in watertaxslab_data and watertaxslab_data['district_id'] is not None:
+                settingtax_obj.district_id = watertaxslab_data['district_id']
+            if 'taluka_id' in watertaxslab_data and watertaxslab_data['taluka_id'] is not None:
+                settingtax_obj.taluka_id = watertaxslab_data['taluka_id']
+            if 'gram_panchayat_id' in watertaxslab_data and watertaxslab_data['gram_panchayat_id'] is not None:
+                settingtax_obj.gram_panchayat_id = watertaxslab_data['gram_panchayat_id']
             db.commit()
             db.refresh(settingtax_obj)
             result['watertaxslab'] = settingtax_obj
@@ -1264,9 +1301,9 @@ def bulk_save_namuna8_settings(request: schemas.BulkNamuna8SettingsRequest, db: 
                 generalWaterUpto300=watertaxslab_data.get('rateUpto300', 0),
                 generalWater301_700=watertaxslab_data.get('rate301To700', 0),
                 generalWaterAbove700=watertaxslab_data.get('rateAbove700', 0),
-                district_id=getattr(request.watertaxslab, 'district_id', None),
-                taluka_id=getattr(request.watertaxslab, 'taluka_id', None),
-                gram_panchayat_id=getattr(request.watertaxslab, 'gram_panchayat_id', None)
+                district_id=watertaxslab_data.get('district_id', None),
+                taluka_id=watertaxslab_data.get('taluka_id', None),
+                gram_panchayat_id=watertaxslab_data.get('gram_panchayat_id', None)
             )
             db.add(settingtax_obj)
             db.commit()
@@ -1458,18 +1495,60 @@ def get_owners_by_village(village_id: int, db: Session = Depends(database.get_db
 @router.get("/properties_by_village/", response_model=List[schemas.PropertyRead])
 def get_properties_by_village(
     village_id: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     return [build_property_response(p, db, gram_panchayat_id) for p in properties]
 
 @router.get("/properties_by_owner/", response_model=List[schemas.PropertyRead])
 def get_properties_by_owner(
     owner_id: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
     if not owner:
         return []
@@ -1478,9 +1557,30 @@ def get_properties_by_owner(
 @router.get("/properties/bulk", response_model=list[schemas.PropertyRead])
 def get_properties_bulk(
     ids: str = Query(...), 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
     # ids is a comma-separated string of property IDs
     id_list = [int(i) for i in ids.split(",") if i.strip().isdigit()]
     properties = db.query(models.Property).filter(models.Property.anuKramank.in_(id_list)).all()
@@ -1500,9 +1600,29 @@ def get_tax_rate_by_area(db: Session, area: float, field: str, gram_panchayat_id
 
 @router.post("/admin/recalculate_taxes", status_code=200)
 def recalculate_all_property_taxes(
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
     if not settings:
         return {"detail": "No settings found"}
@@ -1584,8 +1704,28 @@ def get_property_qrcode(anu_kramank: int):
     return FileResponse(qr_path, media_type="image/png")
 
 @router.get("/settings/building_usage_weightage/get")
-def get_building_usage_weightage(db: Session = Depends(database.get_db)):
-    rows = db.query(BuildingUsageWeightage).order_by(BuildingUsageWeightage.serial_number).all()
+def get_building_usage_weightage(
+    district_id: Optional[int] = Query(None, description="Filter by district ID"),
+    taluka_id: Optional[int] = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: Optional[int] = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    query = db.query(BuildingUsageWeightage)
+    
+    # Apply location filters if provided
+    if district_id is not None:
+        query = query.filter(BuildingUsageWeightage.district_id == district_id)
+    if taluka_id is not None:
+        query = query.filter(BuildingUsageWeightage.taluka_id == taluka_id)
+    if gram_panchayat_id is not None:
+        query = query.filter(BuildingUsageWeightage.gram_panchayat_id == gram_panchayat_id)
+    
+    rows = query.order_by(BuildingUsageWeightage.serial_number).all()
+    
+    # If no data found, return empty array (frontend will show defaults)
+    if not rows:
+        return []
+    
     return [
         {
             "serial_number": row.serial_number,

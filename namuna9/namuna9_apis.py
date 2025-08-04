@@ -7,6 +7,7 @@ from namuna9.namuna9_schemas import Namuna9SettingsCreate, Namuna9SettingsRead, 
 from namuna8 import namuna8_model
 from sqlalchemy.exc import IntegrityError
 from namuna8.namuna8_apis import build_property_response
+from location_management import models as location_models
 
 router = APIRouter(
     prefix="/namuna9",
@@ -222,16 +223,40 @@ def get_delete_options(db: Session = Depends(database.get_db)):
 def get_table_data(
     villageId: int,
     yearslap: str,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     applyWarrantFee: bool = Query(False),
     applyNoticeFee: bool = Query(False),
     applyPenalty: bool = Query(False),
     db: Session = Depends(database.get_db)
 ):
-    settings = db.query(Namuna9Settings).first()
-    warrant_fee = settings.warrant_fee if applyWarrantFee else 0
-    notice_fee = settings.notice_fee if applyNoticeFee else 0
-    penalty = settings.penalty_percentage if applyPenalty else 0
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    settings = db.query(Namuna9Settings).filter(
+        Namuna9Settings.district_id == district_id,
+        Namuna9Settings.taluka_id == taluka_id,
+        Namuna9Settings.gram_panchayat_id == gram_panchayat_id
+    ).first()
+    warrant_fee = settings.warrant_fee if settings and applyWarrantFee else 0
+    notice_fee = settings.notice_fee if settings and applyNoticeFee else 0
+    penalty = settings.penalty_percentage if settings and applyPenalty else 0
     # Find the Namuna9 record for this village and year
     rec = db.query(namuna9_model.Namuna9).filter(
         namuna9_model.Namuna9.villageId == villageId,
@@ -304,9 +329,29 @@ def get_table_data(
 def get_namuna9_table_data_custom(
     villageId: str, 
     yearslap: str, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     rec = db.query(namuna9_model.Namuna9).filter(
         namuna9_model.Namuna9.villageId == villageId,
         namuna9_model.Namuna9.yearslap == yearslap
@@ -375,9 +420,29 @@ def get_namuna9_table_data_custom(
 def get_property_records_by_village_regular(
     villageId: str,
     yearslap: str,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     from datetime import datetime
     rec = db.query(namuna9_model.Namuna9).filter(
         namuna9_model.Namuna9.villageId == villageId,
@@ -389,7 +454,11 @@ def get_property_records_by_village_regular(
     if not isinstance(property_ids, list) or len(property_ids) == 0:
         return []
     # Fetch Namuna9Settings for notice and warrant fee
-    settings = db.query(Namuna9Settings).first()
+    settings = db.query(Namuna9Settings).filter(
+        Namuna9Settings.district_id == district_id,
+        Namuna9Settings.taluka_id == taluka_id,
+        Namuna9Settings.gram_panchayat_id == gram_panchayat_id
+    ).first()
     notice_fee = settings.notice_fee if settings and settings.notice_fee is not None else 0
     warrant_fee = settings.warrant_fee if settings and settings.warrant_fee is not None else 0
     properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
@@ -465,9 +534,29 @@ def get_property_records_by_village_regular(
 def get_property_records_by_village_visheshpani(
     villageId: str,
     yearslap: str,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(database.get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     from datetime import datetime
     rec = db.query(namuna9_model.Namuna9).filter(
         namuna9_model.Namuna9.villageId == villageId,
@@ -479,7 +568,11 @@ def get_property_records_by_village_visheshpani(
     if not isinstance(property_ids, list) or len(property_ids) == 0:
         return []
     # Fetch Namuna9Settings for notice and warrant fee
-    settings = db.query(Namuna9Settings).first()
+    settings = db.query(Namuna9Settings).filter(
+        Namuna9Settings.district_id == district_id,
+        Namuna9Settings.taluka_id == taluka_id,
+        Namuna9Settings.gram_panchayat_id == gram_panchayat_id
+    ).first()
     notice_fee = settings.notice_fee if settings and settings.notice_fee is not None else 0
     warrant_fee = settings.warrant_fee if settings and settings.warrant_fee is not None else 0
     properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()

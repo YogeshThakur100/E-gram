@@ -12,6 +12,12 @@ router = APIRouter(prefix="/master-setting", tags=["GeneralSetting"])
 
 @router.post("/", response_model=GeneralSettingRead)
 def create_or_update_general_setting(setting: GeneralSettingCreate, db: Session = Depends(get_db)):
+    # If no ID provided, use gram_panchayat_id as the ID
+    if not setting.id and setting.gram_panchayat_id:
+        setting.id = f"namuna8_{setting.gram_panchayat_id}"
+    elif not setting.id:
+        raise HTTPException(status_code=400, detail="Either id or gram_panchayat_id must be provided")
+    
     db_setting = db.query(GeneralSetting).filter(GeneralSetting.id == setting.id).first()
     if db_setting:
         # Update existing

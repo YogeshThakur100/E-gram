@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from namuna8 import namuna8_model as models
 from namuna8 import namuna8_schemas as schemas
@@ -8,6 +8,7 @@ from namuna8.calculations.naumuna8_calculations import calculate_depreciation_ra
 import os
 from namuna8.mastertab.mastertabmodels import BuildingUsageWeightage
 from namuna8.mastertab import mastertabmodels as settingModels
+from location_management import models as location_models
 backend_url = os.environ.get('BACKEND_URL', 'http://localhost:8000')
 
 router = APIRouter()
@@ -25,9 +26,29 @@ def calc_house_tax(rate):
 @router.get("/property_record/{anuKramank}")
 def get_property_record(
     anuKramank: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     prop = db.query(models.Property).filter(models.Property.anuKramank == anuKramank).first()
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
@@ -251,7 +272,7 @@ def get_property_record(
     )
     response['totaltax'] = totaltax
     # Fetch Namuna8SettingChecklist row
-    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.gram_panchayat_id == gram_panchayat_id).first()
     checklist_fields = {}
     if checklist:
         checklist_dict = checklist.__dict__
@@ -269,13 +290,33 @@ def get_property_record(
 @router.get("/property_records_by_village/{village_id}")
 def get_property_records_by_village(
     village_id: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(get_db)
 ):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     results = []
     # Fetch Namuna8SettingChecklist row only once
-    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.gram_panchayat_id == gram_panchayat_id).first()
     checklist_fields = {}
     if checklist:
         checklist_dict = checklist.__dict__
