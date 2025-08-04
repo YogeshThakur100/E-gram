@@ -15,7 +15,10 @@ namuna9_template_regualar_dir = os.path.join(template_dir ,'Regular' )
 namuna9_template_sutsaha_dir = os.path.join(template_dir ,'Sut Saha' )
 namuna9_template_viseshpani_dir = os.path.join(template_dir ,'Vishesh Pani' )
 namuna9_template_viseshpaniSafai_dir = os.path.join(template_dir ,'VisheshPani with Safai Tax' )
-static_dir = os.path.join(base_dir, 'reports')
+home_path = os.path.expanduser("~")
+
+# Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
+static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
 regularEnv = Environment(loader=FileSystemLoader(namuna9_template_regualar_dir))
 SutSahaEnv = Environment(loader=FileSystemLoader(namuna9_template_sutsaha_dir))
 visheshPaniEnv = Environment(loader=FileSystemLoader(namuna9_template_viseshpani_dir))

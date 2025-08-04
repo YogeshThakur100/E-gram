@@ -19,10 +19,7 @@ env = Environment(loader=FileSystemLoader(namuna8_template_dir))
 # # Get the user home directory
 # home_path = os.path.expanduser("~")
 
-# # Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
-# static_dir = os.path.join(home_path, 'AppData', 'Local', 'grampanchayat', 'reports')
-
-home_path = os.path.expanduser("~")
+# Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
 static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
 
 # Create the full directory path if it doesn't exist
@@ -34,14 +31,14 @@ static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
 localhost = "http://127.0.0.1:8000"
 
 
-@router.get("/reports/output.html")
-def serve_output_html():
-    home_path = os.path.expanduser("~")
-    file_path = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
-    print('file_path ---->' , file_path)
-    if os.path.exists(file_path):
-        return FileResponse(file_path, media_type="text/html")
-    return {"error": "File not found"}
+# @router.get("/reports/output.html")
+# def serve_output_html():
+#     home_path = os.path.expanduser("~")
+#     file_path = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
+#     print('file_path ---->' , file_path)
+#     if os.path.exists(file_path):
+#         return FileResponse(file_path, media_type="text/html")
+#     return {"error": "File not found"}
 
 
 @router.post('/prakar1')
