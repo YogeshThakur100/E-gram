@@ -75,7 +75,7 @@ class PropertyBase(BaseModel):
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
     anuKramank: int
-    malmattaKramank: int
+    malmattaKramank: str
     streetName: Optional[str] = None
     citySurveyOrGatNumber: Optional[str] = None
     length: Optional[float] = None
@@ -130,14 +130,14 @@ class PropertyUpdate(PropertyBase):
 
 # --- Schema for the property list on the side ---
 class PropertyList(BaseModel):
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     anuKramank: int
     holderno: Optional[int] = None
 
 class BulkEditPropertyRow(BaseModel):
     serial_no: int
-    malmattaKramank: int
+    malmattaKramank: str
     ownerName: str
     occupant: str  # always 'स्वतः' for now
     gharKar: float
@@ -150,7 +150,7 @@ class BulkEditPropertyRow(BaseModel):
         orm_mode = True
 
 class BulkEditUpdateRequest(BaseModel):
-    property_ids: list[int]
+    property_ids: list[str]
     waterFacility1: Optional[str] = None
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None
@@ -230,6 +230,8 @@ class Namuna8SettingChecklistBase(BaseModel):
     tipRelatedPropertyDescription: bool = False
     roundupArea: bool = False
     boundaryMarking: bool = False
+    aadharCard: bool = False
+    mobileNumber: bool = False
     district_id: Optional[int] = None
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
@@ -238,7 +240,7 @@ class Namuna8SettingChecklistCreate(Namuna8SettingChecklistBase):
     pass
 
 class Namuna8SettingChecklistRead(Namuna8SettingChecklistBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -246,7 +248,7 @@ class Namuna8SettingChecklistRead(Namuna8SettingChecklistBase):
         orm_mode = True
 
 class Namuna8SettingChecklistUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     tip: Optional[bool] = None
     date: Optional[bool] = None
     stamp: Optional[bool] = None
@@ -255,6 +257,8 @@ class Namuna8SettingChecklistUpdate(BaseModel):
     tipRelatedPropertyDescription: Optional[bool] = None
     roundupArea: Optional[bool] = None
     boundaryMarking: Optional[bool] = None
+    aadharCard: Optional[bool] = None
+    mobileNumberAdd: Optional[bool] = None
     district_id: Optional[int] = None
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
@@ -274,7 +278,7 @@ class Namuna8DropdownAddSettingsCreate(Namuna8DropdownAddSettingsBase):
     pass
 
 class Namuna8DropdownAddSettingsRead(Namuna8DropdownAddSettingsBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -282,7 +286,7 @@ class Namuna8DropdownAddSettingsRead(Namuna8DropdownAddSettingsBase):
         orm_mode = True
 
 class Namuna8DropdownAddSettingsUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     divaArogya: Optional[str] = None
     khalijagevarAarogya: Optional[bool] = None
     manoreDiva: Optional[bool] = None
@@ -321,7 +325,7 @@ class Namuna8SettingTaxCreate(Namuna8SettingTaxBase):
     pass
 
 class Namuna8SettingTaxRead(BaseModel):
-    id: str
+    id: int
     lightUpto300: Optional[int] = 0
     healthUpto300: Optional[int] = 0
     cleaningUpto300: Optional[int] = 0
@@ -350,7 +354,7 @@ class Namuna8SettingTaxRead(BaseModel):
         orm_mode = True
 
 class Namuna8SettingTaxUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     lightUpto300: Optional[int] = None
     healthUpto300: Optional[int] = None
     cleaningUpto300: Optional[int] = None
@@ -387,7 +391,7 @@ class Namuna8WaterTaxSettingsCreate(Namuna8WaterTaxSettingsBase):
     pass
 
 class Namuna8WaterTaxSettingsRead(Namuna8WaterTaxSettingsBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -395,7 +399,7 @@ class Namuna8WaterTaxSettingsRead(Namuna8WaterTaxSettingsBase):
         orm_mode = True
 
 class Namuna8WaterTaxSettingsUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     generalWater: Optional[int] = None
     houseTax: Optional[float] = None
     commercialTax: Optional[int] = None
@@ -416,7 +420,7 @@ class Namuna8GeneralWaterTaxSlabSettingsCreate(Namuna8GeneralWaterTaxSlabSetting
     pass
 
 class Namuna8GeneralWaterTaxSlabSettingsRead(Namuna8GeneralWaterTaxSlabSettingsBase):
-    id: str
+    id: int
     createdAt: Optional[datetime]
     updatedAt: Optional[datetime]
 
@@ -424,7 +428,7 @@ class Namuna8GeneralWaterTaxSlabSettingsRead(Namuna8GeneralWaterTaxSlabSettingsB
         orm_mode = True
 
 class Namuna8GeneralWaterTaxSlabSettingsUpdate(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     rateUpto300: Optional[float] = None
     rate301To700: Optional[float] = None
     rateAbove700: Optional[float] = None
@@ -436,6 +440,9 @@ class BuildingUsageWeightageItem(BaseModel):
     serial: int
     usage: str
     weight: float
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None
 
 class BulkNamuna8SettingsRequest(BaseModel):
     checklist: Optional[Namuna8SettingChecklistUpdate] = None

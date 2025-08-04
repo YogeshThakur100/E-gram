@@ -229,7 +229,7 @@
 
     <tr>
         <td colspan="2" style="text-align: left; font-weight: bold;">आधार क्रमांक :</td>
-        <td> {{row.aadharNumber|default('')}} </td>
+        <td>{% if aadharCard %}{{aadharNumber|default('')}}{% endif %}</td>
         <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस फुट </td>
         <td> {{row.total_arearinfoot|default('')}} </td>
         <td> {{row.khaliJaga[0].totalkhalijagaareainfoot if row.khaliJaga and row.khaliJaga|length > 0 else ''}} </td>
@@ -240,7 +240,7 @@
     </tr>
     <tr>
         <td colspan="2" style="text-align: left; font-weight: bold;">मोबाईल क्रमांक :</td>
-        <td> {{row.mobileNumber|default('')}} </td>
+        <td>{% if mobileNumberAdd %}{{mobileNumber|default('')}}{% endif %}</td>
         <td colspan="5" style="text-align: right; font-weight: bold;">एकूण चौरस मीटर</td>
         <td> {{row.totalareainmeters|default('')}} </td>
         <td> {{row.khaliJaga[0].totalkhalijagaareainmeters if row.khaliJaga and row.khaliJaga|length > 0 else ''}} </td>
@@ -350,9 +350,6 @@
         {% endif %}
     </tr>
     <tr>
-        <td rowspan="2" style="width: 15%; text-align: center; border-right: 1px solid #000; vertical-align: middle;">
-            <img src="/ReportImages/betibachaobetipadhia.png" alt="Girl Logo" style="height: 50px; display: block; margin: 0 auto;" />
-        </td>
         <td style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
             {% if row.date %}
             <td style="text-align: left; vertical-align: middle; border-right: 1px solid #000;">
@@ -379,9 +376,6 @@
         <td  style="text-align: left; vertical-align: middle; border-right: 1px solid #000; height:30px ">
         </td>
         {% endif %}
-        <td rowspan="2" style="width: 15%; text-align: center; vertical-align: middle; border-right: 1px solid #000;">
-            <img src="/ReportImages/swachBhata.png" alt="Girl Logo" style="height: 50px; display: block; margin: 0 auto;" />
-        </td>
     </tr>
 </table> 
 </div>

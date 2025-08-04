@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from namuna8 import namuna8_model as models
 from namuna8 import namuna8_schemas as schemas
@@ -7,6 +7,8 @@ from datetime import datetime
 from namuna8.calculations.naumuna8_calculations import calculate_depreciation_rate
 import os
 from namuna8.mastertab.mastertabmodels import BuildingUsageWeightage
+from namuna8.mastertab import mastertabmodels as settingModels
+from location_management import models as location_models
 backend_url = os.environ.get('BACKEND_URL', 'http://localhost:8000')
 
 router = APIRouter()
@@ -22,7 +24,31 @@ def calc_house_tax(rate):
         return 0
 
 @router.get("/property_record/{anuKramank}")
-def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
+def get_property_record(
+    anuKramank: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     prop = db.query(models.Property).filter(models.Property.anuKramank == anuKramank).first()
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
@@ -41,18 +67,59 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             if c.construction_type.name.strip() == "खाली जागा":
                 khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
                 break
+        # Calculate capital value and house tax for khali jaga using same logic as Namuna8
+        if khali_area > 0:
+            # Get construction type for khali jaga
+            khali_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == "खाली जागा").first()
+            
+            if khali_construction_type:
+                # Get user formula preference - same as Namuna8
+                userFormulaPreference = db.query(settingModels.GeneralSetting).filter_by().first()
+                
+                if userFormulaPreference:
+                    formula1 = userFormulaPreference.capitalFormula1
+                    formula2 = userFormulaPreference.capitalFormula2
+                else:
+                    formula1 = None
+                    formula2 = None
+                
+                # Calculate area in meters - same as Namuna8
+                AreaInMeter = khali_area * 1 * 0.092903  # length * width * 0.092903
+                AnnualLandValueRate = getattr(khali_construction_type, 'annualLandValueRate', 1)
+                ConstructionRateAsPerConstruction = khali_construction_type.bandhmastache_dar
+                depreciationRate = calculate_depreciation_rate(datetime.now().year, khali_construction_type.name)
+                
+                # Get usage weightage factor - same as Namuna8
+                weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
+                usageBasedBuildingWeightageFactor = weightage_map.get(prop.vacantLandType, 1)
+                
+                # Calculate capital value - exact same logic as Namuna8
+                if formula1:
+                    capital_value = ((AreaInMeter * AnnualLandValueRate) + (AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                else:
+                    capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
+                
+                # Calculate house tax - exact same logic as Namuna8
+                house_tax = round((getattr(khali_construction_type, 'rate', 0) / 1000) * capital_value)
+            else:
+                capital_value = 0
+                house_tax = 0
+        else:
+            capital_value = 0
+            house_tax = 0
+            
         khaliJaga = [{
             "constructiontype": "खाली जागा",
             "length": khali_area,
             "width": 1,
             "year": datetime.now().year,
             "rate": khali_jaga_rate,
-            "floor": None,
+            "floor": "तळमजला",
             "usage": prop.vacantLandType,
-            "capitalValue": None,  # Replace with actual value if available
-            "houseTax": None,      # Replace with actual value if available
+            "capitalValue": capital_value,
+            "houseTax": house_tax,
             "usageBasedBuildingWeightageFactor": 1,
-            "taxRates": 0,         # Replace with actual tax rate if available
+            "taxRates": getattr(khali_construction_type, 'rate', 0) if khali_area > 0 else 0,
             "totalkhalijagaareainfoot": khali_area,
             "totalkhalijagaareainmeters": round(khali_area * 0.092903, 2)
         }]
@@ -84,9 +151,9 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
             photo_url = f"{backend_url}/{o.ownerPhoto.replace(os.sep, '/')}"
             break
     # Fetch Namuna8SettingTax row
-    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
-    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
-    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+    settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
+    water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
+    water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
     def get_tax_by_area(area, field):
         if not settings:
             return 0
@@ -205,7 +272,7 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     )
     response['totaltax'] = totaltax
     # Fetch Namuna8SettingChecklist row
-    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.gram_panchayat_id == gram_panchayat_id).first()
     checklist_fields = {}
     if checklist:
         checklist_dict = checklist.__dict__
@@ -221,11 +288,35 @@ def get_property_record(anuKramank: int, db: Session = Depends(get_db)):
     return response 
 
 @router.get("/property_records_by_village/{village_id}")
-def get_property_records_by_village(village_id: int, db: Session = Depends(get_db)):
+def get_property_records_by_village(
+    village_id: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     results = []
     # Fetch Namuna8SettingChecklist row only once
-    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.id == 'namuna8').first()
+    checklist = db.query(models.Namuna8SettingChecklist).filter(models.Namuna8SettingChecklist.gram_panchayat_id == gram_panchayat_id).first()
     checklist_fields = {}
     if checklist:
         checklist_dict = checklist.__dict__
@@ -246,18 +337,59 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
                 if c.construction_type.name.strip() == "खाली जागा":
                     khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
                     break
+            # Calculate capital value and house tax for khali jaga using same logic as Namuna8
+            if khali_area > 0:
+                # Get construction type for khali jaga
+                khali_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == "खाली जागा").first()
+                
+                if khali_construction_type:
+                    # Get user formula preference - same as Namuna8
+                    userFormulaPreference = db.query(settingModels.GeneralSetting).filter_by().first()
+                    
+                    if userFormulaPreference:
+                        formula1 = userFormulaPreference.capitalFormula1
+                        formula2 = userFormulaPreference.capitalFormula2
+                    else:
+                        formula1 = None
+                        formula2 = None
+                    
+                    # Calculate area in meters - same as Namuna8
+                    AreaInMeter = khali_area * 1 * 0.092903  # length * width * 0.092903
+                    AnnualLandValueRate = getattr(khali_construction_type, 'annualLandValueRate', 1)
+                    ConstructionRateAsPerConstruction = khali_construction_type.bandhmastache_dar
+                    depreciationRate = calculate_depreciation_rate(datetime.now().year, khali_construction_type.name)
+                    
+                    # Get usage weightage factor - same as Namuna8
+                    weightage_map = {row.building_usage: row.weightage for row in db.query(BuildingUsageWeightage).all()}
+                    usageBasedBuildingWeightageFactor = weightage_map.get(prop.vacantLandType, 1)
+                    
+                    # Calculate capital value - exact same logic as Namuna8
+                    if formula1:
+                        capital_value = ((AreaInMeter * AnnualLandValueRate) + (AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                    else:
+                        capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
+                    
+                    # Calculate house tax - exact same logic as Namuna8
+                    house_tax = round((getattr(khali_construction_type, 'rate', 0) / 1000) * capital_value)
+                else:
+                    capital_value = 0
+                    house_tax = 0
+            else:
+                capital_value = 0
+                house_tax = 0
+                
             khaliJaga = [{
                 "constructiontype": "खाली जागा",
                 "length": khali_area,
                 "width": 1,
                 "year": datetime.now().year,
                 "rate": khali_jaga_rate,
-                "floor": None,
+                "floor": "तळमजला",
                 "usage": prop.vacantLandType,
-                "capitalValue": None,  # Replace with actual value if available
-                "houseTax": None,      # Replace with actual value if available
+                "capitalValue": capital_value,
+                "houseTax": house_tax,
                 "usageBasedBuildingWeightageFactor": 1,
-                "taxRates": 0,         # Replace with actual tax rate if available
+                "taxRates": getattr(khali_construction_type, 'rate', 0) if khali_area > 0 else 0,
                 "totalkhalijagaareainfoot": khali_area,
                 "totalkhalijagaareainmeters": round(khali_area * 0.092903, 2)
             }]
@@ -282,9 +414,9 @@ def get_property_records_by_village(village_id: int, db: Session = Depends(get_d
             for c in prop.constructions
         ]
         owner = prop.owners[0] if prop.owners else None
-        settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
-        water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.id == 'namuna8').first()
-        water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.id == 'namuna8').first()
+        settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
+        water_settings = db.query(models.Namuna8WaterTaxSettings).filter(models.Namuna8WaterTaxSettings.gram_panchayat_id == gram_panchayat_id).first()
+        water_slab_settings = db.query(models.Namuna8SettingTax).filter(models.Namuna8SettingTax.gram_panchayat_id == gram_panchayat_id).first()
         def get_tax_by_area(area, field):
             if not settings:
                 return 0

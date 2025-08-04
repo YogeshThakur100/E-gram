@@ -11,7 +11,7 @@ class GeneralSettingBase(BaseModel):
     gram_panchayat_id: Optional[int] = None
 
 class GeneralSettingCreate(GeneralSettingBase):
-    id: str
+    id: Optional[str] = None
 
 class GeneralSettingRead(GeneralSettingBase):
     id: str

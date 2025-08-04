@@ -42,7 +42,7 @@ class Namuna9SettingsCreate(Namuna9SettingsBase):
     pass
 
 class Namuna9SettingsRead(Namuna9SettingsBase):
-    id: str
+    id: int
     class Config:
         orm_mode = True
 class Namuna9SettingsUpdate(BaseModel):
@@ -52,3 +52,6 @@ class Namuna9SettingsUpdate(BaseModel):
     notes: Optional[str] = None
     keep_namuna9_date: Optional[bool] = None
     keep_notice_date: Optional[bool] = None
+    district_id: Optional[int] = None
+    taluka_id: Optional[int] = None
+    gram_panchayat_id: Optional[int] = None

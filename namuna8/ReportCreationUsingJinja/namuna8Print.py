@@ -5,18 +5,44 @@ from fastapi import APIRouter , Request
 from fastapi.responses import JSONResponse
 from Utility.QRcodeGeneration import QRCodeGeneration 
 import httpx
-
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
 router = APIRouter()
 # Load templates from the 'templates' folder (adjust path as needed)
 # Init environment
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 template_dir = os.path.join(base_dir, 'templates')
 namuna8_template_dir = os.path.join(template_dir ,'Namuna8' )
-static_dir = os.path.join(base_dir, 'reports')
+# static_dir = os.path.join(base_dir, 'reports')
 env = Environment(loader=FileSystemLoader(namuna8_template_dir))
+
+# # Get the user home directory
+# home_path = os.path.expanduser("~")
+
+# # Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
+# static_dir = os.path.join(home_path, 'AppData', 'Local', 'grampanchayat', 'reports')
+
+home_path = os.path.expanduser("~")
+static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
+
+# Create the full directory path if it doesn't exist
+# os.makedirs(reports_path, exist_ok=True)  
+
+# print("Reports folder created at:", reports_path)
 
 # API base URL
 localhost = "http://127.0.0.1:8000"
+
+
+@router.get("/reports/output.html")
+def serve_output_html():
+    home_path = os.path.expanduser("~")
+    file_path = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
+    print('file_path ---->' , file_path)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="text/html")
+    return {"error": "File not found"}
+
 
 @router.post('/prakar1')
 async def prakar1(request : Request):

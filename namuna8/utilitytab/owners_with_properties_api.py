@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
 from database import get_db
 from ..namuna8_model import Owner
@@ -8,7 +8,31 @@ from .. import namuna8_model
 router = APIRouter()
 
 @router.get("/owners_with_properties_by_village/")
-def owners_with_properties_by_village(village_id: int, db: Session = Depends(get_db)):
+def owners_with_properties_by_village(
+    village_id: int, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    # Validate location hierarchy - check if the three fields match the actual data
+    district = db.query(models.District).filter(models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(models.Taluka).filter(
+        models.Taluka.id == taluka_id,
+        models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(models.GramPanchayat).filter(
+        models.GramPanchayat.id == gram_panchayat_id,
+        models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     owners = db.query(namuna8_model.Owner).filter(namuna8_model.Owner.village_id == village_id).all()
     result = []
     for owner in owners:
@@ -21,7 +45,7 @@ def owners_with_properties_by_village(village_id: int, db: Session = Depends(get
             "occupantName": owner.occupantName,
             "ownerPhoto": owner.ownerPhoto,
             "village_id": owner.village_id,
-            "properties": [build_property_response(p, db) for p in owner.properties]
+            "properties": [build_property_response(p, db, gram_panchayat_id) for p in owner.properties]
         }
         result.append(owner_dict)
     return result

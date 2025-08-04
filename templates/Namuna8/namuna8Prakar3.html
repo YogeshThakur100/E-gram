@@ -51,6 +51,12 @@
             #toolbar {
                 display: none !important;
             }
+            /* Ensure footer appears at the end during print */
+            .footer-summary {
+                display: block !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
@@ -137,14 +143,10 @@
             window.close();
         }
         function updateFooterSummary() {
-            // Find the visible .record-page
-            const pages = Array.from(document.querySelectorAll('.record-page'));
-            const currentPage = pages.findIndex(p => p.style.display !== 'none');
-            if (currentPage === -1) return;
-            // Only sum visible .record-table-wrapper in this page
-            const visibleRecords = Array.from(pages[currentPage].querySelectorAll('.record-table-wrapper'));
+            // Calculate totals for all records (not just visible ones)
+            const allRecords = Array.from(document.querySelectorAll('.record-table-wrapper'));
             let house = 0, lighting = 0, health = 0, water = 0, total = 0;
-            visibleRecords.forEach(row => {
+            allRecords.forEach(row => {
                 house += parseFloat(row.dataset.houseTax) || 0;
                 lighting += parseFloat(row.dataset.lightingTax) || 0;
                 health += parseFloat(row.dataset.healthTax) || 0;
@@ -152,8 +154,8 @@
                 total += parseFloat(row.dataset.totalTax) || 0;
             });
             const summary = `एकूण कर : घर : ${house.toFixed(2)} &nbsp; दिवा : ${lighting.toFixed(2)} &nbsp; आरोग्य : ${health.toFixed(2)} &nbsp; पाणी : ${water.toFixed(2)} &nbsp; एकूण : ${total.toFixed(2)}`;
-            // Set the summary in the correct footer span
-            const footer = document.getElementById('footerSummary-page'+currentPage);
+            // Set the summary in the main footer
+            const footer = document.getElementById('footerSummary');
             if (footer) footer.innerHTML = summary;
         }
         window.onload = function() {
@@ -432,12 +434,13 @@
                     </div>
                 {% endif %}
             {% endfor %}
-            <!-- Per-page calculation summary -->
-            <div class="page-footer-summary" style="margin-top:10px; text-align:right; font-weight:bold; font-size:15px;">
-                <span id="footerSummary-page{{page}}"></span>
-            </div>
         </div>
     {% endfor %}
+    </div>
+    
+    <!-- Footer Summary - Outside main content to avoid repetition -->
+    <div class="footer-summary" id="footerSummary" style="margin-top: 20px; text-align: right; font-weight: bold; font-size: 15px;">
+        <!-- Totals will be inserted here by JS -->
     </div>
 
 <style>

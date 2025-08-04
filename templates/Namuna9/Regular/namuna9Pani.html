@@ -178,17 +178,14 @@
             </tr>
             {% endfor  %}
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2"></td>
-                <td style="font-weight:normal; text-align:right;">गोषवारा</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;">100</td>
-                <td style="font-weight:normal; text-align:center;"></td>
-                <td style="font-weight:normal; text-align:center;"></td>
-            </tr>
-        </tfoot>
+        <tr>
+            <td colspan="2"></td>
+            <td style="font-weight:normal; text-align:right;">गोषवारा</td>
+            <td>{% if removeDhakit != 'true' %}{{ data | sum(attribute='dhakitSaWaterTax') }}{% endif %}</td>
+            <td>{% if removeChalu != 'true' %}{{ data | sum(attribute='saWaterTax') }}{% endif %}</td>
+            <td>{% if removeYekun != 'true' %}{{ data | sum(attribute='totalSaWaterTax') }}{% endif %}</td>
+            <td></td>
+        </tr>
     </table>
 </body>
 </html>

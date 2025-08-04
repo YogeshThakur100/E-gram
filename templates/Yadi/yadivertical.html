@@ -2,7 +2,7 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <title>नमुना ८</title>
+    <title>यादी</title>
     <style>
         body { font-family: 'Mangal', Arial, sans-serif; }
         table { border-collapse: collapse; width: 100%; font-size: 13px; }
@@ -15,7 +15,6 @@
         th { background: #f0f0f0; }
         .footer-summary {
             border: 3px solid #000;
-            border-top: none;
             font-size: 13px;
             font-weight: bold;
             margin-top: 0;
@@ -174,20 +173,7 @@
         </thead>
         
         <!-- Page Footer - Repeats on every page -->
-        <tfoot class="page-footer">
-            <tr>
-                <td class="right" colspan="21" style="border:none; padding:0;">
-                    <div class="footer-summary">
-                        एकूण : 9088.00
-                    </div>
-                </td>
-            </tr>
-            <tr >
-                <td  style="border:none;" >दिनांक </td>
-                <td  style="border:none;padding-left: 80px;" >ग्रामपंचायत चा शिक्का</td>
-                <td  style="border:none;padding-left: 80px;" >सचिव/सरपंच</td>
-            </tr>
-        </tfoot>
+        
         <tbody>
             {% for row in data %}
             <tr class="record-row">
@@ -199,7 +185,20 @@
                 <td>{{ row.totaltax }}</td>
             </tr>
             {% endfor %}
+            <!-- Total row below the 'एकूण कर रुपये' column -->
+            <tr>
+                <td colspan="5" style="border:none;"></td>
+                <td class="footer-summary">एकूण : {{ data | sum(attribute='totaltax') }}</td>
+            </tr>
         </tbody>
+    </table>
+    <table style="width:95%; margin-left:auto; margin-right:auto; border:none; margin-top: 8px;">
+        <tr>
+            <td style="border:none;">दिनांक </td>
+            <td style="border:none;padding-left: 80px;">ग्रामपंचायत चा शिक्का</td>
+            <td style="border:none;padding-left: 80px;">सचिव</td>
+            <td style="border:none;padding-left: 80px;">सरपंच</td>
+        </tr>
     </table>
 </body>
 </html>
