@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Form, UploadFile, File, HTTPException, Request
+from fastapi import APIRouter, Depends, status, Form, UploadFile, File, HTTPException, Request, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from database import get_db
@@ -43,7 +43,7 @@ def create_no_objection_certificate(
     if image:
         # Always replace spaces with underscores in filename
         safe_filename = image.filename.replace(' ', '_')
-        # Temporarily create cert to get ID after commit
+        # Create cert with location IDs
         reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
         cert = NoObjectionCertificate(
             registration_date=reg_date_obj,
@@ -56,13 +56,19 @@ def create_no_objection_certificate(
             prop_gut_number=prop_gut_number,
             subject=subject,
             subject_en=subject_en,
+            district_id=district_id_int,
+            taluka_id=taluka_id_int,
+            gram_panchayat_id=gram_panchayat_id_int,
             image_url=None
         )
         db.add(cert)
         db.commit()
         db.refresh(cert)
         # Now save image in the correct folder
-        image_dir = os.path.join(UPLOAD_DIR, "noobjection", "profiles", str(cert.id))
+        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+            image_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "no_objection_certificates", "profiles", str(cert.id))
+        else:
+            image_dir = os.path.join(UPLOAD_DIR, "noobjection", "profiles", str(cert.id))
         os.makedirs(image_dir, exist_ok=True)
         file_path = os.path.join(image_dir, safe_filename)
         with open(file_path, "wb") as buffer:
@@ -93,7 +99,10 @@ def create_no_objection_certificate(
         db.commit()
         db.refresh(cert)
     # Generate and save barcode image
-    barcode_dir = os.path.join(UPLOAD_DIR, "no_objection_certificate_barcodes", str(cert.id))
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        barcode_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "no_objection_certificates", "barcodes", str(cert.id))
+    else:
+        barcode_dir = os.path.join(UPLOAD_DIR, "noobjection", "barcodes", str(cert.id))
     os.makedirs(barcode_dir, exist_ok=True)
     barcode_path = os.path.join(barcode_dir, "barcode.png")
     barcode_obj = Code39(
@@ -120,6 +129,7 @@ def list_no_objection_certificates(
     district_id: int = None,
     taluka_id: int = None,
     gram_panchayat_id: int = None,
+    request: Request = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(NoObjectionCertificate)
@@ -129,7 +139,52 @@ def list_no_objection_certificates(
         query = query.filter(NoObjectionCertificate.taluka_id == taluka_id)
     if gram_panchayat_id:
         query = query.filter(NoObjectionCertificate.gram_panchayat_id == gram_panchayat_id)
-    return query.all() 
+    
+    certs = query.all()
+    result = []
+    for cert in certs:
+        cert_data = NoObjectionCertificateRead.from_orm(cert)
+        # Add barcode_url
+        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+            cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/no_objection_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+        else:
+            cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/no_objection_barcode/{cert.id}"
+        
+        # Add image_url
+        image_url_val = getattr(cert, 'image_url', None)
+        if image_url_val and isinstance(image_url_val, str):
+            if image_url_val.startswith("http"):
+                cert_data.image_url = image_url_val
+            else:
+                if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                    cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/no_objection_image/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+                else:
+                    cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/no_objection_image/{cert.id}"
+        else:
+            cert_data.image_url = None
+        
+        # Fetch location data
+        from location_management import models as location_models
+        if cert.district_id:
+            district = db.query(location_models.District).filter(location_models.District.id == cert.district_id).first()
+            cert_data.jilha = district.name if district else None
+        else:
+            cert_data.jilha = None
+            
+        if cert.taluka_id:
+            taluka = db.query(location_models.Taluka).filter(location_models.Taluka.id == cert.taluka_id).first()
+            cert_data.taluka = taluka.name if taluka else None
+        else:
+            cert_data.taluka = None
+            
+        if cert.gram_panchayat_id:
+            gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == cert.gram_panchayat_id).first()
+            cert_data.gramPanchayat = gram_panchayat.name if gram_panchayat else None
+        else:
+            cert_data.gramPanchayat = None
+            
+        result.append(cert_data)
+    return result 
 
 @router.get("/no-objection/{id}", response_model=NoObjectionCertificateRead)
 def get_no_objection_certificate(id: int, request: Request, db: Session = Depends(get_db)):
@@ -138,19 +193,44 @@ def get_no_objection_certificate(id: int, request: Request, db: Session = Depend
         raise HTTPException(status_code=404, detail="No Objection certificate not found")
     cert_data = NoObjectionCertificateRead.from_orm(cert)
     # Add barcode_url
-    cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/no_objection_barcode/{cert.id}"
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/no_objection_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+    else:
+        cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/no_objection_barcode/{cert.id}"
+    
     # Add image_url as absolute URL if present
     image_url_val = getattr(cert, 'image_url', None)
     if image_url_val and isinstance(image_url_val, str):
         if image_url_val.startswith("http"):
             cert_data.image_url = image_url_val
         else:
-            cert_data.image_url = str(request.base_url)[:-1] + f"/{image_url_val}"
+            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/no_objection_image/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            else:
+                cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/no_objection_image/{cert.id}"
     else:
         cert_data.image_url = None
-    cert_data.gramPanchayat = None
-    cert_data.taluka = None
-    cert_data.jilha = None
+    
+    # Fetch location data
+    from location_management import models as location_models
+    if cert.district_id:
+        district = db.query(location_models.District).filter(location_models.District.id == cert.district_id).first()
+        cert_data.jilha = district.name if district else None
+    else:
+        cert_data.jilha = None
+        
+    if cert.taluka_id:
+        taluka = db.query(location_models.Taluka).filter(location_models.Taluka.id == cert.taluka_id).first()
+        cert_data.taluka = taluka.name if taluka else None
+    else:
+        cert_data.taluka = None
+        
+    if cert.gram_panchayat_id:
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == cert.gram_panchayat_id).first()
+        cert_data.gramPanchayat = gram_panchayat.name if gram_panchayat else None
+    else:
+        cert_data.gramPanchayat = None
+        
     return cert_data
 
 @router.put("/no-objection/{id}", response_model=NoObjectionCertificateRead)
@@ -204,7 +284,10 @@ def update_no_objection_certificate(id: int,
     elif image:
         # Always replace spaces with underscores in filename
         safe_filename = image.filename.replace(' ', '_')
-        image_dir = os.path.join(UPLOAD_DIR, "noobjection", "profiles", str(cert.id))
+        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+            image_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "no_objection_certificates", "profiles", str(cert.id))
+        else:
+            image_dir = os.path.join(UPLOAD_DIR, "noobjection", "profiles", str(cert.id))
         os.makedirs(image_dir, exist_ok=True)
         file_path = os.path.join(image_dir, safe_filename)
         with open(file_path, "wb") as buffer:
@@ -213,7 +296,10 @@ def update_no_objection_certificate(id: int,
     db.commit()
     db.refresh(cert)
     # Regenerate barcode
-    barcode_dir = os.path.join(UPLOAD_DIR, "no_objection_certificate_barcodes", str(cert.id))
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        barcode_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "no_objection_certificates", "barcodes", str(cert.id))
+    else:
+        barcode_dir = os.path.join(UPLOAD_DIR, "noobjection", "barcodes", str(cert.id))
     os.makedirs(barcode_dir, exist_ok=True)
     barcode_path = os.path.join(barcode_dir, "barcode.png")
     barcode_obj = Code39(
@@ -236,11 +322,180 @@ def update_no_objection_certificate(id: int,
     return cert
 
 @router.get("/no_objection_barcode/{id}")
-def get_no_objection_certificate_barcode(id: int, db: Session = Depends(get_db)):
+def get_no_objection_certificate_barcode(
+    id: int,
+    district_id: int = Query(None, description="District ID"),
+    taluka_id: int = Query(None, description="Taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    # Get the certificate first
     cert = db.query(NoObjectionCertificate).filter(NoObjectionCertificate.id == id).first()
-    if not cert or not getattr(cert, "barcode", None):
-        raise HTTPException(status_code=404, detail="Barcode not found")
-    barcode_path = getattr(cert, "barcode", None)
-    if not barcode_path or not os.path.exists(barcode_path):
-        raise HTTPException(status_code=404, detail="Barcode file not found")
-    return FileResponse(barcode_path, media_type="image/png") 
+    if not cert:
+        raise HTTPException(status_code=404, detail="No Objection certificate not found")
+    
+    # If location parameters are provided, validate them
+    if district_id is not None and taluka_id is not None and gram_panchayat_id is not None:
+        from location_management import models as location_models
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+        
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+        
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+        
+        # Validate that the certificate belongs to the specified location hierarchy
+        if cert.district_id != district_id or cert.taluka_id != taluka_id or cert.gram_panchayat_id != gram_panchayat_id:
+            raise HTTPException(status_code=404, detail="No Objection certificate not found in the specified location")
+        
+        # Use location-based barcode path
+        barcode_path = os.path.join("uploaded_images", str(district_id), str(taluka_id), str(gram_panchayat_id), "no_objection_certificates", "barcodes", str(id), "barcode.png")
+    else:
+        # Use certificate's own location data or fallback to old structure
+        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+            barcode_path = os.path.join("uploaded_images", str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "no_objection_certificates", "barcodes", str(id), "barcode.png")
+        else:
+            barcode_path = os.path.join("uploaded_images", "noobjection", "barcodes", str(id), "barcode.png")
+    
+    # If file doesn't exist in new location, check old location and migrate
+    if not os.path.exists(barcode_path):
+        old_barcode_path = os.path.join("uploaded_images", "no_objection_certificate_barcodes", str(id), "barcode.png")
+        if os.path.exists(old_barcode_path):
+            # Create new directory structure
+            os.makedirs(os.path.dirname(barcode_path), exist_ok=True)
+            # Copy file from old location to new location
+            import shutil
+            shutil.copy2(old_barcode_path, barcode_path)
+        else:
+            raise HTTPException(status_code=404, detail="Barcode not found")
+    
+    return FileResponse(barcode_path, media_type="image/png")
+
+@router.get("/no_objection_image/{id}")
+def get_no_objection_certificate_image(
+    id: int,
+    district_id: int = Query(None, description="District ID"),
+    taluka_id: int = Query(None, description="Taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    # Get the certificate first
+    cert = db.query(NoObjectionCertificate).filter(NoObjectionCertificate.id == id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="No Objection certificate not found")
+    
+    if not getattr(cert, "image_url", None):
+        raise HTTPException(status_code=404, detail="No Objection certificate has no image")
+    
+    # If location parameters are provided, validate them
+    if district_id is not None and taluka_id is not None and gram_panchayat_id is not None:
+        from location_management import models as location_models
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+        
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+        
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+        
+        # Validate that the certificate belongs to the specified location hierarchy
+        if cert.district_id != district_id or cert.taluka_id != taluka_id or cert.gram_panchayat_id != gram_panchayat_id:
+            raise HTTPException(status_code=404, detail="No Objection certificate not found in the specified location")
+        
+        # Use location-based image path
+        image_path = os.path.join("uploaded_images", str(district_id), str(taluka_id), str(gram_panchayat_id), "no_objection_certificates", "profiles", str(id))
+    else:
+        # Use certificate's own location data or fallback to old structure
+        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+            image_path = os.path.join("uploaded_images", str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "no_objection_certificates", "profiles", str(id))
+        else:
+            image_path = os.path.join("uploaded_images", "noobjection", "profiles", str(id))
+    
+    # If file doesn't exist in new location, check old location and migrate
+    if not os.path.exists(image_path):
+        old_image_path = os.path.join("uploaded_images", "noobjection", "profiles", str(id))
+        if os.path.exists(old_image_path):
+            # Create new directory structure
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            # Copy files from old location to new location
+            import shutil
+            for file in os.listdir(old_image_path):
+                old_file = os.path.join(old_image_path, file)
+                new_file = os.path.join(image_path, file)
+                shutil.copy2(old_file, new_file)
+        else:
+            raise HTTPException(status_code=404, detail="Image not found")
+    
+    # Find the image file in the directory
+    if os.path.exists(image_path) and os.path.isdir(image_path):
+        for file in os.listdir(image_path):
+            if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                return FileResponse(os.path.join(image_path, file), media_type="image/png")
+    
+    raise HTTPException(status_code=404, detail="Image file not found")
+
+@router.put("/no-objection-fix-location/{id}")
+def fix_no_objection_certificate_location(
+    id: int,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    """Fix location data for existing No Objection certificates"""
+    cert = db.query(NoObjectionCertificate).filter(NoObjectionCertificate.id == id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="No Objection certificate not found")
+    
+    # Update location fields
+    cert.district_id = district_id
+    cert.taluka_id = taluka_id
+    cert.gram_panchayat_id = gram_panchayat_id
+    
+    # Move files to correct location if they exist
+    old_barcode_path = os.path.join("uploaded_images", "no_objection_certificate_barcodes", str(id), "barcode.png")
+    new_barcode_path = os.path.join("uploaded_images", str(district_id), str(taluka_id), str(gram_panchayat_id), "no_objection_certificates", "barcodes", str(id), "barcode.png")
+    
+    if os.path.exists(old_barcode_path):
+        os.makedirs(os.path.dirname(new_barcode_path), exist_ok=True)
+        import shutil
+        shutil.copy2(old_barcode_path, new_barcode_path)
+        cert.barcode = new_barcode_path.replace(os.sep, "/")
+    
+    old_image_path = os.path.join("uploaded_images", "noobjection", "profiles", str(id))
+    new_image_path = os.path.join("uploaded_images", str(district_id), str(taluka_id), str(gram_panchayat_id), "no_objection_certificates", "profiles", str(id))
+    
+    if os.path.exists(old_image_path):
+        os.makedirs(new_image_path, exist_ok=True)
+        import shutil
+        for file in os.listdir(old_image_path):
+            old_file = os.path.join(old_image_path, file)
+            new_file = os.path.join(new_image_path, file)
+            shutil.copy2(old_file, new_file)
+        cert.image_url = new_image_path.replace(os.sep, "/")
+    
+    db.commit()
+    db.refresh(cert)
+    
+    return {"message": f"Certificate {id} location updated successfully", "certificate": cert} 

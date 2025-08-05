@@ -291,9 +291,10 @@ def get_property_record(
     # Add checklist fields at the end
     response.update(checklist_fields)
     # Set QRcodeURL if QR code exists (single property)
-    qr_path = os.path.join("uploaded_images", "qrcode", str(prop.anuKramank), "qrcode.png")
+    # Use location-based QR path
+    qr_path = os.path.join("uploaded_images", "qrcode", str(prop.district_id), str(prop.taluka_id), str(prop.gram_panchayat_id), str(prop.anuKramank), "qrcode.png")
     if os.path.exists(qr_path):
-        response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}"
+        response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}?district_id={prop.district_id}&taluka_id={prop.taluka_id}&gram_panchayat_id={prop.gram_panchayat_id}"
     else:
         response["QRcodeURL"] = None
     
@@ -565,9 +566,10 @@ def get_property_records_by_village(
         response["photoURL"] = photo_url
         response["bank_qr_code"] = None
         # Set QRcodeURL if QR code exists (bulk)
-        qr_path = os.path.join("uploaded_images", "qrcode", str(prop.anuKramank), "qrcode.png")
+        # Use location-based QR path
+        qr_path = os.path.join("uploaded_images", "qrcode", str(prop.district_id), str(prop.taluka_id), str(prop.gram_panchayat_id), str(prop.anuKramank), "qrcode.png")
         if os.path.exists(qr_path):
-            response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}"
+            response["QRcodeURL"] = f"{backend_url}/namuna8/property_qrcode/{prop.anuKramank}?district_id={prop.district_id}&taluka_id={prop.taluka_id}&gram_panchayat_id={prop.gram_panchayat_id}"
         else:
             response["QRcodeURL"] = None
         

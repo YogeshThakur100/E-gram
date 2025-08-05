@@ -59,6 +59,8 @@ class GramPanchayatCreate(GramPanchayatBase):
 class GramPanchayatRead(GramPanchayatBase):
     id: int
     image_url: Optional[str] = None
+    from_yearslap: Optional[str] = None
+    to_yearslap: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -70,6 +72,8 @@ class GramPanchayatUpdate(BaseModel):
     code: Optional[str] = None
     taluka_id: Optional[int] = None
     image_url: Optional[str] = None
+    from_yearslap: Optional[str] = None
+    to_yearslap: Optional[str] = None
 
 
 # --- Response Schemas with Relationships ---
