@@ -110,8 +110,8 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 else:
                     print("No user formula preference found")
                     
-                print("formula1", formula1)
-                print("formula2", formula2)
+                # print("formula1", formula1)
+                # print("formula2", formula2)
                 
                 # capital_value = 0
                 AnnualLandValueRate = getattr(construction_type, 'annualLandValueRate', 1)
@@ -124,13 +124,15 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 usageBasedBuildingWeightageFactor = weightage_map.get(getattr(construction_data, 'bharank', None), 1)
                 if formula1:
                     capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
+                    capital_value = round(capital_value, 2)
                     print("capital_value_from_formula1" , capital_value)
                 else:
                     capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
+                    capital_value = round(capital_value, 2)
                     print("capital_value_from_formula2" , capital_value)
                     
                     
-                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value)
+                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value, 2)
                 
                 # Debug logging for construction creation
                 construction_district_id = getattr(property_data, 'district_id', None)

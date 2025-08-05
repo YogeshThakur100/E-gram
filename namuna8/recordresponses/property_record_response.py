@@ -71,12 +71,23 @@ def get_property_record(
         total_area = prop.totalAreaSqFt or 0
         used_area = sum((c.length or 0) * (c.width or 0) for c in prop.constructions)
         khali_area = max(total_area - used_area, 0)
-        # Find the bandhmastache_dar for 'खाली जागा' construction type
+        # Find the bandhmastache_dar for vacantLandType construction type
         khali_jaga_rate = 0
-        for c in prop.constructions:
-            if c.construction_type.name.strip() == "खाली जागा":
-                khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                break
+        vacant_construction_type = None
+       
+        if prop.vacantLandType:
+            # Query database directly for the construction type, regardless of property constructions
+            vacant_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == prop.vacantLandType).first()
+            if vacant_construction_type:
+                khali_jaga_rate = getattr(vacant_construction_type, 'bandhmastache_dar', 0)
+                # print(f"DEBUG: Found vacantLandType '{prop.vacantLandType}' with bandhmastache_dar = {khali_jaga_rate}")
+            else:
+                print(f"DEBUG: No construction type found for vacantLandType '{prop.vacantLandType}'")
+                # Fallback: try to find any construction type with similar name
+                similar_construction = db.query(models.ConstructionType).filter(models.ConstructionType.name.like(f"%{prop.vacantLandType}%")).first()
+                if similar_construction:
+                    khali_jaga_rate = getattr(similar_construction, 'bandhmastache_dar', 0)
+                    # print(f"DEBUG: Found similar construction '{similar_construction.name}' with bandhmastache_dar = {khali_jaga_rate}")
         # Calculate capital value and house tax for khali jaga using same logic as Namuna8
         if khali_area > 0:
             # Get construction type for khali jaga
@@ -359,12 +370,24 @@ def get_property_records_by_village(
             total_area = prop.totalAreaSqFt or 0
             used_area = sum((c.length or 0) * (c.width or 0) for c in prop.constructions)
             khali_area = max(total_area - used_area, 0)
-            # Find the bandhmastache_dar for 'खाली जागा' construction type
+            # Find the bandhmastache_dar for vacantLandType construction type
             khali_jaga_rate = 0
-            for c in prop.constructions:
-                if c.construction_type.name.strip() == "खाली जागा":
-                    khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                    break
+            vacant_construction_type = None
+            print(f"DEBUG: prop.vacantLandType = '{prop.vacantLandType}'")
+            print(f"DEBUG: prop.vacantLandType type = {type(prop.vacantLandType)}")
+            if prop.vacantLandType:
+                # Query database directly for the construction type, regardless of property constructions
+                vacant_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == prop.vacantLandType).first()
+                if vacant_construction_type:
+                    khali_jaga_rate = getattr(vacant_construction_type, 'bandhmastache_dar', 0)
+                    print(f"DEBUG: Found vacantLandType '{prop.vacantLandType}' with bandhmastache_dar = {khali_jaga_rate}")
+                else:
+                    print(f"DEBUG: No construction type found for vacantLandType '{prop.vacantLandType}'")
+                    # Fallback: try to find any construction type with similar name
+                    similar_construction = db.query(models.ConstructionType).filter(models.ConstructionType.name.like(f"%{prop.vacantLandType}%")).first()
+                    if similar_construction:
+                        khali_jaga_rate = getattr(similar_construction, 'bandhmastache_dar', 0)
+                        print(f"DEBUG: Found similar construction '{similar_construction.name}' with bandhmastache_dar = {khali_jaga_rate}")
             # Calculate capital value and house tax for khali jaga using same logic as Namuna8
             if khali_area > 0:
                 # Get construction type for khali jaga
