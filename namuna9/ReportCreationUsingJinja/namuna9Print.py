@@ -32,12 +32,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9All.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -101,12 +113,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9AllPG2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -170,12 +194,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9Gen.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -239,12 +275,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9GenPG2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -308,12 +356,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9Pani.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -376,12 +436,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9PaniPG2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -445,12 +517,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9Vasuli1.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -513,12 +597,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9Vasuli2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -580,10 +676,22 @@ async def prakar1(request: Request):
     try:
         requestData = await request.json()
         villageId = requestData.get('villageID')
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9Vasuli3.html')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
         data = response.json()
@@ -625,12 +733,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9k.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/',params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -696,12 +813,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9k2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/' , params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -767,12 +893,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9lekh.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/', params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -838,12 +973,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9lekh2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/regular/' , params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -909,13 +1053,25 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = SutSahaEnv.get_template('namuna9AllSutSaha.html')
 
         # Call API
         
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -980,12 +1136,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = SutSahaEnv.get_template('namuna9GenSutSaha.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1050,12 +1218,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9AllVisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1120,12 +1300,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9AllPG2VisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1190,12 +1382,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9GenVisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1260,12 +1464,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9GenPG2VisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1330,12 +1546,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9PaniVisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1400,12 +1628,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9PaniPG2VisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1470,12 +1710,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9Vasuli1VisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1540,12 +1792,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniEnv.get_template('namuna9Vasuli2VisheshPain.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1610,12 +1874,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9k.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/visheshpani/?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/visheshpani/' , params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1682,12 +1955,22 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = regularEnv.get_template('namuna9k2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/visheshpani/?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village/visheshpani/' 
+            , params={
+            "villageId": villageId,
+            "yearslap": year,
+            "district_id": district_id,
+            "taluka_id": taluka_id,
+            "gram_panchayat_id": gram_panchayat_id
+        })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1754,12 +2037,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniSafaiEnv.get_template('namuna9AllVisheshPaniSafai.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1824,12 +2119,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniSafaiEnv.get_template('namuna9AllPG2VisheshPaniSafai.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1894,12 +2201,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniSafaiEnv.get_template('namuna9GenVisheshPaniSafai.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -1964,12 +2283,24 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniSafaiEnv.get_template('namuna9GenPG2VisheshPaniSafai.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(
+    f'{localhost}/namuna9/recordresponses/property_records_by_village',
+    params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    }
+)
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -2034,12 +2365,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniSafaiEnv.get_template('namuna9Vasuli1VisheshPaniSafai.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village' , params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -2103,12 +2443,21 @@ async def prakar1(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         year = requestData.get("year")
         template = visheshPaniSafaiEnv.get_template('namuna9Vasuli2VisheshPaniSafai.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village?villageId={villageId}&yearslap={year}')
+            response = await client.get(f'{localhost}/namuna9/recordresponses/property_records_by_village' , params={
+        "villageId": villageId,
+        "yearslap": year,
+        "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+    })
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
