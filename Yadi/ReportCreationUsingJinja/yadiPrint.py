@@ -24,11 +24,15 @@ async def verticalreport(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('yadivertical.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}'),
+            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -82,11 +86,15 @@ async def verticalreport(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('yadihorizontal.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}'),
+            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -139,11 +147,15 @@ async def verticalreport(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('yadiprakar1.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}'),
+        params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -196,11 +208,15 @@ async def verticalreport(request : Request):
         # Load template
         requestData = await request.json()
         villageId = requestData.get("villageID")
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('yadiprakar2.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}'),
+        params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 

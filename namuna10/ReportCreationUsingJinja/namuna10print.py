@@ -27,11 +27,16 @@ async def prakar1(request : Request):
         requestDate = await request.json()
         stateDate = requestDate.get("startDate")
         endDate = requestDate.get("endDate")
+        district_id = requestDate.get("district_id")
+        taluka_id = requestDate.get("taluka_id")
+        gram_panchayat_id = requestDate.get("gram_panchayat_id")
         template = env.get_template('vasuliHishob.html')
 
         # Call API
         async with httpx.AsyncClient() as client:    
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/1')
+            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/1',
+            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}    
+            )
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
