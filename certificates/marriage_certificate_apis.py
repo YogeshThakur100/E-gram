@@ -5,12 +5,17 @@ from .marriage_certificate_model import MarriageCertificate
 from .marriage_certificate_schemas import MarriageCertificateCreate, MarriageCertificateRead
 from datetime import datetime
 import os
+import shutil
 from barcode import Code39
 from barcode.writer import ImageWriter
 import qrcode
 from location_management import models as location_models
+from fastapi.responses import FileResponse
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
+
+UPLOAD_DIR = "uploaded_images"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/marriage", response_model=MarriageCertificateRead, status_code=status.HTTP_201_CREATED)
 def create_marriage_certificate(
@@ -75,8 +80,13 @@ def create_marriage_certificate(
     db.add(cert)
     db.commit()
     db.refresh(cert)
-    # Generate and save barcode image
-    barcode_dir = os.path.join("uploaded_images", "marriage_certificates", "barcode", str(cert.id))
+    
+    # Generate and save barcode image in location-based folder structure
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        barcode_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "marriage_certificates", "barcodes", str(cert.id))
+    else:
+        barcode_dir = os.path.join(UPLOAD_DIR, "marriage_certificates", "barcodes", str(cert.id))
+    
     os.makedirs(barcode_dir, exist_ok=True)
     barcode_path = os.path.join(barcode_dir, "barcode.png")
     barcode_obj = Code39(
@@ -94,8 +104,13 @@ def create_marriage_certificate(
         }
     )
     setattr(cert, 'barcode', barcode_path.replace(os.sep, "/"))
-    # Generate and save QR code image with required data
-    qrcode_dir = os.path.join("uploaded_images", "marriage_certificates", "qrcode", str(cert.id))
+    
+    # Generate and save QR code image in location-based folder structure
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        qrcode_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "marriage_certificates", "qrcodes", str(cert.id))
+    else:
+        qrcode_dir = os.path.join(UPLOAD_DIR, "marriage_certificates", "qrcodes", str(cert.id))
+    
     os.makedirs(qrcode_dir, exist_ok=True)
     qrcode_path = os.path.join(qrcode_dir, "qrcode.png")
     qr_data = f"srno: {cert.id}\nreg date: {cert.registration_date}\nmarriage date: {cert.marriage_date}\nhusband name: {cert.husband_name_en or ''}\nwife name: {cert.wife_name_en or ''}\nmarriage place: {cert.marriage_place_en or ''}"
@@ -154,25 +169,60 @@ def list_marriage_certificates(
     if gram_panchayat_id:
         query = query.filter(MarriageCertificate.gram_panchayat_id == gram_panchayat_id)
     
-    certs = query.all()
+    certificates = query.all()
     result = []
-    for cert in certs:
+    
+    for cert in certificates:
         cert_data = MarriageCertificateRead.from_orm(cert)
-        # Absolute URLs
-        barcode_val = str(getattr(cert, 'barcode', ''))
+        
+        # Fetch location names
+        gramPanchayat = None
+        taluka = None
+        jilha = None
+        
+        if cert.district_id:
+            district = db.query(location_models.District).filter(location_models.District.id == cert.district_id).first()
+            gramPanchayat = district.name if district else None
+        if cert.taluka_id:
+            taluka_obj = db.query(location_models.Taluka).filter(location_models.Taluka.id == cert.taluka_id).first()
+            taluka = taluka_obj.name if taluka_obj else None
+        if cert.gram_panchayat_id:
+            gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == cert.gram_panchayat_id).first()
+            jilha = gram_panchayat.name if gram_panchayat else None
+        
+        # Handle barcode URL
+        barcode_val = getattr(cert, 'barcode', None)
         if barcode_val:
-            cert_data.barcode = str(request.base_url)[:-1] + f"/{barcode_val}" if not barcode_val.startswith("http") else barcode_val
+            if str(barcode_val).startswith("http"):
+                cert_data.barcode = barcode_val
+            else:
+                # Construct barcode URL with location query parameters if available
+                if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                    cert_data.barcode = str(request.base_url)[:-1] + f"/certificates/marriage_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+                else:
+                    cert_data.barcode = str(request.base_url)[:-1] + f"/certificates/marriage_barcode/{cert.id}"
         else:
             cert_data.barcode = None
-        qrcode_val = str(getattr(cert, 'qrcode', ''))
+        
+        # Handle QR code URL
+        qrcode_val = getattr(cert, 'qrcode', None)
         if qrcode_val:
-            cert_data.qrcode = str(request.base_url)[:-1] + f"/{qrcode_val}" if not qrcode_val.startswith("http") else qrcode_val
+            if str(qrcode_val).startswith("http"):
+                cert_data.qrcode = qrcode_val
+            else:
+                # Construct QR code URL with location query parameters if available
+                if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                    cert_data.qrcode = str(request.base_url)[:-1] + f"/certificates/marriage_qrcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+                else:
+                    cert_data.qrcode = str(request.base_url)[:-1] + f"/certificates/marriage_qrcode/{cert.id}"
         else:
             cert_data.qrcode = None
-        cert_data.gramPanchayat = None
-        cert_data.taluka = None
-        cert_data.jilha = None
+        
+        cert_data.gramPanchayat = gramPanchayat
+        cert_data.taluka = taluka
+        cert_data.jilha = jilha
         result.append(cert_data)
+    
     return result
 
 @router.get("/marriage/{id}", response_model=MarriageCertificateRead)
@@ -221,21 +271,200 @@ def get_marriage_certificate(
     cert = query.first()
     if not cert:
         raise HTTPException(status_code=404, detail="Marriage certificate not found")
+    
+    # Fetch location names
+    gramPanchayat = None
+    taluka = None
+    jilha = None
+    
+    if cert.district_id:
+        district = db.query(location_models.District).filter(location_models.District.id == cert.district_id).first()
+        gramPanchayat = district.name if district else None
+    if cert.taluka_id:
+        taluka_obj = db.query(location_models.Taluka).filter(location_models.Taluka.id == cert.taluka_id).first()
+        taluka = taluka_obj.name if taluka_obj else None
+    if cert.gram_panchayat_id:
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == cert.gram_panchayat_id).first()
+        jilha = gram_panchayat.name if gram_panchayat else None
+    
     cert_data = MarriageCertificateRead.from_orm(cert)
-    barcode_val = str(getattr(cert, 'barcode', ''))
+    
+    # Handle barcode URL
+    barcode_val = getattr(cert, 'barcode', None)
     if barcode_val:
-        cert_data.barcode = str(request.base_url)[:-1] + f"/{barcode_val}" if not barcode_val.startswith("http") else barcode_val
+        if str(barcode_val).startswith("http"):
+            cert_data.barcode = barcode_val
+        else:
+            # Construct barcode URL with location query parameters if available
+            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                cert_data.barcode = str(request.base_url)[:-1] + f"/certificates/marriage_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            else:
+                cert_data.barcode = str(request.base_url)[:-1] + f"/certificates/marriage_barcode/{cert.id}"
     else:
         cert_data.barcode = None
-    qrcode_val = str(getattr(cert, 'qrcode', ''))
+    
+    # Handle QR code URL
+    qrcode_val = getattr(cert, 'qrcode', None)
     if qrcode_val:
-        cert_data.qrcode = str(request.base_url)[:-1] + f"/{qrcode_val}" if not qrcode_val.startswith("http") else qrcode_val
+        if str(qrcode_val).startswith("http"):
+            cert_data.qrcode = qrcode_val
+        else:
+            # Construct QR code URL with location query parameters if available
+            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                cert_data.qrcode = str(request.base_url)[:-1] + f"/certificates/marriage_qrcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            else:
+                cert_data.qrcode = str(request.base_url)[:-1] + f"/certificates/marriage_qrcode/{cert.id}"
     else:
         cert_data.qrcode = None
-    cert_data.gramPanchayat = None
-    cert_data.taluka = None
-    cert_data.jilha = None
+    
+    cert_data.gramPanchayat = gramPanchayat
+    cert_data.taluka = taluka
+    cert_data.jilha = jilha
     return cert_data
+
+@router.get("/marriage_barcode/{id}")
+def get_marriage_certificate_barcode(
+    id: int, 
+    district_id: int = Query(None),
+    taluka_id: int = Query(None),
+    gram_panchayat_id: int = Query(None),
+    db: Session = Depends(get_db)
+):
+    cert = db.query(MarriageCertificate).filter(MarriageCertificate.id == id).first()
+    if not cert or not getattr(cert, "barcode", None):
+        raise HTTPException(status_code=404, detail="Barcode not found")
+    
+    barcode_path = getattr(cert, "barcode", None)
+    
+    # If location parameters are provided, validate them
+    if district_id is not None and taluka_id is not None and gram_panchayat_id is not None:
+        if (cert.district_id != district_id or 
+            cert.taluka_id != taluka_id or 
+            cert.gram_panchayat_id != gram_panchayat_id):
+            raise HTTPException(status_code=400, detail="Location parameters do not match certificate location")
+        
+        # Check if file exists in new location-based path
+        new_path = os.path.join(UPLOAD_DIR, str(district_id), str(taluka_id), str(gram_panchayat_id), "marriage_certificates", "barcodes", str(id), "barcode.png")
+        if os.path.exists(new_path):
+            barcode_path = new_path
+        else:
+            # Try to migrate from old path to new path
+            old_path = os.path.join(UPLOAD_DIR, "marriage_certificates", "barcode", str(id), "barcode.png")
+            if os.path.exists(old_path):
+                os.makedirs(os.path.dirname(new_path), exist_ok=True)
+                shutil.copy2(old_path, new_path)
+                barcode_path = new_path
+                # Update the database record
+                setattr(cert, "barcode", new_path.replace(os.sep, "/"))
+                db.commit()
+    
+    if not barcode_path or not os.path.exists(barcode_path):
+        raise HTTPException(status_code=404, detail="Barcode file not found")
+    
+    return FileResponse(barcode_path, media_type="image/png")
+
+@router.get("/marriage_qrcode/{id}")
+def get_marriage_certificate_qrcode(
+    id: int, 
+    district_id: int = Query(None),
+    taluka_id: int = Query(None),
+    gram_panchayat_id: int = Query(None),
+    db: Session = Depends(get_db)
+):
+    cert = db.query(MarriageCertificate).filter(MarriageCertificate.id == id).first()
+    if not cert or not getattr(cert, "qrcode", None):
+        raise HTTPException(status_code=404, detail="QR code not found")
+    
+    qrcode_path = getattr(cert, "qrcode", None)
+    
+    # If location parameters are provided, validate them
+    if district_id is not None and taluka_id is not None and gram_panchayat_id is not None:
+        if (cert.district_id != district_id or 
+            cert.taluka_id != taluka_id or 
+            cert.gram_panchayat_id != gram_panchayat_id):
+            raise HTTPException(status_code=400, detail="Location parameters do not match certificate location")
+        
+        # Check if file exists in new location-based path
+        new_path = os.path.join(UPLOAD_DIR, str(district_id), str(taluka_id), str(gram_panchayat_id), "marriage_certificates", "qrcodes", str(id), "qrcode.png")
+        if os.path.exists(new_path):
+            qrcode_path = new_path
+        else:
+            # Try to migrate from old path to new path
+            old_path = os.path.join(UPLOAD_DIR, "marriage_certificates", "qrcode", str(id), "qrcode.png")
+            if os.path.exists(old_path):
+                os.makedirs(os.path.dirname(new_path), exist_ok=True)
+                shutil.copy2(old_path, new_path)
+                qrcode_path = new_path
+                # Update the database record
+                setattr(cert, "qrcode", new_path.replace(os.sep, "/"))
+                db.commit()
+    
+    if not qrcode_path or not os.path.exists(qrcode_path):
+        raise HTTPException(status_code=404, detail="QR code file not found")
+    
+    return FileResponse(qrcode_path, media_type="image/png")
+
+@router.put("/marriage/{id}/fix-location")
+def fix_marriage_certificate_location(
+    id: int,
+    district_id: int = Form(...),
+    taluka_id: int = Form(...),
+    gram_panchayat_id: int = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Fix location IDs for existing marriage certificates and migrate their files"""
+    cert = db.query(MarriageCertificate).filter(MarriageCertificate.id == id).first()
+    if not cert:
+        raise HTTPException(status_code=404, detail="Marriage certificate not found")
+    
+    # Update location IDs
+    cert.district_id = district_id
+    cert.taluka_id = taluka_id
+    cert.gram_panchayat_id = gram_panchayat_id
+    
+    # Migrate barcode file to new location
+    old_barcode_path = os.path.join(UPLOAD_DIR, "marriage_certificates", "barcode", str(id), "barcode.png")
+    new_barcode_dir = os.path.join(UPLOAD_DIR, str(district_id), str(taluka_id), str(gram_panchayat_id), "marriage_certificates", "barcodes", str(id))
+    new_barcode_path = os.path.join(new_barcode_dir, "barcode.png")
+    
+    if os.path.exists(old_barcode_path):
+        os.makedirs(new_barcode_dir, exist_ok=True)
+        shutil.copy2(old_barcode_path, new_barcode_path)
+        cert.barcode = new_barcode_path.replace(os.sep, "/")
+    
+    # Migrate QR code file to new location
+    old_qrcode_path = os.path.join(UPLOAD_DIR, "marriage_certificates", "qrcode", str(id), "qrcode.png")
+    new_qrcode_dir = os.path.join(UPLOAD_DIR, str(district_id), str(taluka_id), str(gram_panchayat_id), "marriage_certificates", "qrcodes", str(id))
+    new_qrcode_path = os.path.join(new_qrcode_dir, "qrcode.png")
+    
+    if os.path.exists(old_qrcode_path):
+        os.makedirs(new_qrcode_dir, exist_ok=True)
+        shutil.copy2(old_qrcode_path, new_qrcode_path)
+        cert.qrcode = new_qrcode_path.replace(os.sep, "/")
+    
+    db.commit()
+    db.refresh(cert)
+    
+    return {"message": "Location updated and files migrated successfully"}
+
+@router.get("/marriage-all")
+def list_all_marriage_certificates(db: Session = Depends(get_db)):
+    """List all marriage certificates without any filters for debugging"""
+    certificates = db.query(MarriageCertificate).all()
+    
+    # Add location names for debugging
+    for cert in certificates:
+        if cert.district_id:
+            district = db.query(location_models.District).filter(location_models.District.id == cert.district_id).first()
+            cert.gramPanchayat = district.name if district else None
+        if cert.taluka_id:
+            taluka = db.query(location_models.Taluka).filter(location_models.Taluka.id == cert.taluka_id).first()
+            cert.taluka = taluka.name if taluka else None
+        if cert.gram_panchayat_id:
+            gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == cert.gram_panchayat_id).first()
+            cert.jilha = gram_panchayat.name if gram_panchayat else None
+    
+    return certificates
 
 @router.put("/marriage/{id}", response_model=MarriageCertificateRead)
 def update_marriage_certificate(
@@ -331,8 +560,13 @@ def update_marriage_certificate(
     setattr(cert, "district_id", district_id)
     setattr(cert, "taluka_id", taluka_id)
     setattr(cert, "gram_panchayat_id", gram_panchayat_id)
-    # Regenerate barcode
-    barcode_dir = os.path.join("uploaded_images", "marriage_certificates", "barcode", str(cert.id))
+    
+    # Regenerate barcode in location-based folder structure
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        barcode_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "marriage_certificates", "barcodes", str(cert.id))
+    else:
+        barcode_dir = os.path.join(UPLOAD_DIR, "marriage_certificates", "barcodes", str(cert.id))
+    
     os.makedirs(barcode_dir, exist_ok=True)
     barcode_path = os.path.join(barcode_dir, "barcode.png")
     barcode_obj = Code39(
@@ -350,8 +584,13 @@ def update_marriage_certificate(
         }
     )
     setattr(cert, 'barcode', barcode_path.replace(os.sep, "/"))
-    # Regenerate QR code
-    qrcode_dir = os.path.join("uploaded_images", "marriage_certificates", "qrcode", str(cert.id))
+    
+    # Regenerate QR code in location-based folder structure
+    if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+        qrcode_dir = os.path.join(UPLOAD_DIR, str(cert.district_id), str(cert.taluka_id), str(cert.gram_panchayat_id), "marriage_certificates", "qrcodes", str(cert.id))
+    else:
+        qrcode_dir = os.path.join(UPLOAD_DIR, "marriage_certificates", "qrcodes", str(cert.id))
+    
     os.makedirs(qrcode_dir, exist_ok=True)
     qrcode_path = os.path.join(qrcode_dir, "qrcode.png")
     qr_data = f"srno: {cert.id}\nreg date: {cert.registration_date}\nmarriage date: {cert.marriage_date}\nhusband name: {cert.husband_name_en or ''}\nwife name: {cert.wife_name_en or ''}\nmarriage place: {cert.marriage_place_en or ''}"
@@ -364,18 +603,53 @@ def update_marriage_certificate(
     setattr(cert, 'qrcode', qrcode_path.replace(os.sep, "/"))
     db.commit()
     db.refresh(cert)
+    
+    # Fetch location names
+    gramPanchayat = None
+    taluka = None
+    jilha = None
+    
+    if cert.district_id:
+        district = db.query(location_models.District).filter(location_models.District.id == cert.district_id).first()
+        gramPanchayat = district.name if district else None
+    if cert.taluka_id:
+        taluka_obj = db.query(location_models.Taluka).filter(location_models.Taluka.id == cert.taluka_id).first()
+        taluka = taluka_obj.name if taluka_obj else None
+    if cert.gram_panchayat_id:
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == cert.gram_panchayat_id).first()
+        jilha = gram_panchayat.name if gram_panchayat else None
+    
     cert_data = MarriageCertificateRead.from_orm(cert)
-    barcode_val = str(getattr(cert, 'barcode', ''))
+    
+    # Handle barcode URL
+    barcode_val = getattr(cert, 'barcode', None)
     if barcode_val:
-        cert_data.barcode = str(request.base_url)[:-1] + f"/{barcode_val}" if not barcode_val.startswith("http") else barcode_val
+        if str(barcode_val).startswith("http"):
+            cert_data.barcode = barcode_val
+        else:
+            # Construct barcode URL with location query parameters if available
+            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                cert_data.barcode = str(request.base_url)[:-1] + f"/certificates/marriage_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            else:
+                cert_data.barcode = str(request.base_url)[:-1] + f"/certificates/marriage_barcode/{cert.id}"
     else:
         cert_data.barcode = None
-    qrcode_val = str(getattr(cert, 'qrcode', ''))
+    
+    # Handle QR code URL
+    qrcode_val = getattr(cert, 'qrcode', None)
     if qrcode_val:
-        cert_data.qrcode = str(request.base_url)[:-1] + f"/{qrcode_val}" if not qrcode_val.startswith("http") else qrcode_val
+        if str(qrcode_val).startswith("http"):
+            cert_data.qrcode = qrcode_val
+        else:
+            # Construct QR code URL with location query parameters if available
+            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                cert_data.qrcode = str(request.base_url)[:-1] + f"/certificates/marriage_qrcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            else:
+                cert_data.qrcode = str(request.base_url)[:-1] + f"/certificates/marriage_qrcode/{cert.id}"
     else:
         cert_data.qrcode = None
-    cert_data.gramPanchayat = None
-    cert_data.taluka = None
-    cert_data.jilha = None
+    
+    cert_data.gramPanchayat = gramPanchayat
+    cert_data.taluka = taluka
+    cert_data.jilha = jilha
     return cert_data 

@@ -38,6 +38,8 @@ class GramPanchayat(Base):
     code: Mapped[str] = mapped_column(nullable=True)
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"))
     image_url: Mapped[str] = mapped_column(nullable=True)
+    from_yearslap: Mapped[str] = mapped_column(nullable=True)
+    to_yearslap: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     

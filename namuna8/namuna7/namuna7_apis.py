@@ -219,30 +219,164 @@ def get_namuna7_print(item_id: int, db: Session = Depends(get_db)):
         currentDate=currentDate
     ) 
 
-@router.get("/prints/by_village/{village_id}")
-def get_namuna7_prints_by_village(village_id: int, db: Session = Depends(get_db)):
-    village = db.query(Village).filter(Village.id == village_id).first()
-    grampanchayat = village.name if village else ""
+@router.get("/prints/by_location")
+def get_namuna7_prints_by_location(
+    district_id: int = Query(None, description="Filter by district ID"),
+    taluka_id: int = Query(None, description="Filter by taluka ID"),
+    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    db: Session = Depends(get_db)
+):
+    # Validate location hierarchy if any of the three fields are provided
+    if district_id is not None:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        if not district:
+            raise HTTPException(status_code=404, detail="District not found")
+    
+    if taluka_id is not None:
+        if district_id is None:
+            raise HTTPException(status_code=400, detail="District ID is required when Taluka ID is provided")
+        taluka = db.query(location_models.Taluka).filter(
+            location_models.Taluka.id == taluka_id,
+            location_models.Taluka.district_id == district_id
+        ).first()
+        if not taluka:
+            raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    if gram_panchayat_id is not None:
+        if taluka_id is None:
+            raise HTTPException(status_code=400, detail="Taluka ID is required when Gram Panchayat ID is provided")
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(
+            location_models.GramPanchayat.id == gram_panchayat_id,
+            location_models.GramPanchayat.taluka_id == taluka_id
+        ).first()
+        if not gram_panchayat:
+            raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    # Build query based on location filters
+    query = db.query(Namuna7)
+    if district_id:
+        query = query.filter(Namuna7.district_id == district_id)
+    if taluka_id:
+        query = query.filter(Namuna7.taluka_id == taluka_id)
+    if gram_panchayat_id:
+        query = query.filter(Namuna7.gram_panchayat_id == gram_panchayat_id)
+    
+    items = query.all()
+    
+    # Get location name for display
+    location_name = ""
+    if gram_panchayat_id:
+        gram_panchayat = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == gram_panchayat_id).first()
+        location_name = gram_panchayat.name if gram_panchayat else ""
+    elif taluka_id:
+        taluka = db.query(location_models.Taluka).filter(location_models.Taluka.id == taluka_id).first()
+        location_name = taluka.name if taluka else ""
+    elif district_id:
+        district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+        location_name = district.name if district else ""
+    
     currentDate = datetime.now().strftime("%d/%m/%Y")
-    items = db.query(Namuna7).filter(Namuna7.villageId == village_id).all()
+    
     results = []
     for item in items:
+        # Get owner information
         owner = db.query(Owner).filter(Owner.id == item.userId).first()
-        ownername = owner.name if owner else ""
-        # Find property for this owner in this village (if any)
-        property_obj = db.query(Property).filter(Property.village_id == village_id, Property.owners.any(Owner.id == item.userId)).first()
-        # anuKramank = property_obj.anuKramank if property_obj else None
+        ownername = owner.name if owner else "Unknown Owner"
+        
+        # Get village information
+        village = db.query(Village).filter(Village.id == item.villageId).first()
+        village_name = village.name if village else "Unknown Village"
+        
+        # Add record to results
         results.append({
-            "receiptNumber": int(item.__dict__["receiptNumber"]),
-            "receiptBookNumber": int(item.__dict__["receiptBookNumber"]),
+            "receiptNumber": int(item.receiptNumber),
+            "receiptBookNumber": int(item.receiptBookNumber),
             "ownername": ownername,
-            "reason": str(item.__dict__["reason"]) if item.__dict__["reason"] is not None else "",
-            "receivedMoney": int(item.__dict__["receivedMoney"])
+            "village": village_name,
+            "reason": str(item.reason) if item.reason is not None else "",
+            "receivedMoney": int(item.receivedMoney)
         })
+    
     return {
-        "grampanchayat": grampanchayat,
-        "village": grampanchayat,
+        "grampanchayat": location_name,
+        "village": location_name,
         "currentDate": currentDate,
-        "records": results
+        "records": results,
+        "debug_info": {
+            "district_id": district_id,
+            "taluka_id": taluka_id,
+            "gram_panchayat_id": gram_panchayat_id,
+            "total_records_found": len(items),
+            "location_name": location_name
+        }
+    }
+
+@router.get("/debug/villages")
+def debug_villages_and_records(db: Session = Depends(get_db)):
+    """Debug endpoint to check all villages and their namuna7 records"""
+    villages = db.query(Village).all()
+    result = []
+    
+    for village in villages:
+        namuna7_count = db.query(Namuna7).filter(Namuna7.villageId == village.id).count()
+        result.append({
+            "village_id": village.id,
+            "village_name": village.name,
+            "namuna7_records_count": namuna7_count
+        })
+    
+    return {
+        "total_villages": len(villages),
+        "villages": result
+    }
+
+@router.get("/debug/locations")
+def debug_locations_and_records(db: Session = Depends(get_db)):
+    """Debug endpoint to check all locations and their namuna7 records"""
+    # Get all districts
+    districts = db.query(location_models.District).all()
+    district_result = []
+    
+    for district in districts:
+        namuna7_count = db.query(Namuna7).filter(Namuna7.district_id == district.id).count()
+        district_result.append({
+            "district_id": district.id,
+            "district_name": district.name,
+            "namuna7_records_count": namuna7_count
+        })
+    
+    # Get all talukas
+    talukas = db.query(location_models.Taluka).all()
+    taluka_result = []
+    
+    for taluka in talukas:
+        namuna7_count = db.query(Namuna7).filter(Namuna7.taluka_id == taluka.id).count()
+        taluka_result.append({
+            "taluka_id": taluka.id,
+            "taluka_name": taluka.name,
+            "district_id": taluka.district_id,
+            "namuna7_records_count": namuna7_count
+        })
+    
+    # Get all gram panchayats
+    gram_panchayats = db.query(location_models.GramPanchayat).all()
+    gram_panchayat_result = []
+    
+    for gram_panchayat in gram_panchayats:
+        namuna7_count = db.query(Namuna7).filter(Namuna7.gram_panchayat_id == gram_panchayat.id).count()
+        gram_panchayat_result.append({
+            "gram_panchayat_id": gram_panchayat.id,
+            "gram_panchayat_name": gram_panchayat.name,
+            "taluka_id": gram_panchayat.taluka_id,
+            "namuna7_records_count": namuna7_count
+        })
+    
+    return {
+        "total_districts": len(districts),
+        "total_talukas": len(talukas),
+        "total_gram_panchayats": len(gram_panchayats),
+        "districts": district_result,
+        "talukas": taluka_result,
+        "gram_panchayats": gram_panchayat_result
     } 
     

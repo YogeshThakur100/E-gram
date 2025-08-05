@@ -27,8 +27,7 @@ router = APIRouter(
     tags=["namuna8"]
 )
 
-UPLOAD_OWNER_PHOTO_DIR = "uploaded_images/owners"
-os.makedirs(UPLOAD_OWNER_PHOTO_DIR, exist_ok=True)
+
 
 @router.post("/", response_model=schemas.PropertyRead, status_code=status.HTTP_201_CREATED)
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
@@ -254,9 +253,12 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
             # --- QR CODE GENERATION (after save, using calculated values) ---
             try:
                 # Use get_property_record to get accurate total tax
-                record_response = get_property_record(db_property.anuKramank, db)
+                record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id, db)
                 totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
+                print(f"DEBUG: totalTax: {totalTax}")
+                print(f"DEBUG: srNo: {srNo}")
+                print(f"DEBUG: response keys: {list(response.keys())}")
                 # Calculate totalArea from east/west/north/south
                 east = db_property.eastLength or 0
                 west = db_property.westLength or 0
@@ -280,11 +282,18 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     "openArea": openArea,
                     "totalTax": totalTax,
                 }
-                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.anuKramank))
+                # Create location-based QR directory structure
+                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
+                print(f"DEBUG: Creating QR directory: {qr_dir}")
+                os.makedirs(qr_dir, exist_ok=True)
                 qr_path = os.path.join(qr_dir, "qrcode.png")
+                print(f"DEBUG: QR path: {qr_path}")
+                print(f"DEBUG: QR data: {qr_data}")
                 QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
+                print(f"DEBUG: QR code generated successfully")
                 db_property.qrcode = qr_path.replace(os.sep, "/")
                 db.flush()
+                print(f"DEBUG: QR path saved to database: {db_property.qrcode}")
             except Exception as e:
                 print(f"QR code generation failed: {e}")
             return response
@@ -372,14 +381,45 @@ def get_property_details(
     return build_property_response(db_property, db, gram_panchayat_id)
 
 @router.put("/{anu_kramank}", response_model=schemas.PropertyRead)
-def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate, db: Session = Depends(database.get_db)):
+def update_namuna8_entry(
+    anu_kramank: int, 
+    property_data: schemas.PropertyUpdate, 
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
     # Map totalArea to totalAreaSqFt if provided
     property_update_data = property_data.dict(exclude={'owners', 'constructions'})
     if "totalArea" in property_update_data and property_update_data["totalArea"] is not None:
         property_update_data["totalAreaSqFt"] = property_update_data["totalArea"]
-    db_property = db.query(models.Property).filter(models.Property.anuKramank == anu_kramank).first()
+    # Validate location hierarchy
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+    
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+    
+    db_property = db.query(models.Property).filter(
+        models.Property.anuKramank == anu_kramank,
+        models.Property.district_id == district_id,
+        models.Property.taluka_id == taluka_id,
+        models.Property.gram_panchayat_id == gram_panchayat_id
+    ).first()
     if not db_property:
-        raise HTTPException(status_code=404, detail="Property not found")
+        raise HTTPException(status_code=404, detail="Property not found in the specified location")
     
     for key, value in property_update_data.items():
         setattr(db_property, key, value)
@@ -552,9 +592,12 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
     # --- QR CODE GENERATION (after update, using calculated values) ---
     try:
         # Use get_property_record to get accurate total tax
-        record_response = get_property_record(db_property.anuKramank, db)
+        record_response = get_property_record(db_property.anuKramank, district_id, taluka_id, gram_panchayat_id, db)
         totalTax = record_response.get('totaltax', 0)
         srNo = response.get('anuKramank') or response.get('srNo') or ''
+        print(f"DEBUG UPDATE: totalTax: {totalTax}")
+        print(f"DEBUG UPDATE: srNo: {srNo}")
+        print(f"DEBUG UPDATE: response keys: {list(response.keys())}")
         east = db_property.eastLength or 0
         west = db_property.westLength or 0
         north = db_property.northLength or 0
@@ -575,11 +618,18 @@ def update_namuna8_entry(anu_kramank: int, property_data: schemas.PropertyUpdate
             "openArea": openArea,
             "totalTax": totalTax,
         }
-        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.anuKramank))
+        # Create location-based QR directory structure
+        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
+        print(f"DEBUG UPDATE: Creating QR directory: {qr_dir}")
+        os.makedirs(qr_dir, exist_ok=True)
         qr_path = os.path.join(qr_dir, "qrcode.png")
+        print(f"DEBUG UPDATE: QR path: {qr_path}")
+        print(f"DEBUG UPDATE: QR data: {qr_data}")
         QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
+        print(f"DEBUG UPDATE: QR code generated successfully")
         db_property.qrcode = qr_path.replace(os.sep, "/")
         db.commit()
+        print(f"DEBUG UPDATE: QR path saved to database: {db_property.qrcode}")
     except Exception as e:
         print(f"QR code update failed: {e}")
     return response
@@ -776,9 +826,9 @@ def create_owner(
     mobileNumber: str = Body(...),
     village_id: int = Body(...),
     wifeName: str = Body(None),
-    district_id: int = Body(None),
-    taluka_id: int = Body(None),
-    gram_panchayat_id: int = Body(None),
+    district_id: int = Body(...),
+    taluka_id: int = Body(...),
+    gram_panchayat_id: int = Body(...),
     db: Session = Depends(database.get_db)
 ):
     # Check if owner with same aadhaarNumber exists, only if aadhaarNumber is provided
@@ -810,25 +860,69 @@ def create_owner(
 
 @router.post("/owners/upload_photo/", response_model=str)
 def upload_owner_photo(owner_id: int = Form(...), file: UploadFile = File(...)):
-    owner = None
     from sqlalchemy.orm import Session
     from database import get_db
     import re
+    
     db: Session = next(get_db())
-    owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
-    if not owner or not owner.name:
-        raise HTTPException(status_code=400, detail="Owner not found or has no name")
-    # Sanitize owner name for filename
-    ownername = re.sub(r'[^\w\-_]', '_', owner.name)
-    # Get file extension
-    ext = os.path.splitext(file.filename)[1] if file.filename else ''
-    filename = f"{ownername}{ext}"
-    owner_dir = os.path.join(UPLOAD_OWNER_PHOTO_DIR, str(owner_id))
-    os.makedirs(owner_dir, exist_ok=True)
-    file_location = os.path.join(owner_dir, filename)
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    return file_location.replace(os.sep, '/')
+    
+    try:
+        print(f"DEBUG: Starting photo upload for owner_id: {owner_id}")
+        
+        # Get owner to find location information
+        owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
+        if not owner:
+            print(f"DEBUG: Owner not found with id: {owner_id}")
+            raise HTTPException(status_code=400, detail="Owner not found")
+        
+        print(f"DEBUG: Found owner: {owner.name}, district_id: {owner.district_id}, taluka_id: {owner.taluka_id}, gram_panchayat_id: {owner.gram_panchayat_id}")
+        
+        # Validate that owner has location information
+        if not owner.district_id or not owner.taluka_id or not owner.gram_panchayat_id:
+            print(f"DEBUG: Owner missing location information")
+            raise HTTPException(status_code=400, detail="Owner must have complete location information (district_id, taluka_id, gram_panchayat_id)")
+        
+        # Create directory structure: uploaded_images/owners/{district_id}/{taluka_id}/{gram_panchayat_id}/{owner_id}/
+        image_dir = os.path.join("uploaded_images", "owners", str(owner.district_id), str(owner.taluka_id), str(owner.gram_panchayat_id), str(owner_id))
+        print(f"DEBUG: Creating directory: {image_dir}")
+        
+        # Ensure the directory exists
+        os.makedirs(image_dir, exist_ok=True)
+        print(f"DEBUG: Directory created successfully")
+        
+        # Sanitize owner name for filename
+        ownername = re.sub(r'[^\w\-_]', '_', owner.name) if owner.name else f"owner_{owner_id}"
+        print(f"DEBUG: Sanitized owner name: {ownername}")
+        
+        # Get file extension
+        ext = os.path.splitext(file.filename)[1] if file.filename else ''
+        filename = f"{ownername}{ext}"
+        print(f"DEBUG: Filename: {filename}")
+        
+        file_path = os.path.join(image_dir, filename)
+        print(f"DEBUG: Full file path: {file_path}")
+        
+        # Save the file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        print(f"DEBUG: File saved successfully")
+        
+        # Convert to forward slashes for database storage
+        file_location = file_path.replace(os.sep, '/')
+        print(f"DEBUG: Database file location: {file_location}")
+        
+        # Update the owner's photo path in the database
+        owner.ownerPhoto = file_location
+        db.commit()
+        print(f"DEBUG: Database updated successfully")
+        
+        return file_location
+    except Exception as e:
+        print(f"DEBUG: Error occurred: {str(e)}")
+        print(f"DEBUG: Error type: {type(e)}")
+        import traceback
+        print(f"DEBUG: Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Error uploading photo: {str(e)}")
 
 def build_property_response(db_property, db, gram_panchayat_id: int):
     # Build constructions with constructionType name
@@ -1209,12 +1303,12 @@ def bulk_upsert_construction_types(
                 obj.bandhmastache_prakar = item.bandhmastache_prakar
                 obj.gharache_prakar = item.gharache_prakar
                 obj.annualLandValueRate = item.annualLandValueRate
-                # Update location fields for existing items
-                obj.district_id = district_id
-                obj.taluka_id = taluka_id
-                obj.gram_panchayat_id = gram_panchayat_id
-                db.commit()
-                db.refresh(obj)
+                # Only update location fields if they are currently null (global items)
+                if obj.district_id is None and obj.taluka_id is None and obj.gram_panchayat_id is None:
+                    obj.district_id = district_id
+                    obj.taluka_id = taluka_id
+                    obj.gram_panchayat_id = gram_panchayat_id
+                db.flush()
                 result.append(obj)
             else:
                 # If id is given but not found, create new
@@ -1224,11 +1318,13 @@ def bulk_upsert_construction_types(
                     bandhmastache_dar=item.bandhmastache_dar,
                     bandhmastache_prakar=item.bandhmastache_prakar,
                     gharache_prakar=item.gharache_prakar,
-                    annualLandValueRate=item.annualLandValueRate
+                    annualLandValueRate=item.annualLandValueRate,
+                    district_id=district_id,
+                    taluka_id=taluka_id,
+                    gram_panchayat_id=gram_panchayat_id
                 )
                 db.add(new_obj)
-                db.commit()
-                db.refresh(new_obj)
+                db.flush()
                 result.append(new_obj)
         else:
             new_obj = models.ConstructionType(
@@ -1243,9 +1339,16 @@ def bulk_upsert_construction_types(
                 gram_panchayat_id=gram_panchayat_id
             )
             db.add(new_obj)
-            db.commit()
-            db.refresh(new_obj)
+            db.flush()
             result.append(new_obj)
+    
+    # Commit all changes at once
+    db.commit()
+    
+    # Refresh all objects to get updated data
+    for obj in result:
+        db.refresh(obj)
+    
     return result
 
 @router.post("/settings/bulk_save")
@@ -1783,7 +1886,8 @@ def get_property_qrcode(
     if not property_obj:
         raise HTTPException(status_code=404, detail="Property not found in the specified location")
     
-    qr_path = os.path.join("uploaded_images", "qrcode", str(anu_kramank), "qrcode.png")
+    # Use location-based QR path
+    qr_path = os.path.join("uploaded_images", "qrcode", str(district_id), str(taluka_id), str(gram_panchayat_id), str(anu_kramank), "qrcode.png")
     if not os.path.exists(qr_path):
         raise HTTPException(status_code=404, detail="QR code not found")
     return FileResponse(qr_path, media_type="image/png")
