@@ -21,9 +21,9 @@ def create_namuna7(item: Namuna7Create, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=List[Namuna7Read])
 def get_all_namuna7(
-    district_id: int = Query(None, description="Filter by district ID"),
-    taluka_id: int = Query(None, description="Filter by taluka ID"),
-    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(get_db)
 ):
     # Validate location hierarchy if any of the three fields are provided
@@ -65,9 +65,9 @@ def get_all_namuna7(
 def get_namuna7_custom_list(
     startdate: str = Query(..., description="Start date in YYYY-MM-DD format"),
     enddate: str = Query(..., description="End date in YYYY-MM-DD format"),
-    district_id: int = Query(None, description="Filter by district ID"),
-    taluka_id: int = Query(None, description="Filter by taluka ID"),
-    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(get_db)
 ):
     from datetime import datetime, timedelta
@@ -164,9 +164,9 @@ def get_namuna7_by_date(
     from_date: str = Query(..., description="Start date in YYYY-MM-DD format"),
     to_date: str = Query(..., description="End date in YYYY-MM-DD format"),
     village_id: int = Query(None, description="Village ID to filter by"),
-    district_id: int = Query(None, description="Filter by district ID"),
-    taluka_id: int = Query(None, description="Filter by taluka ID"),
-    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(get_db)
 ):
     try:
@@ -221,9 +221,9 @@ def get_namuna7_print(item_id: int, db: Session = Depends(get_db)):
 
 @router.get("/prints/by_location")
 def get_namuna7_prints_by_location(
-    district_id: int = Query(None, description="Filter by district ID"),
-    taluka_id: int = Query(None, description="Filter by taluka ID"),
-    gram_panchayat_id: int = Query(None, description="Filter by gram panchayat ID"),
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
     db: Session = Depends(get_db)
 ):
     # Validate location hierarchy if any of the three fields are provided
