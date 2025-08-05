@@ -334,7 +334,7 @@ def get_property_records_by_village(
         raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     
     # Validate that the village belongs to the specified gram panchayat
-    village = db.query(location_models.Village).filter(location_models.Village.id == village_id).first()
+    village = db.query(models.Village).filter(models.Village.id == village_id).first()
     if not village:
         raise HTTPException(status_code=404, detail="Village not found")
     
