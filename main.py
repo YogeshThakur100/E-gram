@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 from namuna8 import namuna8_apis
 from namuna9 import namuna9_apis
-from certificates import birth_certificate_apis, death_certificate_apis, birthdeath_unavailability_apis, resident_certificate_apis, family_certificate_apis, toilet_certificate_apis, no_objection_certificate_apis, no_benefit_certificate_apis, life_certificate_apis, good_conduct_certificate_apis, niradhar_certificate_apis, no_arrears_certificate_apis, unemployment_certificate_apis
+from certificates import birth_certificate_apis, death_certificate_apis, birthdeath_unavailability_apis, resident_certificate_apis, family_certificate_apis, toilet_certificate_apis, no_objection_certificate_apis, no_benefit_certificate_apis, life_certificate_apis, good_conduct_certificate_apis, niradhar_certificate_apis, no_arrears_certificate_apis, unemployment_certificate_apis, receipt_certificate_apis
 from location_management import apis as location_apis
 from namuna8.recordresponses import property_record_response
 from namuna8.namuna7 import namuna7_apis
@@ -22,7 +22,7 @@ from database import engine, Base
 from namuna8 import namuna8_model
 from namuna9 import namuna9_model
 from JWTapi import tokenModel
-from certificates import birth_certificate_model
+from certificates import birth_certificate_model, receipt_certificate_model
 from location_management import models as location_models
 from namuna8.ReportCreationUsingJinja import namuna8Print
 from namuna9.ReportCreationUsingJinja import namuna9Print
@@ -71,6 +71,7 @@ app.include_router(good_conduct_certificate_apis.router)
 app.include_router(niradhar_certificate_apis.router)
 app.include_router(no_arrears_certificate_apis.router)
 app.include_router(unemployment_certificate_apis.router)
+app.include_router(receipt_certificate_apis.router)
 app.include_router(property_record_response.router, prefix="/namuna8/recordresponses")
 app.include_router(namuna8Print.router , prefix="/namuna8/print")
 app.include_router(namuna9Print.router , prefix="/namuna9/print")

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -198,7 +199,17 @@ def create_gram_panchayat(gram_panchayat: schemas.GramPanchayatCreate, db: Sessi
     if existing_gram_panchayat:
         raise HTTPException(status_code=400, detail="Gram Panchayat with this name already exists in this taluka")
     
-    db_gram_panchayat = models.GramPanchayat(**gram_panchayat.dict())
+    # Calculate year slaps automatically
+    current_year = datetime.now().year
+    from_yearslap = f"{current_year}-{current_year + 1}"
+    to_yearslap = f"{current_year + 3}-{current_year + 4}"
+    
+    # Create gram panchayat with calculated year slaps
+    gram_panchayat_data = gram_panchayat.dict()
+    gram_panchayat_data['from_yearslap'] = from_yearslap
+    gram_panchayat_data['to_yearslap'] = to_yearslap
+    
+    db_gram_panchayat = models.GramPanchayat(**gram_panchayat_data)
     db.add(db_gram_panchayat)
     db.commit()
     db.refresh(db_gram_panchayat)

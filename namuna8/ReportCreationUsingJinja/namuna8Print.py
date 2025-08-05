@@ -17,7 +17,7 @@ namuna8_template_dir = os.path.join(template_dir ,'Namuna8' )
 env = Environment(loader=FileSystemLoader(namuna8_template_dir))
 
 # # Get the user home directory
-# home_path = os.path.expanduser("~")
+home_path = os.path.expanduser("~")
 
 # Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
 static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
