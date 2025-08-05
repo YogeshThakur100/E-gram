@@ -15,7 +15,10 @@ print("template dir ---> " , template_dir)
 namuna7_template_dir = os.path.join(template_dir ,'Namuna7' )
 
 print("namuna7_template dir ---> " , namuna7_template_dir)
-static_dir = os.path.join(base_dir, 'reports')
+home_path = os.path.expanduser("~")
+
+# Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
+static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
 env = Environment(loader=FileSystemLoader(namuna7_template_dir))
 
 # API base URL
@@ -82,11 +85,22 @@ async def receipt(request : Request):
         requestDate = await request.json()
         stateDate = requestDate.get("startDate")
         endDate = requestDate.get("endDate")
+        district_id = requestDate.get("district_id")
+        taluka_id = requestDate.get("taluka_id")
+        gram_panchayat_id = requestDate.get("gram_panchayat_id")
         template = env.get_template('namuna7pavatiRegister.html')
 
         # Call API
         async with httpx.AsyncClient() as client:    
-            response = await client.get(f'{localhost}/namuna7/getall_receipts?startdate={stateDate}&enddate={endDate}')
+            response = await client.get(f'{localhost}/namuna7/getall_receipts?startdate={stateDate}&enddate={endDate}',
+            params={
+                "startdate" : stateDate,
+                "enddate" : endDate,
+                "district_id": district_id,
+        "taluka_id": taluka_id,
+        "gram_panchayat_id": gram_panchayat_id
+            }
+            )
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
