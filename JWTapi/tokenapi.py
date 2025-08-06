@@ -8,6 +8,10 @@ from sqlalchemy.orm import Session
 import database
 from cryptography.fernet import InvalidToken
 import bcrypt
+from sqlalchemy import inspect
+import datetime
+from sqlalchemy import text
+from sqlalchemy.sql.sqltypes import Boolean
 
 class license(BaseModel):
     license_key : str
@@ -255,3 +259,394 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
                 "data": []
             }
         )
+
+@router.post("/sync/upload")
+def sync_all_tables(db : Session=Depends(database.get_db)):
+    try:
+        inspector = inspect(db.bind)
+        all_tables = inspector.get_table_names()
+
+        tables_to_sync = [table for table in all_tables if table not in ['license']]
+
+        # List of modules that contain models
+        import importlib
+        model_modules = [
+            'location_management.models',  # Contains District, Taluka, GramPanchayat
+            'namuna8.namuna8_model',      # Contains Village
+            'certificates.birth_certificate_model',
+            'certificates.death_certificate_model', 
+            'certificates.family_certificate_model',
+            'certificates.good_conduct_certificate_model',
+            'certificates.life_certificate_model',
+            'certificates.marriage_certificate_model',
+            'certificates.niradhar_certificate_model',
+            'certificates.no_arrears_certificate_model',
+            'certificates.no_benefit_certificate_model',
+            'certificates.no_objection_certificate_model',
+            'certificates.receipt_certificate_model',
+            'certificates.resident_certificate_model',
+            'certificates.toilet_certificate_model',
+            'certificates.unemployment_certificate_model',
+            'certificates.widow_certificate_model',
+            'certificates.birthdeath_unavailability_model',
+            'namuna8.namuna8_model',
+            'namuna8.namuna7.namuna7_model',
+            'namuna8.mastertab.mastertabmodels',
+            'namuna8.PropertyDocuments.property_document_model',
+            'namuna8.owner_history_model',
+            'namuna8.property_owner_history_model',
+            'namuna8.mastertab.transfer_apis',
+            'namuna9.namuna9_model',
+            'reportstab.outward_entries_model'
+        ]
+        # Dictionary to store all model classes
+        all_models = {}
+        # Import and collect all models
+        for module_name in model_modules:
+            try:
+                module = importlib.import_module(module_name)
+                for attr_name in dir(module):
+                    attr = getattr(module, attr_name)
+                    if hasattr(attr, '__tablename__') and hasattr(attr, '__table__'):
+                        all_models[attr.__tablename__] = attr
+            except ImportError as e:
+                print(f"Warning: Could not import {module_name}: {e}")
+                continue
+
+        # Define the correct sync order to satisfy foreign key constraints
+        ordered_tables = [
+            'districts',
+            'talukas',
+            'gram_panchayats',
+            'villages',
+        ]
+        # Add the rest of the tables, preserving their original order but skipping already added
+        ordered_tables += [t for t in tables_to_sync if t not in ordered_tables]
+
+        data_to_sync = {}
+
+        # Only sync tables that exist in the MySQL schema
+        mysql_tables = set([
+            'districts', 'talukas', 'gram_panchayats', 'villages', 'construction_types', 'namuna8_setting_checklist',
+            'namuna8DropdownAddSettings', 'namuna8SettingTax', 'namuna8WaterTaxSettings', 'namuna8GeneralWaterTaxSlabSettings',
+            'generalSetting', 'newYojna', 'building_usage_weightage', 'namuna9_year_setups', 'namuna9', 'namuna9_settings',
+            'no_arrears_certificates', 'birth_certificates', 'death_certificates', 'birthdeath_unavailability_certificates',
+            'resident_certificates', 'family_certificates', 'toilet_certificates', 'no_objection_certificates',
+            'no_benefit_certificates', 'life_certificates', 'good_conduct_certificates', 'niradhar_certificates',
+            'unemployment_certificates', 'receipt_certificates', 'owners', 'properties', 'property_owner_association',
+            'constructions', 'property_documents', 'property_transfer_logs', 'namuna7', 'outward_entries'
+        ])
+
+        for table_name in ordered_tables:
+            if table_name not in mysql_tables:
+                print(f"Skipping table '{table_name}' as it does not exist in MySQL schema.")
+                continue
+            model_class = all_models.get(table_name)
+            if not model_class:
+                print(f"Warning: No model found for table '{table_name}'")
+                continue
+            try:
+                rows = db.query(model_class).all()
+                row_dicts = []
+                for row in rows:
+                    row_dict = {}
+                    for column in model_class.__table__.columns:
+                        value = getattr(row, column.name)
+                        if hasattr(value, 'isoformat'):
+                            value = value.isoformat()
+                        row_dict[column.name] = value
+                    row_dicts.append(row_dict)
+                data_to_sync[table_name] = row_dicts
+                print(f"Synced {len(row_dicts)} rows from table '{table_name}'")
+            except Exception as e:
+                print(f"Error syncing table '{table_name}': {e}")
+                continue
+
+        print(f"Tables found: {ordered_tables}")
+        print(f"Total tables with data: {len(data_to_sync)}")
+        print(f"Tables successfully synced: {list(data_to_sync.keys())}")
+        print(f"Tables with no data: {[table for table in ordered_tables if table not in data_to_sync]}")
+        
+        # 🔽 Send to PHP hosted server
+        try:
+            php_server_url = "http://localhost:8080/api/sync/upload_data"
+            sync_payload = {
+                "sync_data": data_to_sync,
+                "sync_timestamp": datetime.datetime.now().isoformat(),
+                "total_tables": len(data_to_sync),
+                "tables_synced": list(data_to_sync.keys())
+            }
+            print(f"Sending data to PHP server: {php_server_url}")
+            response = requests.post(php_server_url, json=sync_payload, timeout=30)
+            if response.status_code == 200:
+                response_data = response.json()
+                return {
+                    "success": True, 
+                    "message": "Data synced to hosted server successfully",
+                    "php_response": response_data,
+                    "data": data_to_sync
+                }
+            else:
+                return {
+                    "success": False, 
+                    "message": f"Failed to sync to PHP server. Status: {response.status_code}",
+                    "details": response.text,
+                    "data": data_to_sync
+                }
+        except requests.exceptions.RequestException as e:
+            return {
+                "success": False, 
+                "message": f"Network error while syncing to PHP server: {str(e)}",
+                "data": data_to_sync
+            }
+        except Exception as e:
+            return {
+                "success": False, 
+                "message": f"Error syncing to PHP server: {str(e)}",
+                "data": data_to_sync
+            }
+
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+@router.post("/sync/download")
+def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
+    """
+    Fetch all data from the hosted PHP API and replace all local tables with it.
+    """
+    import requests
+    import datetime
+    from sqlalchemy import text
+    try:
+        # 1. Fetch data from hosted server
+        php_server_url = "http://localhost:8080/api/sync/download_data"  # Change to your hosted server domain if needed
+        response = requests.get(php_server_url, timeout=60)
+        if response.status_code != 200:
+            return {"success": False, "message": f"Failed to fetch from hosted server: {response.status_code}"}
+        sync_data = response.json().get("sync_data", {})
+
+        # 2. Disable foreign key checks before deleting all tables
+        db.execute(text("PRAGMA foreign_keys = OFF;"))
+        db.commit()
+
+        # 3. Delete all local tables in dependency order (children first)
+        truncate_order = [
+            'constructions',
+            'property_owner_association',
+            'property_documents',
+            'owners',
+            'properties',
+            'villages',
+            'gram_panchayats',
+            'talukas',
+            'districts',
+            'construction_types',
+            'building_usage_weightage',
+            'property_transfer_logs',
+            'namuna8_setting_checklist',
+            'namuna8DropdownAddSettings',
+            'namuna8SettingTax',
+            'namuna8WaterTaxSettings',
+            'namuna8GeneralWaterTaxSlabSettings',
+            'generalSetting',
+            'newYojna',
+            'namuna9_year_setups',
+            'namuna9_settings',
+            'namuna9',
+            'namuna9_property_association',
+            'namuna7',
+            'no_arrears_certificates',
+            'birth_certificates',
+            'death_certificates',
+            'birthdeath_unavailability_certificates',
+            'resident_certificates',
+            'family_certificates',
+            'toilet_certificates',
+            'no_objection_certificates',
+            'no_benefit_certificates',
+            'life_certificates',
+            'good_conduct_certificates',
+            'niradhar_certificates',
+            'unemployment_certificates',
+            'receipt_certificates',
+            'outward_entries'
+        ]
+        for table in truncate_order:
+            try:
+                db.execute(text(f'DELETE FROM {table};'))
+                # Optionally reset autoincrement (sqlite_sequence)
+                try:
+                    db.execute(text(f"DELETE FROM sqlite_sequence WHERE name='{table}';"))
+                except Exception:
+                    pass
+                db.commit()
+                # Optionally print row count for debugging
+                try:
+                    result = db.execute(text(f"SELECT COUNT(*) FROM {table};"))
+                    print(f"{table} after delete:", result.fetchone()[0])
+                except Exception:
+                    pass
+            except Exception as e:
+                print(f"Warning: Could not delete from {table}: {e}")
+        db.commit()
+
+        # 3b. Debug: Check if districts is empty, force delete if not
+        try:
+            result = db.execute(text("SELECT COUNT(*) FROM districts;"))
+            districts_count = result.fetchone()[0]
+            print("Districts after delete loop:", districts_count)
+            if districts_count != 0:
+                print("Districts table not empty after delete loop, forcing manual delete...")
+                db.execute(text("DELETE FROM districts;"))
+                db.commit()
+                result = db.execute(text("SELECT COUNT(*) FROM districts;"))
+                print("Districts after manual delete:", result.fetchone()[0])
+        except Exception as e:
+            print(f"Error checking/forcing districts delete: {e}")
+
+        # 4. Re-enable foreign key checks
+        db.execute(text("PRAGMA foreign_keys = ON;"))
+        db.commit()
+
+        # 5. Insert data in dependency order
+        insert_order = [
+            'districts',
+            'talukas',
+            'gram_panchayats',
+            'villages',
+            'owners',
+            'properties',
+            'construction_types',
+            'building_usage_weightage',
+            'property_documents',
+            'property_transfer_logs',
+            'property_owner_association',
+            'constructions',
+            'namuna8_setting_checklist',
+            'namuna8DropdownAddSettings',
+            'namuna8SettingTax',
+            'namuna8WaterTaxSettings',
+            'namuna8GeneralWaterTaxSlabSettings',
+            'generalSetting',
+            'newYojna',
+            'namuna9_year_setups',
+            'namuna9_settings',
+            'namuna9',
+            'namuna9_property_association',
+            'namuna7',
+            'no_arrears_certificates',
+            'birth_certificates',
+            'death_certificates',
+            'birthdeath_unavailability_certificates',
+            'resident_certificates',
+            'family_certificates',
+            'toilet_certificates',
+            'no_objection_certificates',
+            'no_benefit_certificates',
+            'life_certificates',
+            'good_conduct_certificates',
+            'niradhar_certificates',
+            'unemployment_certificates',
+            'receipt_certificates',
+            'outward_entries'
+        ]
+        # Reuse all_models from sync_all_tables
+        import importlib
+        model_modules = [
+            'location_management.models',
+            'namuna8.namuna8_model',
+            'certificates.birth_certificate_model',
+            'certificates.death_certificate_model',
+            'certificates.family_certificate_model',
+            'certificates.good_conduct_certificate_model',
+            'certificates.life_certificate_model',
+            'certificates.marriage_certificate_model',
+            'certificates.niradhar_certificate_model',
+            'certificates.no_arrears_certificate_model',
+            'certificates.no_benefit_certificate_model',
+            'certificates.no_objection_certificate_model',
+            'certificates.receipt_certificate_model',
+            'certificates.resident_certificate_model',
+            'certificates.toilet_certificate_model',
+            'certificates.unemployment_certificate_model',
+            'certificates.widow_certificate_model',
+            'certificates.birthdeath_unavailability_model',
+            'namuna8.namuna7.namuna7_model',
+            'namuna8.mastertab.mastertabmodels',
+            'namuna8.PropertyDocuments.property_document_model',
+            'namuna8.owner_history_model',
+            'namuna8.property_owner_history_model',
+            'namuna8.mastertab.transfer_apis',
+            'namuna9.namuna9_model',
+            'reportstab.outward_entries_model'
+        ]
+        all_models = {}
+        for module_name in model_modules:
+            try:
+                module = importlib.import_module(module_name)
+                for attr_name in dir(module):
+                    attr = getattr(module, attr_name)
+                    if hasattr(attr, '__tablename__') and hasattr(attr, '__table__'):
+                        all_models[attr.__tablename__] = attr
+            except ImportError as e:
+                print(f"Warning: Could not import {module_name}: {e}")
+                continue
+
+        def parse_datetime_fields(row, model):
+            for column in model.__table__.columns:
+                colname = column.name
+                coltype = str(column.type)
+                if colname in row:
+                    # Handle Boolean fields
+                    if isinstance(column.type, Boolean):
+                        val = row[colname]
+                        if isinstance(val, str):
+                            if val.strip() in ['0', 'false', 'False', '']:
+                                row[colname] = False
+                            elif val.strip() in ['1', 'true', 'True']:
+                                row[colname] = True
+                        elif isinstance(val, int):
+                            row[colname] = bool(val)
+                    # Handle datetime/date fields
+                    elif isinstance(row[colname], str):
+                        if "DATETIME" in coltype.upper() or "TIMESTAMP" in coltype.upper():
+                            try:
+                                row[colname] = datetime.datetime.fromisoformat(row[colname])
+                            except Exception:
+                                try:
+                                    row[colname] = datetime.datetime.strptime(row[colname], "%Y-%m-%d %H:%M:%S")
+                                except Exception:
+                                    pass
+                        elif "DATE" in coltype.upper():
+                            try:
+                                row[colname] = datetime.date.fromisoformat(row[colname])
+                            except Exception:
+                                try:
+                                    row[colname] = datetime.datetime.strptime(row[colname], "%Y-%m-%d").date()
+                                except Exception:
+                                    pass
+            return row
+
+        for table in insert_order:
+            rows = sync_data.get(table, [])
+            model = all_models.get(table)
+            if not model or not rows:
+                continue
+            for row in rows:
+                # Special handling for namuna9 property_ids
+                if table == 'namuna9' and 'property_ids' in row and isinstance(row['property_ids'], str):
+                    import json
+                    try:
+                        row['property_ids'] = json.loads(row['property_ids'])
+                    except Exception:
+                        pass
+                # Parse datetime/date fields
+                row = parse_datetime_fields(row, model)
+                try:
+                    db.add(model(**row))
+                except Exception as e:
+                    print(f"Error inserting into {table}: {e}")
+            db.commit()
+        return {"success": True, "message": "Local DB replaced with hosted data"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
