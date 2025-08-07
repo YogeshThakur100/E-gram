@@ -52,9 +52,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar1.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
         )
         if response.status_code != 200:
@@ -121,9 +122,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar2.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -181,9 +183,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar3.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -241,9 +244,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar4bhag1.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -301,9 +305,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar4bhag2.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -361,9 +366,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar5bhag1.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -421,9 +427,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8Prakar5bhag2.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -481,9 +488,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8VishehPaniPrakar1.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -541,9 +549,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8VishehPaniPrakar2.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -601,9 +610,10 @@ async def prakar1(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('namuna8VishehPaniPrakar3.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -834,9 +844,10 @@ async def singlePrint(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('singlePrintRange.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
@@ -1198,9 +1209,10 @@ async def singlePrint(request : Request):
         gram_panchayat_id = requestData.get("gram_panchayat_id")
         template = env.get_template('singlePrintVishehPaniRange.html')
 
-        # Call API
+        # Call API - use base URL from request to avoid localhost issues in installer
+        base_url = str(request.base_url).rstrip('/')
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
             params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
 
         if response.status_code != 200:
