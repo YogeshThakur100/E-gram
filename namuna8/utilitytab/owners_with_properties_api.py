@@ -4,6 +4,7 @@ from database import get_db
 from ..namuna8_model import Owner
 from ..namuna8_apis import build_property_response
 from .. import namuna8_model
+from location_management import models
 
 router = APIRouter()
 

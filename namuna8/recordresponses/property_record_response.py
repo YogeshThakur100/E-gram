@@ -71,12 +71,20 @@ def get_property_record(
         total_area = prop.totalAreaSqFt or 0
         used_area = sum((c.length or 0) * (c.width or 0) for c in prop.constructions)
         khali_area = max(total_area - used_area, 0)
-        # Find the bandhmastache_dar for 'खाली जागा' construction type
+        # Find the bandhmastache_dar for vacantLandType construction type
         khali_jaga_rate = 0
-        for c in prop.constructions:
-            if c.construction_type.name.strip() == "खाली जागा":
-                khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                break
+        vacant_construction_type = None
+       
+        if prop.vacantLandType:
+            # Query database directly for the construction type, regardless of property constructions
+            vacant_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == prop.vacantLandType).first()
+            if vacant_construction_type:
+                khali_jaga_rate = getattr(vacant_construction_type, 'bandhmastache_dar', 0)
+            else:
+                # Fallback: try to find any construction type with similar name
+                similar_construction = db.query(models.ConstructionType).filter(models.ConstructionType.name.like(f"%{prop.vacantLandType}%")).first()
+                if similar_construction:
+                    khali_jaga_rate = getattr(similar_construction, 'bandhmastache_dar', 0)
         # Calculate capital value and house tax for khali jaga using same logic as Namuna8
         if khali_area > 0:
             # Get construction type for khali jaga
@@ -317,29 +325,29 @@ def get_property_records_by_village(
     # Validate location hierarchy - check if the three fields match the actual data
     district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
     if not district:
-        raise HTTPException(status_code=404, detail="District not found")
+        raise HTTPException(status_code=404, detail=f"District {district_id} not found")
     
     taluka = db.query(location_models.Taluka).filter(
         location_models.Taluka.id == taluka_id,
         location_models.Taluka.district_id == district_id
     ).first()
     if not taluka:
-        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+        raise HTTPException(status_code=400, detail=f"Taluka {taluka_id} does not belong to district {district_id}")
     
     gram_panchayat = db.query(location_models.GramPanchayat).filter(
         location_models.GramPanchayat.id == gram_panchayat_id,
         location_models.GramPanchayat.taluka_id == taluka_id
     ).first()
     if not gram_panchayat:
-        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+        raise HTTPException(status_code=400, detail=f"Gram Panchayat {gram_panchayat_id} does not belong to taluka {taluka_id}")
     
     # Validate that the village belongs to the specified gram panchayat
     village = db.query(models.Village).filter(models.Village.id == village_id).first()
     if not village:
-        raise HTTPException(status_code=404, detail="Village not found")
+        raise HTTPException(status_code=404, detail=f"Village {village_id} not found")
     
     if village.gram_panchayat_id != gram_panchayat_id:
-        raise HTTPException(status_code=400, detail="Village does not belong to the specified gram panchayat")
+        raise HTTPException(status_code=400, detail=f"Village {village_id} does not belong to gram panchayat {gram_panchayat_id}")
     
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
     results = []
@@ -359,12 +367,19 @@ def get_property_records_by_village(
             total_area = prop.totalAreaSqFt or 0
             used_area = sum((c.length or 0) * (c.width or 0) for c in prop.constructions)
             khali_area = max(total_area - used_area, 0)
-            # Find the bandhmastache_dar for 'खाली जागा' construction type
+            # Find the bandhmastache_dar for vacantLandType construction type
             khali_jaga_rate = 0
-            for c in prop.constructions:
-                if c.construction_type.name.strip() == "खाली जागा":
-                    khali_jaga_rate = getattr(c.construction_type, 'bandhmastache_dar', 0)
-                    break
+            vacant_construction_type = None
+            if prop.vacantLandType:
+                # Query database directly for the construction type, regardless of property constructions
+                vacant_construction_type = db.query(models.ConstructionType).filter(models.ConstructionType.name == prop.vacantLandType).first()
+                if vacant_construction_type:
+                    khali_jaga_rate = getattr(vacant_construction_type, 'bandhmastache_dar', 0)
+                else:
+                    # Fallback: try to find any construction type with similar name
+                    similar_construction = db.query(models.ConstructionType).filter(models.ConstructionType.name.like(f"%{prop.vacantLandType}%")).first()
+                    if similar_construction:
+                        khali_jaga_rate = getattr(similar_construction, 'bandhmastache_dar', 0)
             # Calculate capital value and house tax for khali jaga using same logic as Namuna8
             if khali_area > 0:
                 # Get construction type for khali jaga

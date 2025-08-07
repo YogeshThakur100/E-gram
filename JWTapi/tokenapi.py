@@ -157,7 +157,7 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
     try:
         license_key = license.license_key.strip()
 
-        # ✅ Step 1: Check if local DB has any license saved
+      
         local_licenses = db.query(models.license).all()
 
         if not local_licenses:
@@ -177,7 +177,7 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
                     json={"license_key": license_key},
                     timeout=5
                 )
-                    print('response ---> ' , response)
+                    # print('response ---> ' , response)
                     if response.status_code == 200:
                         encrypted_key = bcrypt.hashpw(license_key.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                         try:
@@ -217,7 +217,7 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
                                 }
                             )
                 except Exception as e:
-                    print("ERROR:", e)  # Add this line for debugging
+                    # print("ERROR:", e)  # Add this line for debugging
                     return JSONResponse(
                         status_code=503,
                         content={
@@ -229,8 +229,7 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
 
         else:
             for lic in local_licenses:
-                print("🔐 Checking license:", license_key)
-                print("🗄️ Against stored hash:", lic.encrypted_license_key)
+               
                 if bcrypt.checkpw(license_key.encode('utf-8'), lic.encrypted_license_key.encode('utf-8')):
                     return JSONResponse(
                         status_code=200,
@@ -310,7 +309,7 @@ def sync_all_tables(db : Session=Depends(database.get_db)):
                     if hasattr(attr, '__tablename__') and hasattr(attr, '__table__'):
                         all_models[attr.__tablename__] = attr
             except ImportError as e:
-                print(f"Warning: Could not import {module_name}: {e}")
+                # print(f"Warning: Could not import {module_name}: {e}")
                 continue
 
         # Define the correct sync order to satisfy foreign key constraints
@@ -339,11 +338,11 @@ def sync_all_tables(db : Session=Depends(database.get_db)):
 
         for table_name in ordered_tables:
             if table_name not in mysql_tables:
-                print(f"Skipping table '{table_name}' as it does not exist in MySQL schema.")
+                # print(f"Skipping table '{table_name}' as it does not exist in MySQL schema.")
                 continue
             model_class = all_models.get(table_name)
             if not model_class:
-                print(f"Warning: No model found for table '{table_name}'")
+                # print(f"Warning: No model found for table '{table_name}'")
                 continue
             try:
                 rows = db.query(model_class).all()
@@ -357,15 +356,15 @@ def sync_all_tables(db : Session=Depends(database.get_db)):
                         row_dict[column.name] = value
                     row_dicts.append(row_dict)
                 data_to_sync[table_name] = row_dicts
-                print(f"Synced {len(row_dicts)} rows from table '{table_name}'")
+                # print(f"Synced {len(row_dicts)} rows from table '{table_name}'")
             except Exception as e:
-                print(f"Error syncing table '{table_name}': {e}")
+                # print(f"Error syncing table '{table_name}': {e}")
                 continue
 
-        print(f"Tables found: {ordered_tables}")
-        print(f"Total tables with data: {len(data_to_sync)}")
-        print(f"Tables successfully synced: {list(data_to_sync.keys())}")
-        print(f"Tables with no data: {[table for table in ordered_tables if table not in data_to_sync]}")
+        # print(f"Tables found: {ordered_tables}")
+        # print(f"Total tables with data: {len(data_to_sync)}")
+        # print(f"Tables successfully synced: {list(data_to_sync.keys())}")
+        # print(f"Tables with no data: {[table for table in ordered_tables if table not in data_to_sync]}")
         
         # 🔽 Send to PHP hosted server
         try:
@@ -376,7 +375,7 @@ def sync_all_tables(db : Session=Depends(database.get_db)):
                 "total_tables": len(data_to_sync),
                 "tables_synced": list(data_to_sync.keys())
             }
-            print(f"Sending data to PHP server: {php_server_url}")
+            # print(f"Sending data to PHP server: {php_server_url}")
             response = requests.post(php_server_url, json=sync_payload, timeout=30)
             if response.status_code == 200:
                 response_data = response.json()
@@ -483,26 +482,28 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
                 # Optionally print row count for debugging
                 try:
                     result = db.execute(text(f"SELECT COUNT(*) FROM {table};"))
-                    print(f"{table} after delete:", result.fetchone()[0])
+                    # print(f"{table} after delete:", result.fetchone()[0])
                 except Exception:
                     pass
             except Exception as e:
-                print(f"Warning: Could not delete from {table}: {e}")
+                # print(f"Warning: Could not delete from {table}: {e}")
+                pass
         db.commit()
 
         # 3b. Debug: Check if districts is empty, force delete if not
         try:
             result = db.execute(text("SELECT COUNT(*) FROM districts;"))
             districts_count = result.fetchone()[0]
-            print("Districts after delete loop:", districts_count)
+            # print("Districts after delete loop:", districts_count)
             if districts_count != 0:
-                print("Districts table not empty after delete loop, forcing manual delete...")
+                # print("Districts table not empty after delete loop, forcing manual delete...")
                 db.execute(text("DELETE FROM districts;"))
                 db.commit()
                 result = db.execute(text("SELECT COUNT(*) FROM districts;"))
-                print("Districts after manual delete:", result.fetchone()[0])
+                # print("Districts after manual delete:", result.fetchone()[0])
         except Exception as e:
-            print(f"Error checking/forcing districts delete: {e}")
+            pass
+            # print(f"Error checking/forcing districts delete: {e}")
 
         # 4. Re-enable foreign key checks
         db.execute(text("PRAGMA foreign_keys = ON;"))
@@ -589,7 +590,7 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
                     if hasattr(attr, '__tablename__') and hasattr(attr, '__table__'):
                         all_models[attr.__tablename__] = attr
             except ImportError as e:
-                print(f"Warning: Could not import {module_name}: {e}")
+                # print(f"Warning: Could not import {module_name}: {e}")
                 continue
 
         def parse_datetime_fields(row, model):
@@ -645,7 +646,8 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
                 try:
                     db.add(model(**row))
                 except Exception as e:
-                    print(f"Error inserting into {table}: {e}")
+                    pass
+                    # print(f"Error inserting into {table}: {e}")
             db.commit()
         return {"success": True, "message": "Local DB replaced with hosted data"}
     except Exception as e:

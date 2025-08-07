@@ -67,7 +67,7 @@ class Property(Base):
     shauchalayKar: Mapped[bool] = mapped_column(default=False)
     karLaguNahi: Mapped[bool] = mapped_column(default=False)
     gharKar: Mapped[float] = mapped_column(default=0)
-    vacantLandType: Mapped[str] = mapped_column(nullable=True)
+    vacantLandType: Mapped[str] = mapped_column("vacantLandType", nullable=True)
     eastBoundary2: Mapped[str] = mapped_column(nullable=True)
     westBoundary2: Mapped[str] = mapped_column(nullable=True)
     northBoundary2: Mapped[str] = mapped_column(nullable=True)

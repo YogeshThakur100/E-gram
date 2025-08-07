@@ -21,6 +21,13 @@ from Utility.QRcodeGeneration import QRCodeGeneration
 from namuna8.recordresponses.property_record_response import get_property_record
 from namuna8.mastertab.mastertabmodels import GeneralSetting, BuildingUsageWeightage
 from location_management import models as location_models
+import logging
+
+logging.basicConfig(
+    filename="namuna8_logs.txt",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 router = APIRouter(
     prefix="/namuna8",
@@ -31,7 +38,14 @@ router = APIRouter(
 
 @router.post("/", response_model=schemas.PropertyRead, status_code=status.HTTP_201_CREATED)
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
+
     try:
+        logging.info("Starting Namuna8 property creation...")
+        # Debug logging for incoming data
+        # print(f"DEBUG: Received property data: {property_data.dict()}")
+        # print(f"DEBUG: vacantLandType value: {getattr(property_data, 'vacantLandType', 'NOT_FOUND')}")
+        # print(f"DEBUG: vacantLandType type: {type(getattr(property_data, 'vacantLandType', None))}")
+        # print(f"DEBUG: All property_data attributes: {dir(property_data)}")
         # Debug logging
         # print("=== DEBUG: Property Data Location Fields ===")
         # print(f"property_data.district_id: {getattr(property_data, 'district_id', 'NOT_FOUND')}")
@@ -39,7 +53,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
         # print(f"property_data.gram_panchayat_id: {getattr(property_data, 'gram_panchayat_id', 'NOT_FOUND')}")
         # print(f"property_data dict: {property_data.dict()}")
         # print("==========================================")
-        
+       
         with db.begin():
             owners = []
             for owner_data in property_data.owners:
@@ -108,10 +122,11 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     formula1 = userFormulaPreference.capitalFormula1
                     formula2 = userFormulaPreference.capitalFormula2
                 else:
-                    print("No user formula preference found")
-                    
-                print("formula1", formula1)
-                print("formula2", formula2)
+                    # print("No user formula preference found")
+                    pass
+                
+                # print("formula1", formula1)
+                # print("formula2", formula2)
                 
                 # capital_value = 0
                 AnnualLandValueRate = getattr(construction_type, 'annualLandValueRate', 1)
@@ -124,13 +139,15 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 usageBasedBuildingWeightageFactor = weightage_map.get(getattr(construction_data, 'bharank', None), 1)
                 if formula1:
                     capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
-                    print("capital_value_from_formula1" , capital_value)
+                    capital_value = round(capital_value, 2)
+                    # print("capital_value_from_formula1" , capital_value)
                 else:
                     capital_value = AreaInMeter * AnnualLandValueRate * depreciationRate * usageBasedBuildingWeightageFactor
-                    print("capital_value_from_formula2" , capital_value)
+                    capital_value = round(capital_value, 2)
+                    # print("capital_value_from_formula2" , capital_value)
                     
                     
-                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value)
+                house_tax = round((getattr(construction_type, 'rate', 0) / 1000) * capital_value, 2)
                 
                 # Debug logging for construction creation
                 construction_district_id = getattr(property_data, 'district_id', None)
@@ -160,7 +177,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
 
             # --- ADDITION: Handle vacant land construction if needed ---
             vacant_land_type = property_data.vacantLandType
-            print("vacant " + str(vacant_land_type))
+            # print("vacant " + str(vacant_land_type))
             has_khali_jaga = False
             for c in constructions:
                 ctype = db.query(models.ConstructionType).filter_by(id=c.construction_type_id).first()
@@ -182,6 +199,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                         avg_width = (float(north) + float(south)) / 2 if north or south else 0
                         total_area = avg_length * avg_width if avg_length and avg_width else 0
                     except (TypeError, ValueError):
+                        logging.info("Khalijaga issue")
                         total_area = 0
                 try:
                     total_area = float(total_area)
@@ -194,6 +212,10 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     for c in constructions
                 )
                 remaining_area = total_area - used_area
+                # vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
+                # if vacant_type_obj:
+                #     pass  # keep your logic here
+# If not found, do nothing. Do NOT raise error, just continue saving property.
                 # print("remaining_area:", remaining_area)
                 # if remaining_area > 0:
                 #     print("greater")
@@ -229,9 +251,44 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
             property_dict = property_data.dict(exclude={"owners", "constructions"})
             if "totalArea" in property_dict and property_dict["totalArea"] is not None:
                 property_dict["totalAreaSqFt"] = property_dict["totalArea"]
-            db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
-            db_property.created_at = datetime.now()
-            db.add(db_property)
+            
+            # Handle vacantLandType field - convert empty string to None
+            if "vacantLandType" in property_dict and property_dict["vacantLandType"] == "":
+                property_dict["vacantLandType"] = None
+            
+            # Handle case sensitivity issue - check for vacantLandtype (lowercase t)
+            if "vacantLandtype" in property_dict:
+                property_dict["vacantLandType"] = property_dict.pop("vacantLandtype")
+                if property_dict["vacantLandType"] == "":
+                    property_dict["vacantLandType"] = None
+            
+            # Additional validation for vacantLandType
+            if "vacantLandType" in property_dict:
+                if property_dict["vacantLandType"] is not None and not isinstance(property_dict["vacantLandType"], str):
+                    property_dict["vacantLandType"] = str(property_dict["vacantLandType"])
+                if property_dict["vacantLandType"] == "" or property_dict["vacantLandType"] is None:
+                    property_dict["vacantLandType"] = None
+            
+            # Ensure vacantLandType is properly set even if not in dict
+            if "vacantLandType" not in property_dict:
+                property_dict["vacantLandType"] = None
+            
+            # Debug logging for property creation
+            # print(f"DEBUG: Creating property with data: {property_dict}")
+            # print(f"DEBUG: vacantLandType final value: {property_dict.get('vacantLandType')}")
+            # print(f"DEBUG: Property dict keys: {list(property_dict.keys())}")
+            
+            try:
+                db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
+                db_property.created_at = datetime.now()
+                # print(f"DEBUG: Property model created successfully")
+                # print(f"DEBUG: Property vacantLandType value: {getattr(db_property, 'vacantLandType', 'NOT_FOUND')}")
+                db.add(db_property)
+            except Exception as e:
+                # print(f"DEBUG: Error creating Property model: {e}")
+                # print(f"DEBUG: Property dict keys: {list(property_dict.keys())}")
+                # print(f"DEBUG: Property dict values: {list(property_dict.values())}")
+                raise e
             # Ensure totalAreaSqFt is set on the db_property object before saving
             if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
                 east = db_property.eastLength or 0
@@ -246,19 +303,28 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
             db_property.safaiKar = bool(property_data.safaiKar)
             db_property.shauchalayKar = bool(property_data.shauchalayKar)
             db_property.toilet = property_data.toilet if property_data.toilet is not None else ''
-            db.flush()
-            db.refresh(db_property)
+            try:
+                db.flush()
+                # print(f"DEBUG: Database flush successful")
+                db.refresh(db_property)
+                # print(f"DEBUG: Property refreshed successfully")
+                # print(f"DEBUG: Final vacantLandType value: {getattr(db_property, 'vacantLandType', 'NOT_FOUND')}")
+            except Exception as e:
+                # print(f"DEBUG: Error during database flush: {e}")
+                raise e
             # Build response with constructionType name
             response = build_property_response(db_property, db, property_data.gram_panchayat_id)
+            # print(f"DEBUG: Response built successfully")
+            # print(f"DEBUG: Response vacantLandType: {response.get('vacantLandType', 'NOT_FOUND')}")
             # --- QR CODE GENERATION (after save, using calculated values) ---
             try:
                 # Use get_property_record to get accurate total tax
                 record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id, db)
                 totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
-                print(f"DEBUG: totalTax: {totalTax}")
-                print(f"DEBUG: srNo: {srNo}")
-                print(f"DEBUG: response keys: {list(response.keys())}")
+                # print(f"DEBUG: totalTax: {totalTax}")
+                # print(f"DEBUG: srNo: {srNo}")
+                # print(f"DEBUG: response keys: {list(response.keys())}")
                 # Calculate totalArea from east/west/north/south
                 east = db_property.eastLength or 0
                 west = db_property.westLength or 0
@@ -284,21 +350,30 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 }
                 # Create location-based QR directory structure
                 qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
-                print(f"DEBUG: Creating QR directory: {qr_dir}")
+                # print(f"DEBUG: Creating QR directory: {qr_dir}")
                 os.makedirs(qr_dir, exist_ok=True)
                 qr_path = os.path.join(qr_dir, "qrcode.png")
-                print(f"DEBUG: QR path: {qr_path}")
-                print(f"DEBUG: QR data: {qr_data}")
+                # print(f"DEBUG: QR path: {qr_path}")
+                # print(f"DEBUG: QR data: {qr_data}")
                 QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
-                print(f"DEBUG: QR code generated successfully")
+                # print(f"DEBUG: QR code generated successfully")
                 db_property.qrcode = qr_path.replace(os.sep, "/")
                 db.flush()
-                print(f"DEBUG: QR path saved to database: {db_property.qrcode}")
+                logging.info("QR code generated successfully")
+                # print(f"DEBUG: QR path saved to database: {db_property.qrcode}")
             except Exception as e:
-                print(f"QR code generation failed: {e}")
+                logging.error(f"QR code generation failed: {e}")
+                # print(f"QR code generation failed: {e}")
             return response
     except SQLAlchemyError as e:
         db.rollback()
+        logging.error(f"Database error during property creation: {e}")
+        # print(f"DEBUG: Database error details: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save property and owners: " + str(e))
+    except Exception as e:
+        db.rollback()
+        logging.error(f"Unexpected error during property creation: {e}")
+        # print(f"DEBUG: Unexpected error details: {e}")
         raise HTTPException(status_code=500, detail="Failed to save property and owners: " + str(e))
 
 @router.get("/property_list/", response_model=list[schemas.PropertyList])
@@ -595,9 +670,9 @@ def update_namuna8_entry(
         record_response = get_property_record(db_property.anuKramank, district_id, taluka_id, gram_panchayat_id, db)
         totalTax = record_response.get('totaltax', 0)
         srNo = response.get('anuKramank') or response.get('srNo') or ''
-        print(f"DEBUG UPDATE: totalTax: {totalTax}")
-        print(f"DEBUG UPDATE: srNo: {srNo}")
-        print(f"DEBUG UPDATE: response keys: {list(response.keys())}")
+        # print(f"DEBUG UPDATE: totalTax: {totalTax}")
+        # print(f"DEBUG UPDATE: srNo: {srNo}")
+        # print(f"DEBUG UPDATE: response keys: {list(response.keys())}")
         east = db_property.eastLength or 0
         west = db_property.westLength or 0
         north = db_property.northLength or 0
@@ -620,18 +695,18 @@ def update_namuna8_entry(
         }
         # Create location-based QR directory structure
         qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
-        print(f"DEBUG UPDATE: Creating QR directory: {qr_dir}")
+        # print(f"DEBUG UPDATE: Creating QR directory: {qr_dir}")
         os.makedirs(qr_dir, exist_ok=True)
         qr_path = os.path.join(qr_dir, "qrcode.png")
-        print(f"DEBUG UPDATE: QR path: {qr_path}")
-        print(f"DEBUG UPDATE: QR data: {qr_data}")
+        # print(f"DEBUG UPDATE: QR path: {qr_path}")
+        # print(f"DEBUG UPDATE: QR data: {qr_data}")
         QRCodeGeneration.createQRcodeTemp(qr_data, qr_path)
-        print(f"DEBUG UPDATE: QR code generated successfully")
+        # print(f"DEBUG UPDATE: QR code generated successfully")
         db_property.qrcode = qr_path.replace(os.sep, "/")
         db.commit()
-        print(f"DEBUG UPDATE: QR path saved to database: {db_property.qrcode}")
+        # print(f"DEBUG UPDATE: QR path saved to database: {db_property.qrcode}")
     except Exception as e:
-        print(f"QR code update failed: {e}")
+        logging.error(f"QR code update failed: {e}")
     return response
 
 @router.get("/bulk_edit_list/", response_model=list[schemas.BulkEditPropertyRow])
@@ -867,61 +942,61 @@ def upload_owner_photo(owner_id: int = Form(...), file: UploadFile = File(...)):
     db: Session = next(get_db())
     
     try:
-        print(f"DEBUG: Starting photo upload for owner_id: {owner_id}")
+        # print(f"DEBUG: Starting photo upload for owner_id: {owner_id}")
         
         # Get owner to find location information
         owner = db.query(models.Owner).filter(models.Owner.id == owner_id).first()
         if not owner:
-            print(f"DEBUG: Owner not found with id: {owner_id}")
+            # print(f"DEBUG: Owner not found with id: {owner_id}")
             raise HTTPException(status_code=400, detail="Owner not found")
         
-        print(f"DEBUG: Found owner: {owner.name}, district_id: {owner.district_id}, taluka_id: {owner.taluka_id}, gram_panchayat_id: {owner.gram_panchayat_id}")
+        # print(f"DEBUG: Found owner: {owner.name}, district_id: {owner.district_id}, taluka_id: {owner.taluka_id}, gram_panchayat_id: {owner.gram_panchayat_id}")
         
         # Validate that owner has location information
         if not owner.district_id or not owner.taluka_id or not owner.gram_panchayat_id:
-            print(f"DEBUG: Owner missing location information")
+            # print(f"DEBUG: Owner missing location information")
             raise HTTPException(status_code=400, detail="Owner must have complete location information (district_id, taluka_id, gram_panchayat_id)")
         
         # Create directory structure: uploaded_images/owners/{district_id}/{taluka_id}/{gram_panchayat_id}/{owner_id}/
         image_dir = os.path.join("uploaded_images", "owners", str(owner.district_id), str(owner.taluka_id), str(owner.gram_panchayat_id), str(owner_id))
-        print(f"DEBUG: Creating directory: {image_dir}")
+        # print(f"DEBUG: Creating directory: {image_dir}")
         
         # Ensure the directory exists
         os.makedirs(image_dir, exist_ok=True)
-        print(f"DEBUG: Directory created successfully")
+        # print(f"DEBUG: Directory created successfully")
         
         # Sanitize owner name for filename
         ownername = re.sub(r'[^\w\-_]', '_', owner.name) if owner.name else f"owner_{owner_id}"
-        print(f"DEBUG: Sanitized owner name: {ownername}")
+        # print(f"DEBUG: Sanitized owner name: {ownername}")
         
         # Get file extension
         ext = os.path.splitext(file.filename)[1] if file.filename else ''
         filename = f"{ownername}{ext}"
-        print(f"DEBUG: Filename: {filename}")
+        # print(f"DEBUG: Filename: {filename}")
         
         file_path = os.path.join(image_dir, filename)
-        print(f"DEBUG: Full file path: {file_path}")
+        # print(f"DEBUG: Full file path: {file_path}")
         
         # Save the file
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        print(f"DEBUG: File saved successfully")
+        # print(f"DEBUG: File saved successfully")
         
         # Convert to forward slashes for database storage
         file_location = file_path.replace(os.sep, '/')
-        print(f"DEBUG: Database file location: {file_location}")
+        # print(f"DEBUG: Database file location: {file_location}")
         
         # Update the owner's photo path in the database
         owner.ownerPhoto = file_location
         db.commit()
-        print(f"DEBUG: Database updated successfully")
+        # print(f"DEBUG: Database updated successfully")
         
         return file_location
     except Exception as e:
-        print(f"DEBUG: Error occurred: {str(e)}")
-        print(f"DEBUG: Error type: {type(e)}")
+        # print(f"DEBUG: Error occurred: {str(e)}")
+        # print(f"DEBUG: Error type: {type(e)}")
         import traceback
-        print(f"DEBUG: Traceback: {traceback.format_exc()}")
+        # print(f"DEBUG: Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Error uploading photo: {str(e)}")
 
 def build_property_response(db_property, db, gram_panchayat_id: int):

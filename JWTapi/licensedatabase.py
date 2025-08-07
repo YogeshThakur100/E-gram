@@ -15,6 +15,7 @@ def get_db():
         # db._warn_on_events={}
         yield db
     except KeyboardInterrupt:
-        print("Key Borad Interrupt")
+        # print("Key Borad Interrupt")
+        pass
     finally:
         db.close()

@@ -37,6 +37,12 @@ from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
 from LogBook.ReportCreationUsingJinja import logbookPrint
 from reportstab.outward_entries_apis import router as outward_entries_router
 
+
+from certificates.marriage_certificate_model import MarriageCertificate
+from certificates.widow_certificate_model import WidowCertificate
+from certificates.receipt_certificate_model import ReceiptCertificate
+from certificates.no_arrears_certificate_model import NoArrearsCertificate
+from namuna8.namuna8_model import Property
 # Create all tables
 Base.metadata.create_all(bind=engine)
 

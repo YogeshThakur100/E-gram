@@ -394,10 +394,11 @@ def get_no_objection_certificate_image(
     cert = db.query(NoObjectionCertificate).filter(NoObjectionCertificate.id == id).first()
     if not cert:
         raise HTTPException(status_code=404, detail="No Objection certificate not found")
-    
-    if not getattr(cert, "image_url", None):
-        raise HTTPException(status_code=404, detail="No Objection certificate has no image")
-    
+
+    # ✅ If image_url is saved and file exists, directly serve it
+    if cert.image_url and os.path.exists(cert.image_url):
+        return FileResponse(cert.image_url, media_type="image/png")
+
     # If location parameters are provided, validate them
     if district_id is not None and taluka_id is not None and gram_panchayat_id is not None:
         from location_management import models as location_models
