@@ -1,9 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
+from database import Base
 from sqlalchemy.sql import func
-from database import engine
-
-Base = declarative_base()
 
 class OutwardEntry(Base):
     __tablename__ = 'outward_entries'
@@ -31,7 +28,4 @@ class OutwardEntry(Base):
             'name': self.name,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
-        }
-
-# Create the table
-Base.metadata.create_all(bind=engine) 
+        } 

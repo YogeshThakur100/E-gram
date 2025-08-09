@@ -43,6 +43,7 @@ from certificates.widow_certificate_model import WidowCertificate
 from certificates.receipt_certificate_model import ReceiptCertificate
 from certificates.no_arrears_certificate_model import NoArrearsCertificate
 from namuna8.namuna8_model import Property
+from namuna8.property_owner_history_model import PropertyOwnerHistory
 # Create all tables
 Base.metadata.create_all(bind=engine)
 

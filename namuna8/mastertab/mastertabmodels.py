@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, DateTime, Boolean, Integer, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
 import datetime
 from database import Base
 import uuid
