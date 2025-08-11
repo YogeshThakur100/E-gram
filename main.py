@@ -43,8 +43,17 @@ from certificates.widow_certificate_model import WidowCertificate
 from certificates.receipt_certificate_model import ReceiptCertificate
 from certificates.no_arrears_certificate_model import NoArrearsCertificate
 from namuna8.namuna8_model import Property
-# Create all tables
-Base.metadata.create_all(bind=engine)
+from namuna8.property_owner_history_model import PropertyOwnerHistory
+from namuna8.owner_history_model import OwnerHistory
+Base.metadata.create_all(bind=engine, checkfirst=True)
+
+# Ensure critical certificate tables are created explicitly (helps in packaged/installer runs)
+try:
+    MarriageCertificate.__table__.create(bind=engine, checkfirst=True)
+    WidowCertificate.__table__.create(bind=engine, checkfirst=True)
+except Exception:
+    # Safe to ignore; if engine is read-only or tables already exist
+    pass
 
 app = FastAPI()
 

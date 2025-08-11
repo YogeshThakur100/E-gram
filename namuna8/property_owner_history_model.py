@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from namuna8.namuna8_database import Base
+from database import Base
 
 class PropertyOwnerHistory(Base):
     __tablename__ = 'property_owner_history'

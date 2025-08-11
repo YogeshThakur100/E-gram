@@ -28,3 +28,40 @@
 2025-08-07 19:21:46,771 - INFO - QR code generated successfully
 2025-08-07 19:31:11,436 - INFO - Starting Namuna8 property creation...
 2025-08-07 19:31:11,478 - INFO - QR code generated successfully
+2025-08-08 17:27:51,528 - INFO - Starting Namuna8 property creation...
+2025-08-08 17:27:51,654 - INFO - QR code generated successfully
+2025-08-08 17:28:33,230 - INFO - Starting Namuna8 property creation...
+2025-08-08 17:28:33,236 - ERROR - Database error during property creation: (sqlite3.IntegrityError) UNIQUE constraint failed: properties.malmattaKramank
+[SQL: INSERT INTO properties ("anuKramank", village_id, district_id, taluka_id, gram_panchayat_id, "malmattaKramank", "streetName", "citySurveyOrGatNumber", length, width, "totalAreaSqFt", "eastBoundary", "westBoundary", "northBoundary", "southBoundary", "divaArogyaKar", "safaiKar", "shauchalayKar", "karLaguNahi", "gharKar", "vacantLandType", "eastBoundary2", "westBoundary2", "northBoundary2", "southBoundary2", "waterFacility1", "waterFacility2", toilet, "roofType", "eastLength", "westLength", "northLength", "southLength", created_at, updated_at, "areaUnit", qrcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: (2, 1, 1, 1, 1, '', '', '', None, None, 64410.0, 'dfsdsd', '', '', '', 0, 1, 1, 0, 0.0, '\u0916\u093e\u0932\u0940 \u091c\u093e\u0917\u093e', '', '', '', '', '', '', '', '', 232.0, 333.0, 233.0, 223.0, '2025-08-08 17:28:33.234213', '2025-08-08 17:28:33.234816', 'sqft', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAXNSR0IArs4c6QAAIABJREFUeF7sfQd4FNX6/sz2zWbTe0IKKSSEhBaqKEUQURQFEQuKBbheUETKVYo ... (40996 characters truncated) ... 4MDCnYd6IbDZbvlAojBycM9C+kfMKbNcRFxd3pba29kUOhwPloL3j+QGG+Qu2+nb27NlFra2t6YPfGEn2MTDHORzOjc7OzqLQ0NBD/6FEkA2O08iuwrxS/i8baQvk/SXnGwAAAABJRU5ErkJggg==')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-08-08 17:29:39,766 - INFO - Starting Namuna8 property creation...
+2025-08-08 17:29:39,772 - ERROR - Database error during property creation: (sqlite3.IntegrityError) UNIQUE constraint failed: properties.malmattaKramank
+[SQL: INSERT INTO properties ("anuKramank", village_id, district_id, taluka_id, gram_panchayat_id, "malmattaKramank", "streetName", "citySurveyOrGatNumber", length, width, "totalAreaSqFt", "eastBoundary", "westBoundary", "northBoundary", "southBoundary", "divaArogyaKar", "safaiKar", "shauchalayKar", "karLaguNahi", "gharKar", "vacantLandType", "eastBoundary2", "westBoundary2", "northBoundary2", "southBoundary2", "waterFacility1", "waterFacility2", toilet, "roofType", "eastLength", "westLength", "northLength", "southLength", created_at, updated_at, "areaUnit", qrcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: (2, 1, 1, 1, 1, '', '', '', None, None, 64410.0, 'dfsdsd', '', '', '', 0, 1, 1, 0, 0.0, '\u0916\u093e\u0932\u0940 \u091c\u093e\u0917\u093e', '', '', '', '', '', '', '', '', 232.0, 333.0, 233.0, 223.0, '2025-08-08 17:29:39.770952', '2025-08-08 17:29:39.771638', 'sqft', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAXNSR0IArs4c6QAAIABJREFUeF7sfQd4FNX6/s72zWbTe0IKKSSEhBaqKEUQURQFEQuKBbheUETKVYo ... (40984 characters truncated) ... ZFeDAgE+D34jsdnuhUCiMHvQZaN9IvwLbKRISEj6sr69/kcPhQDlo73h+gMF/wVbfzJ49u6StrS1z8BsjyT4GfJzD4Vzv7OwsCQ8PP/QfSgTZ4DiN7Cr4lep/ARJVC+Tp9J1MAAAAAElFTkSuQmCC')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-08-08 17:29:57,692 - INFO - Starting Namuna8 property creation...
+2025-08-08 17:29:57,708 - ERROR - Database error during property creation: (sqlite3.IntegrityError) UNIQUE constraint failed: properties.malmattaKramank
+[SQL: INSERT INTO properties ("anuKramank", village_id, district_id, taluka_id, gram_panchayat_id, "malmattaKramank", "streetName", "citySurveyOrGatNumber", length, width, "totalAreaSqFt", "eastBoundary", "westBoundary", "northBoundary", "southBoundary", "divaArogyaKar", "safaiKar", "shauchalayKar", "karLaguNahi", "gharKar", "vacantLandType", "eastBoundary2", "westBoundary2", "northBoundary2", "southBoundary2", "waterFacility1", "waterFacility2", toilet, "roofType", "eastLength", "westLength", "northLength", "southLength", created_at, updated_at, "areaUnit", qrcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+[parameters: (2, 1, 1, 1, 1, '', '', '', None, None, 64410.0, 'dfsdsd', '', '', '', 0, 1, 1, 0, 0.0, '\u0916\u093e\u0932\u0940 \u091c\u093e\u0917\u093e', '', '', '', '', '', '', '', '', 232.0, 333.0, 233.0, 223.0, '2025-08-08 17:29:57.706086', '2025-08-08 17:29:57.707073', 'sqft', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAXNSR0IArs4c6QAAIABJREFUeF7sfQd4FNX6/s72zWbTe0IKJCEhJLRQRSmCiKIoiFhQLMD1giJSrlJ ... (40984 characters truncated) ... AgQGfBr8R2e32QqFQGD3oM9C+kX4FtlMkJCR8WF9f/yKHw4Fy0N7x/ACD/4Ktvpk9e3ZJW1tb5uA3RpJ9DPg4h8O53tnZWRIeHn7oP5QIssFxGtlV8CvV/wKekAjkpOGtTAAAAABJRU5ErkJggg==')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-08-08 17:56:34,530 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:00:59,159 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:02:43,364 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:05:38,012 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:05:41,921 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:06:22,706 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:06:36,958 - INFO - QR code generated successfully
+2025-08-08 18:09:13,792 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:11:22,467 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:11:25,729 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:11:28,870 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:11:32,528 - ERROR - Database error during property creation: A transaction is already begun on this Session.
+2025-08-08 18:25:27,551 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-08 18:25:40,903 - ERROR - Unexpected error during property creation: cannot access local variable 'formula1' where it is not associated with a value
+2025-08-08 18:26:41,441 - INFO - QR code generated successfully
+2025-08-08 18:27:55,058 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0906\u0927\u0940\u091a \u092f\u093e \u0906\u092f\u0921\u0940\u0938\u0939 \u0905\u0938\u094d\u0924\u093f\u0924\u094d\u0935\u093e\u0924 \u0906\u0939\u0947 / Malmatta Kramank already exists with this ID
+2025-08-08 18:28:37,371 - INFO - QR code generated successfully
+2025-08-08 19:01:52,695 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/no-objection/1 "HTTP/1.1 200 OK"
+2025-08-08 19:02:08,304 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/no-objection/1 "HTTP/1.1 200 OK"
+2025-08-08 19:02:33,763 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/no-objection/1 "HTTP/1.1 200 OK"
