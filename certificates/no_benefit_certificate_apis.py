@@ -33,9 +33,7 @@ def create_no_benefit_certificate(
     image_url = None
     
     # Debug: Print received values
-    print(f"DEBUG: Received district_id: '{district_id}' (type: {type(district_id)})")
-    print(f"DEBUG: Received taluka_id: '{taluka_id}' (type: {type(taluka_id)})")
-    print(f"DEBUG: Received gram_panchayat_id: '{gram_panchayat_id}' (type: {type(gram_panchayat_id)})")
+    
     
     # Create cert first to get ID
     reg_date_obj = datetime.strptime(registration_date, "%Y-%m-%d").date()
@@ -45,9 +43,7 @@ def create_no_benefit_certificate(
     taluka_id_int = int(taluka_id) if taluka_id and taluka_id.strip() else None
     gram_panchayat_id_int = int(gram_panchayat_id) if gram_panchayat_id and gram_panchayat_id.strip() else None
     
-    print(f"DEBUG: Converted district_id_int: {district_id_int}")
-    print(f"DEBUG: Converted taluka_id_int: {taluka_id_int}")
-    print(f"DEBUG: Converted gram_panchayat_id_int: {gram_panchayat_id_int}")
+   
     
     cert = NoBenefitCertificate(
         registration_date=reg_date_obj,
@@ -121,9 +117,9 @@ def list_no_benefit_certificates(
     
     # Debug: Print all certificates to see what's stored
     all_certs = db.query(NoBenefitCertificate).all()
-    print(f"DEBUG: Total certificates in database: {len(all_certs)}")
-    for cert in all_certs:
-        print(f"DEBUG: Certificate ID {cert.id} - district_id: {cert.district_id}, taluka_id: {cert.taluka_id}, gram_panchayat_id: {cert.gram_panchayat_id}")
+
+    # for cert in all_certs:
+        # print(f"DEBUG: Certificate ID {cert.id} - district_id: {cert.district_id}, taluka_id: {cert.taluka_id}, gram_panchayat_id: {cert.gram_panchayat_id}")
     
     if district_id:
         query = query.filter(NoBenefitCertificate.district_id == district_id)

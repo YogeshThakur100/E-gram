@@ -40,19 +40,6 @@ router = APIRouter(
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
 
     try:
-        logging.info("Starting Namuna8 property creation...")
-        # Debug logging for incoming data
-        # print(f"DEBUG: Received property data: {property_data.dict()}")
-        # print(f"DEBUG: vacantLandType value: {getattr(property_data, 'vacantLandType', 'NOT_FOUND')}")
-        # print(f"DEBUG: vacantLandType type: {type(getattr(property_data, 'vacantLandType', None))}")
-        # print(f"DEBUG: All property_data attributes: {dir(property_data)}")
-        # Debug logging
-        # print("=== DEBUG: Property Data Location Fields ===")
-        # print(f"property_data.district_id: {getattr(property_data, 'district_id', 'NOT_FOUND')}")
-        # print(f"property_data.taluka_id: {getattr(property_data, 'taluka_id', 'NOT_FOUND')}")
-        # print(f"property_data.gram_panchayat_id: {getattr(property_data, 'gram_panchayat_id', 'NOT_FOUND')}")
-        # print(f"property_data dict: {property_data.dict()}")
-        # print("==========================================")
        
         with db.begin():
             owners = []
@@ -82,11 +69,6 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     owner_district_id = getattr(property_data, 'district_id', None)
                     owner_taluka_id = getattr(property_data, 'taluka_id', None)
                     owner_gram_panchayat_id = getattr(property_data, 'gram_panchayat_id', None)
-                    # print(f"=== DEBUG: Creating Owner with Location ===")
-                    # print(f"owner_district_id: {owner_district_id}")
-                    # print(f"owner_taluka_id: {owner_taluka_id}")
-                    # print(f"owner_gram_panchayat_id: {owner_gram_panchayat_id}")
-                    # print("==========================================")
                     
                     new_owner = models.Owner(
                         name=owner_data.name,
@@ -104,7 +86,16 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     db.add(new_owner)
                     db.flush()
                     owners.append(new_owner)
-
+            if not property_data.malmattaKramank or str(property_data.malmattaKramank).strip() == "":
+                raise HTTPException(
+                    status_code=400,
+                    detail="मालमत्ता क्रमांक रिक्त असू शकत नाही / Malmatta Kramank should not be null or empty"
+                )
+            if db.query(models.Property).filter(models.Property.malmattaKramank == property_data.malmattaKramank).first():
+                raise HTTPException(
+                    status_code=400,
+                    detail="मालमत्ता क्रमांक आधीच या आयडीसह अस्तित्वात आहे / Malmatta Kramank already exists with this ID"
+                )
             # --- FIX: Convert constructions dicts to model instances ---
             constructions = []
             for construction_data in property_data.constructions:
@@ -124,10 +115,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 else:
                     # print("No user formula preference found")
                     pass
-                
-                # print("formula1", formula1)
-                # print("formula2", formula2)
-                
+                   
                 # capital_value = 0
                 AnnualLandValueRate = getattr(construction_type, 'annualLandValueRate', 1)
                 #for capital_value calculation
@@ -153,11 +141,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 construction_district_id = getattr(property_data, 'district_id', None)
                 construction_taluka_id = getattr(property_data, 'taluka_id', None)
                 construction_gram_panchayat_id = getattr(property_data, 'gram_panchayat_id', None)
-                # print(f"=== DEBUG: Creating Construction with Location ===")
-                # print(f"construction_district_id: {construction_district_id}")
-                # print(f"construction_taluka_id: {construction_taluka_id}")
-                # print(f"construction_gram_panchayat_id: {construction_gram_panchayat_id}")
-                # print("==========================================")
+              
                 
                 new_construction = models.Construction(
                     construction_type_id=construction_type.id,
@@ -212,42 +196,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                     for c in constructions
                 )
                 remaining_area = total_area - used_area
-                # vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
-                # if vacant_type_obj:
-                #     pass  # keep your logic here
-# If not found, do nothing. Do NOT raise error, just continue saving property.
-                # print("remaining_area:", remaining_area)
-                # if remaining_area > 0:
-                #     print("greater")
-                #     vacant_type_obj = db.query(models.ConstructionType).filter(models.ConstructionType.name == vacant_land_type).first()
-                #     if vacant_type_obj:
-                       
-                #         length = remaining_area
-                #         width = 1
-                #         constructionYear = str(datetime.now().year)
-                #         floor = "तळमजला"
-                #         bharank = "औद्योगिक"
-                #         AreaInMeter = length * width * 0.092903
-                #         AnnualLandValueRate = 1000
-                #         ConstructionRateAsPerConstruction = vacant_type_obj.bandhmastache_dar
-                #         depreciationRate = calculate_depreciation_rate(constructionYear, vacant_type_obj.name)
-                #         usageBasedBuildingWeightageFactor = 1
-                #         capital_value = (( AreaInMeter * AnnualLandValueRate ) + ( AreaInMeter * ConstructionRateAsPerConstruction * depreciationRate)) * usageBasedBuildingWeightageFactor
-                #         house_tax = round((getattr(vacant_type_obj, 'rate', 0) / 1000) * capital_value)
-                #         new_vacant_land = models.Construction(
-                #             construction_type_id=vacant_type_obj.id,
-                #             length=length,
-                #             width=width,
-                #             constructionYear=constructionYear,
-                #             floor=floor,
-                #             bharank=bharank,
-                #             capitalValue=capital_value,
-                #             houseTax=house_tax,
-                #         )
-                #         constructions.append(new_vacant_land)
-            # --- END ADDITION ---
-
-            # Map totalArea to totalAreaSqFt if present in dict
+              
             property_dict = property_data.dict(exclude={"owners", "constructions"})
             if "totalArea" in property_dict and property_dict["totalArea"] is not None:
                 property_dict["totalAreaSqFt"] = property_dict["totalArea"]
@@ -273,11 +222,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
             if "vacantLandType" not in property_dict:
                 property_dict["vacantLandType"] = None
             
-            # Debug logging for property creation
-            # print(f"DEBUG: Creating property with data: {property_dict}")
-            # print(f"DEBUG: vacantLandType final value: {property_dict.get('vacantLandType')}")
-            # print(f"DEBUG: Property dict keys: {list(property_dict.keys())}")
-            
+          
             try:
                 db_property = models.Property(**property_dict, owners=owners, constructions=constructions)
                 db_property.created_at = datetime.now()
@@ -285,9 +230,6 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 # print(f"DEBUG: Property vacantLandType value: {getattr(db_property, 'vacantLandType', 'NOT_FOUND')}")
                 db.add(db_property)
             except Exception as e:
-                # print(f"DEBUG: Error creating Property model: {e}")
-                # print(f"DEBUG: Property dict keys: {list(property_dict.keys())}")
-                # print(f"DEBUG: Property dict values: {list(property_dict.values())}")
                 raise e
             # Ensure totalAreaSqFt is set on the db_property object before saving
             if not db_property.totalAreaSqFt or db_property.totalAreaSqFt == 0:
@@ -314,18 +256,13 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 raise e
             # Build response with constructionType name
             response = build_property_response(db_property, db, property_data.gram_panchayat_id)
-            # print(f"DEBUG: Response built successfully")
-            # print(f"DEBUG: Response vacantLandType: {response.get('vacantLandType', 'NOT_FOUND')}")
-            # --- QR CODE GENERATION (after save, using calculated values) ---
+          
             try:
                 # Use get_property_record to get accurate total tax
                 record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id, db)
                 totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
-                # print(f"DEBUG: totalTax: {totalTax}")
-                # print(f"DEBUG: srNo: {srNo}")
-                # print(f"DEBUG: response keys: {list(response.keys())}")
-                # Calculate totalArea from east/west/north/south
+              
                 east = db_property.eastLength or 0
                 west = db_property.westLength or 0
                 north = db_property.northLength or 0
