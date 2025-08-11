@@ -139,10 +139,17 @@ def list_unemployment_certificates(
             
         image_val = str(getattr(cert, 'image', ''))
         if image_val:
-            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
-                cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            # Check if the image file actually exists
+            image_file_path = image_val
+            if not os.path.isabs(image_file_path):
+                image_file_path = os.path.join(UPLOAD_DIR, image_file_path) if not image_file_path.startswith(UPLOAD_DIR) else image_file_path
+            if os.path.exists(image_file_path):
+                if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                    cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+                else:
+                    cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}"
             else:
-                cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}"
+                cert_data.image_url = None
         else:
             cert_data.image_url = None
             
@@ -180,10 +187,16 @@ def get_unemployment_certificate(id: int, request: Request, db: Session = Depend
         
     image_val = str(getattr(cert, 'image', ''))
     if image_val:
-        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
-            cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+        image_file_path = image_val
+        if not os.path.isabs(image_file_path):
+            image_file_path = os.path.join(UPLOAD_DIR, image_file_path) if not image_file_path.startswith(UPLOAD_DIR) else image_file_path
+        if os.path.exists(image_file_path):
+            if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+                cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
+            else:
+                cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}"
         else:
-            cert_data.image_url = str(request.base_url)[:-1] + f"/certificates/unemployment_image/{cert.id}"
+            cert_data.image_url = None
     else:
         cert_data.image_url = None
     
