@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Optional
 from namuna8 import namuna8_model as models, namuna8_schemas as schemas
+from location_management import models as location_models
 from database import get_db
 from namuna8.mastertab.transfer_apis import PropertyTransferLogDB
 import json
@@ -11,23 +12,50 @@ router = APIRouter()
 
 @router.get('/recordresponses')
 def get_ferfar_record_responses(
-    village_id: Optional[int] = None,
+    village_id: int,
+    gram_panchayat_id: int,
+    taluka_id: int,
+    district_id: int,
     from_date: Optional[str] = None,
     to_date: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """फेरफाराचे रजिस्टर - Get property transfer record responses for all properties using existing data"""
     
-    # Get village information
+    # Resolve and collect human-readable location names for response header
+    village_name = ""
+    gp_name = ""
+    taluka_name = ""
+    district_name = ""
+
+    village_row = db.query(models.Village).filter(models.Village.id == village_id).first()
+    if village_row:
+        village_name = village_row.name or ""
+
+    gp_row = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == gram_panchayat_id).first()
+    if gp_row:
+        gp_name = gp_row.name or ""
+
+    taluka_row = db.query(location_models.Taluka).filter(location_models.Taluka.id == taluka_id).first()
+    if taluka_row:
+        taluka_name = taluka_row.name or ""
+
+    district_row = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if district_row:
+        district_name = district_row.name or ""
+
     village_info = {
-        "village": None,
-        "gramPanchayat": None,
-        "jilha": None,
-        "taluk": None
+        "village": village_name,
+        "gramPanchayat": gp_name,
+        "jilha": district_name,
+        "taluk": taluka_name,
     }
     
-    # Build query for transfer logs using existing table - NO FILTERING
-    query = db.query(PropertyTransferLogDB)
+    # Build query for transfer logs joined with properties to allow location-based filtering
+    query = (
+        db.query(PropertyTransferLogDB)
+        .join(models.Property, PropertyTransferLogDB.property_id == models.Property.anuKramank)
+    )
     
     if from_date:
         query = query.filter(PropertyTransferLogDB.date >= from_date)
@@ -35,8 +63,18 @@ def get_ferfar_record_responses(
     if to_date:
         query = query.filter(PropertyTransferLogDB.date <= to_date)
     
-    # Get all transfer logs
+    # Apply required location filters
+    query = query.filter(models.Property.village_id == village_id)
+    query = query.filter(models.Property.gram_panchayat_id == gram_panchayat_id)
+    query = query.filter(models.Property.taluka_id == taluka_id)
+    query = query.filter(models.Property.district_id == district_id)
+
+    # Get all transfer logs after filters
     transfer_logs = query.order_by(PropertyTransferLogDB.date.desc()).all()
+
+    # If no records found for the given filters, return an explicit no data message
+    if not transfer_logs:
+        return {"message": "no data"}
     
     # Format the response
     property_transfers = []
