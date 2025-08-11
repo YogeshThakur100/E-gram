@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 from namuna8 import namuna8_apis
 from namuna9 import namuna9_apis
-from certificates import birth_certificate_apis, death_certificate_apis, birthdeath_unavailability_apis, resident_certificate_apis, family_certificate_apis, toilet_certificate_apis, no_objection_certificate_apis, no_benefit_certificate_apis, life_certificate_apis, good_conduct_certificate_apis, niradhar_certificate_apis, no_arrears_certificate_apis, unemployment_certificate_apis, receipt_certificate_apis
+from certificates import birth_certificate_apis, death_certificate_apis, birthdeath_unavailability_apis, resident_certificate_apis, family_certificate_apis, toilet_certificate_apis, no_objection_certificate_apis, no_benefit_certificate_apis, life_certificate_apis, good_conduct_certificate_apis, niradhar_certificate_apis, no_arrears_certificate_apis, unemployment_certificate_apis, receipt_certificate_apis, marriage_certificate_apis, widow_certificate_apis, allcertificates
 from location_management import apis as location_apis
 from namuna8.recordresponses import property_record_response
 from namuna8.namuna7 import namuna7_apis
@@ -43,6 +43,7 @@ from certificates.widow_certificate_model import WidowCertificate
 from certificates.receipt_certificate_model import ReceiptCertificate
 from certificates.no_arrears_certificate_model import NoArrearsCertificate
 from namuna8.namuna8_model import Property
+from namuna8.property_owner_history_model import PropertyOwnerHistory
 # Create all tables
 Base.metadata.create_all(bind=engine)
 
@@ -66,6 +67,9 @@ app.include_router(namuna8_apis.router)
 app.include_router(namuna9_apis.router)
 app.include_router(birth_certificate_apis.router)
 app.include_router(death_certificate_apis.router)
+app.include_router(marriage_certificate_apis.router)
+app.include_router(allcertificates.router)
+app.include_router(widow_certificate_apis.router)
 app.include_router(birthdeath_unavailability_apis.router)
 app.include_router(resident_certificate_apis.router)
 app.include_router(family_certificate_apis.router)

@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-from namuna8.namuna8_database import Base
+from database import Base
 
 class OwnerHistory(Base):
     __tablename__ = 'owner_history'

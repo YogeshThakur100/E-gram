@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import Column, Integer, String, DateTime, Text
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from typing import List, Optional
 from namuna8 import namuna8_model as models, namuna8_schemas as schemas
