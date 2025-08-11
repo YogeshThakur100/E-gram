@@ -148,15 +148,19 @@
                     <td style="width: 50%; border-right: 1px solid #000; border-bottom: none; border-top: none; border-left: none; text-align: center; vertical-align: top;">
                         <div style="font-size: 12px;">PHOTO</div>
                         <div style="border: 1px solid #000; width: 80px; height: 80px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                            <img src= {{row.photoURL | default('')}} alt="Sample Photo" style="width:78px; height: 78px; object-fit: cover;" />
+                            <img src= {{row.photoURL | default('')}} alt="Photo" style="width:78px; height: 78px; object-fit: cover;" />
                         </div>
                     </td>
                     <td style="width: 50%; border-left: none; border-bottom: none; border-top: none; border-right: none; text-align: center; vertical-align: top;">
-                        <div style="font-size: 12px;">QR-CODE</div>
-                        <div style="border: 1px solid #000; width: 80px; height: 80px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                            <img src={{row.bank_qr_code | default('')}}  alt="Sample QR Code" style="width: 78px; height: 78px; object-fit: cover;" />
-                        </div>
+                        <div style="font-size: 12px;">Information</div>
+                        <div style="border: 1px solid #000; width:80px; height: 80px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                            <img src={{row.QRcodeURL | default('')}} alt="Information" style="width: 78px; height: 78px; object-fit: cover;" />
                     </td>
+                    <td style="width: 50%; border-left: none; border-bottom: none; border-top: none; border-right: none; text-align: center; vertical-align: top;">
+                        <div style="font-size: 12px;">Bank</div>
+                        <div style="border: 1px solid #000; width: 80px; height: 80px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                            <img src={{row.bank_qr_code | default('')}} alt="Bank" style="width: 78px; height: 78px; object-fit: cover;" />
+                    </td>   
                 </tr>
             </table>
         </td>

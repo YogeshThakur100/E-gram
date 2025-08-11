@@ -3,9 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
 from datetime import datetime
-from database import Base , engine
-
-Base.metadata.create_all(bind=engine)
+from database import Base
 class license(Base):
     __tablename__ = 'license'
     id = Column(Integer, primary_key=True, autoincrement=True)
