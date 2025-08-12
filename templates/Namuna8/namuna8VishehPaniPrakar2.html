@@ -185,9 +185,14 @@
         <thead class="page-header">
             <tr>
                 <td colspan="21" style="border:none; padding:0;">
+                    {% if tip %}
                     <p style="margin-bottom: 2px;">
                         (टीप :- *सदर मालमत्ता आकारणी नक्कल केवळ ग्रामपंचायत कर आकारणी बाबत असून इतर कोणत्याही हक्काबाबत हा दस्त कायदेशीर पुरावा सांगत नाही. *नमूद मोजमापे तांत्रिक दृष्ट्या प्रमाणित तथा प्रमाणबद्ध केलेली नाहीत)
                     </p>
+                    {% else %}
+                    <p style="margin-bottom: 2px;">
+                    </p>
+                    {% endif %}
                     <table class="header-table" style="width:100%; margin:0;">
                         <tr>
                             <td class="left" style="width:33%">ग्रामपंचायत : {{ gramPanchayat | default('') }} <br>गाव/मोहोल्ला : {{ village | default('') }} </td>
