@@ -83,6 +83,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -144,6 +145,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -205,6 +207,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -266,6 +269,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -327,6 +331,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -388,6 +393,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -449,6 +455,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -510,6 +517,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -571,6 +579,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
@@ -632,6 +641,7 @@ async def prakar1(request : Request):
             'jilha': data[0].get('jilha', ''),
             'yearFrom': data[0].get('yearFrom', ''),
             'yearTo': data[0].get('yearTo', ''),
+            "tip" : data[0].get("tip" , "")
         }
         rendered_html = template.render(**context)
         
