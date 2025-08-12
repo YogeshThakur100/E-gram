@@ -233,6 +233,7 @@
         <th colspan="7">कराची रक्कम (रुपये)</th>
         <th colspan="5">अपिलाचे निकाल आणि त्यानंतर केलेले फेरफार (रुपये)</th>
         <th rowspan="2">नंतर वाढ किंवा घट आलेल्या बांधकामाचे अंदाजित क्षेत्र</th>
+        <th rowspan="2">इमारतीची प्रतिमा</th>
     </tr>
     <tr>
         <th>घरपट्टी</th>
@@ -282,10 +283,54 @@
         <td></td>
         <td></td>
         <td></td>
-        <td><div style="width: 15em; height: 10em; border: 1px solid #000; min-width: 150px; min-height: 100px; padding: 20px; box-sizing: border-box;">
-            <div style="width: 100%; height: 100%; border-left: 1px solid #666; border-right: 1px solid #666;padding: 6px; box-sizing: border-box;"></div>
-            <div style="width: 177px; height: 100%; border-top: 1px solid #666; border-bottom: 1px solid #666;padding: 6px;"></div>
-        </div></td>
+        <td>
+                <div style="width: 300px; height: 220px; border: 2px solid #333; background-color: white;">
+                    
+                    <!-- Header -->
+                    <div style="height: 40px; border-bottom: 1px solid #666; display: flex; align-items: center; justify-content: center;">
+                        दक्षिण : {{boundarySouth|default('')}} <br>
+                        एकूण क्षेत्रफळ : 
+                        {{areaEast|default('')}} x {{areaNorth|default('')}} (फुट)
+
+                    </div>
+                    
+                    <!-- Main Content -->
+                    <div style="height: 160px; display: flex;">
+                        
+                        <!-- Left Section -->
+                        <div style="width: 30px; border-right: 1px solid #666;">
+                            
+                            <div style="height: 190px; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl;">
+                                पूर्व : {{boundaryEast|default('')}}
+                            </div>
+                        </div>
+                        
+                        <!-- Center Section -->
+                        <div style="flex: 1;">
+                            <div style="height: 80px; border-bottom: 1px solid #666; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;">
+                                बांधकाम <br>
+                                {{constructionType[0].length if constructionType and constructionType|length > 0 else ''}} x {{constructionType[0].width if constructionType and constructionType|length > 0 else ''}}<br>{{constructionType[1].length if constructionType and constructionType|length > 1 else ''}} x {{constructionType[1].width if constructionType and constructionType|length > 1 else ''}}<br/>
+                                
+                            </div>
+                            <div style="height: 10px; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;">
+                                खुली जागा <br>
+                                {{khaliJaga[0].length if khaliJaga and khaliJaga|length > 0 else ''}} x 1
+                            </div>
+                        </div>
+                        
+                        <!-- Right Section -->
+                        <div style="width: 30px; border-left: 1px solid #666; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl;">
+                            पश्चिम : {{boundaryWest|default('')}}
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="height: 15px; border-top: 1px solid #666; display: flex; align-items: center; justify-content: center;">
+                        उत्तर : {{boundaryNorth|default('')}}
+                    </div>
+                    
+                </div></td>
     </tr>
     <tr>
         <td > {{totalCapitalValue|default('')}} </td>

@@ -21,13 +21,18 @@ localhost = "http://127.0.0.1:8000"
 
 
 @router.post('/prakar1')
-async def prakar1():
+async def prakar1(request : Request):
     try:
         template = env.get_template('registerPrakar1.html')
+        requestData = await request.json()
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
+        print(district_id , taluka_id , gram_panchayat_id)
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/ferfar/recordresponses')
+            response = await client.get(f'{localhost}/ferfar/recordresponses' , params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id , 'village_id' : 1})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
@@ -99,13 +104,17 @@ async def prakar1():
         )
         
 @router.post('/prakar2')
-async def prakar1():
+async def prakar1(request : Request):
     try:
         template = env.get_template('registerPrakar2.html')
+        requestData = await request.json()
+        district_id = requestData.get("district_id")
+        taluka_id = requestData.get("taluka_id")
+        gram_panchayat_id = requestData.get("gram_panchayat_id")
 
         # Call API
         async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/ferfar/recordresponses')
+            response = await client.get(f'{localhost}/ferfar/recordresponses', params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id , "village_id" : 1})
         if response.status_code != 200:
             raise Exception(f"API error {response.status_code}: {response.text}")
 
