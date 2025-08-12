@@ -176,9 +176,14 @@
         <div class="record-page" style="page-break-after: always;">
             <!-- Info block: appears once per page -->
             <div class="report-header">
+                {% if tip %}
               <div class="report-warning" style="color: red; text-align: center; font-weight: bold; font-size: 14px;">
                 (टीप :- * सदर मालमत्ताआकारणी नक्कल केवळ ग्रामपंचायत कर आकारणी बाबत असून इतर कोणत्याही हक्काबाबत हा दस्त कायदेशीर पुरावा सांगत नाही. ' नमूद मोजमापे तांत्रिक कृष्या प्रमाणित तथा प्रमाणबद्ध केलेली नाहीत) 
               </div>
+              {% else %}
+              <div class="report-warning" style="color: red; text-align: center; font-weight: bold; font-size: 14px;">
+              </div>
+              {% endif %}
               <div class="report-info" style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; flex-wrap: wrap;">
                 <span>ग्राम पंचायत : {{gramPanchayat|default('')}} </span>
                 <span> गाव/ मोहल्ला : {{village|default('')}} </span>
