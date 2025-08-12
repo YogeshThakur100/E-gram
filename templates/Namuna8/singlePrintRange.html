@@ -319,7 +319,7 @@
                 <div style="height: 40px; border-bottom: 1px solid #666; display: flex; align-items: center; justify-content: center;">
                     दक्षिण : {{row.boundarySouth|default('')}} <br>
                     एकूण क्षेत्रफळ : 
-                    {{row.areaEast|default('')}} x {{row.areaNorth|default('')}}
+                    {{row.areaEast|default('')}} x {{row.areaNorth|default('')}} (फुट)
 
                 </div>
                 
@@ -338,7 +338,7 @@
                     <div style="flex: 1;">
                         <div style="height: 80px; border-bottom: 1px solid #666; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;">
                             बांधकाम <br>
-                            {{row.constructionType[0].length if row.constructionType and row.constructionType|length > 0 else ''}}x{{row.constructionType[0].width if row.constructionType and row.constructionType|length > 0 else ''}}<br>{{row.constructionType[1].length if row.constructionType and row.constructionType|length > 1 else ''}}x{{row.constructionType[1].width if row.constructionType and row.constructionType|length > 1 else ''}}<br/>
+                            {{row.constructionType[0].length if row.constructionType and row.constructionType|length > 0 else ''}} x {{row.constructionType[0].width if row.constructionType and row.constructionType|length > 0 else ''}}<br>{{row.constructionType[1].length if row.constructionType and row.constructionType|length > 1 else ''}} x {{row.constructionType[1].width if row.constructionType and row.constructionType|length > 1 else ''}}<br/>
                             
                         </div>
                         <div style="height: 10px; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;">
