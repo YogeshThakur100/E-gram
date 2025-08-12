@@ -12,7 +12,6 @@ router = APIRouter()
 
 @router.get('/recordresponses')
 def get_ferfar_record_responses(
-    village_id: int,
     gram_panchayat_id: int,
     taluka_id: int,
     district_id: int,
@@ -23,14 +22,12 @@ def get_ferfar_record_responses(
     """फेरफाराचे रजिस्टर - Get property transfer record responses for all properties using existing data"""
     
     # Resolve and collect human-readable location names for response header
-    village_name = ""
+    # village_name = ""
     gp_name = ""
     taluka_name = ""
     district_name = ""
 
-    village_row = db.query(models.Village).filter(models.Village.id == village_id).first()
-    if village_row:
-        village_name = village_row.name or ""
+    # No village_id filter; header village will remain blank
 
     gp_row = db.query(location_models.GramPanchayat).filter(location_models.GramPanchayat.id == gram_panchayat_id).first()
     if gp_row:
@@ -45,7 +42,7 @@ def get_ferfar_record_responses(
         district_name = district_row.name or ""
 
     village_info = {
-        "village": village_name,
+        # "village": village_name,
         "gramPanchayat": gp_name,
         "jilha": district_name,
         "taluk": taluka_name,
@@ -63,8 +60,7 @@ def get_ferfar_record_responses(
     if to_date:
         query = query.filter(PropertyTransferLogDB.date <= to_date)
     
-    # Apply required location filters
-    query = query.filter(models.Property.village_id == village_id)
+    # Apply required location filters (no village filter)
     query = query.filter(models.Property.gram_panchayat_id == gram_panchayat_id)
     query = query.filter(models.Property.taluka_id == taluka_id)
     query = query.filter(models.Property.district_id == district_id)
@@ -130,6 +126,8 @@ def get_ferfar_record_responses(
             
             property_transfers.append(transfer_record)
     
+    # Top-level village not required in response
+
     # Group by property number (as per your format)
     grouped_transfers = {}
     for transfer in property_transfers:
@@ -140,7 +138,6 @@ def get_ferfar_record_responses(
     
     # Build final response
     response = {
-        "village": village_info["village"],
         "gramPanchayat": village_info["gramPanchayat"],
         "jilha": village_info["jilha"],
         "taluk": village_info["taluk"]
