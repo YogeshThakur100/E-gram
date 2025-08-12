@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Union
 
 class Namuna9YearSetupBase(BaseModel):
     village: str
@@ -22,7 +22,7 @@ class Namuna9YearSetupRead(Namuna9YearSetupBase):
         orm_mode = True
 
 class Namuna9CarryForward(BaseModel):
-    village: str
+    village: Union[str, int]
     from_year: str
     to_year: str
     carry_forward_option: str # e.g., "मागील एकूण चे" ~
