@@ -14,6 +14,80 @@ router = APIRouter(
     tags=["namuna9"]
 )
 
+@router.post("/copy-from-year")
+def copy_from_year(
+    payload: dict,
+    db: Session = Depends(database.get_db)
+):
+    """
+    Copy property_ids from a source yearslap to a target yearslap for a given village,
+    and update thakit fields on the target.
+
+    Expected payload keys:
+    - villageId (or village): str/int
+    - fromYearslap (or from): str, e.g., "2017-2018"
+    - toYearslap (or to): str, e.g., "2018-2019"
+    - thakitValues (optional): str, value to set on target
+    - doesThakit will always be set to True
+    """
+    villageId = payload.get("villageId") or payload.get("village")
+    from_year = payload.get("fromYearslap") or payload.get("from")
+    to_year = payload.get("toYearslap") or payload.get("to")
+    thakit_values = payload.get("thakitValues") or ""
+    # doesThakit will always be set to True for this API
+    does_thakit_raw = True
+
+    if not villageId or not from_year or not to_year:
+        raise HTTPException(status_code=400, detail="Required fields: villageId, fromYearslap, toYearslap")
+    
+    def parse_yes_no(value):
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            lowered = value.strip().lower()
+            if lowered in {"yes", "true", "1", "y"}:
+                return True
+            if lowered in {"no", "false", "0", "n"}:
+                return False
+        return None
+
+    source = db.query(namuna9_model.Namuna9).filter(
+        namuna9_model.Namuna9.villageId == str(villageId),
+        namuna9_model.Namuna9.yearslap == from_year
+    ).first()
+    if not source:
+        raise HTTPException(status_code=404, detail="Source (fromYearslap) record not found for the given villageId")
+
+    target = db.query(namuna9_model.Namuna9).filter(
+        namuna9_model.Namuna9.villageId == str(villageId),
+        namuna9_model.Namuna9.yearslap == to_year
+    ).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="Target (toYearslap) record not found for the given villageId")
+
+    # Copy property IDs and update thakit fields
+    target.property_ids = list(source.property_ids or [])
+    if thakit_values is not None:
+        target.thakitValues = thakit_values
+    # Always set doesThakit to True for this API
+    target.doesThakit = True
+    # Set thakitYear to the from_year (source year)
+    target.thakitYear = from_year
+
+    db.commit()
+    db.refresh(target)
+
+    return {
+        "message": "Copy and update successful",
+        "villageId": target.villageId,
+        "fromYearslap": from_year,
+        "toYearslap": to_year,
+        "propertyIdsCount": len(target.property_ids or []),
+        "doesThakit": True,
+        "thakitValues": getattr(target, "thakitValues", None),
+        "thakitYear": getattr(target, "thakitYear", None),
+    }
+
 @router.post("/", response_model=namuna9_schemas.Namuna9YearSetupRead, status_code=status.HTTP_201_CREATED)
 def create_namuna9_year_setup(setup: namuna9_schemas.Namuna9YearSetupCreate, db: Session = Depends(database.get_db)):
     # Check if a record for this village and year already exists
@@ -264,6 +338,54 @@ def get_table_data(
     ).first()
     if not rec:
         return []
+    
+    # Check if thakit is enabled and get thakit data
+    does_thakit = getattr(rec, 'doesThakit', False)
+    thakit_values = getattr(rec, 'thakitValues', None)
+    thakit_year = getattr(rec, 'thakitYear', None)
+    
+    # If thakit is enabled, get data from thakit year
+    thakit_data = {}
+    if does_thakit and thakit_values and thakit_year:
+        # Find the thakit year record
+        thakit_rec = db.query(namuna9_model.Namuna9).filter(
+            namuna9_model.Namuna9.villageId == villageId,
+            namuna9_model.Namuna9.yearslap == thakit_year
+        ).first()
+        
+        if thakit_rec and thakit_rec.property_ids:
+            # Get property data from thakit year
+            thakit_properties = db.query(namuna8_model.Property).filter(
+                namuna8_model.Property.anuKramank.in_([int(i) for i in thakit_rec.property_ids])
+            ).all()
+            
+            # Create a map of property number to thakit data
+            for thakit_prop in thakit_properties:
+                thakit_prop_data = build_property_response(thakit_prop, db, gram_panchayat_id)
+                thakit_constructions = db.query(namuna8_model.Construction).filter(
+                    namuna8_model.Construction.property_anuKramank == thakit_prop.anuKramank
+                ).all()
+                
+                thakit_house_tax = sum([c.houseTax or 0 for c in thakit_constructions])
+                thakit_lighting_tax = thakit_prop_data.get('divaKar', 0) or 0
+                thakit_health_tax = thakit_prop_data.get('aarogyaKar', 0) or thakit_prop_data.get('healthTax', 0) or 0
+                thakit_sapanikar = thakit_prop_data.get('sapanikar', 0) or 0
+                thakit_vpanikar = thakit_prop_data.get('vpanikar', 0) or 0
+                thakit_cleaning_tax = thakit_prop_data.get('cleaningTax', 0) or 0
+                
+                # Calculate total for thakit year
+                thakit_total = thakit_house_tax + thakit_lighting_tax + thakit_health_tax + thakit_sapanikar + thakit_vpanikar + thakit_cleaning_tax
+                
+                thakit_data[thakit_prop.anuKramank] = {
+                    'chaluGhar': thakit_house_tax,
+                    'chaluDiva': thakit_lighting_tax,
+                    'chaluAarogyaKar': thakit_health_tax,
+                    'chaluSapanikar': thakit_sapanikar,
+                    'chaluVpanikar': thakit_vpanikar,
+                    'chaluCleaningTax': thakit_cleaning_tax,
+                    'total': thakit_total
+                }
+    
     property_ids = getattr(rec, 'property_ids', None)
     if not isinstance(property_ids, list) or len(property_ids) == 0:
         return []
@@ -289,38 +411,93 @@ def get_table_data(
         sapanikar = prop_data.get('sapanikar', 0) or 0
         vpanikar = prop_data.get('vpanikar', 0) or 0
         cleaningTax = prop_data.get('cleaningTax', 0) or 0
-        # Total lightingTax, healthTax, sapanikar, vpanikar, cleaningTax are same as their respective fields
+        
+        # Initialize thakit values
+        shaktiGhar = 0
+        shaktiDiva = 0
+        shaktiAarogyaKar = 0
+        shaktiSapanikar = 0
+        shaktiVpanikar = 0
+        shaktiCleaningTax = 0
+        
+        # Apply thakit logic if enabled
+        if does_thakit and thakit_values and prop.anuKramank in thakit_data:
+            thakit_prop_data = thakit_data[prop.anuKramank]
+            
+            if thakit_values == "chaluGhar":
+                # Use chalu values from thakit year as shakti
+                shaktiGhar = thakit_prop_data['chaluGhar']
+                shaktiDiva = thakit_prop_data['chaluDiva']
+                shaktiAarogyaKar = thakit_prop_data['chaluAarogyaKar']
+                shaktiSapanikar = thakit_prop_data['chaluSapanikar']
+                shaktiVpanikar = thakit_prop_data['chaluVpanikar']
+                shaktiCleaningTax = thakit_prop_data['chaluCleaningTax']
+            elif thakit_values == "yekun":
+                # Use total values from thakit year as shakti
+                shaktiGhar = thakit_prop_data['chaluGhar']  # Total house tax
+                shaktiDiva = thakit_prop_data['chaluDiva']  # Total lighting tax
+                shaktiAarogyaKar = thakit_prop_data['chaluAarogyaKar']  # Total health tax
+                shaktiSapanikar = thakit_prop_data['chaluSapanikar']  # Total sapanikar
+                shaktiVpanikar = thakit_prop_data['chaluVpanikar']  # Total vpanikar
+                shaktiCleaningTax = thakit_prop_data['chaluCleaningTax']  # Total cleaning tax
+            elif thakit_values == "thakit":
+                # Use thakit values (same as chaluGhar for now)
+                shaktiGhar = thakit_prop_data['chaluGhar']
+                shaktiDiva = thakit_prop_data['chaluDiva']
+                shaktiAarogyaKar = thakit_prop_data['chaluAarogyaKar']
+                shaktiSapanikar = thakit_prop_data['chaluSapanikar']
+                shaktiVpanikar = thakit_prop_data['chaluVpanikar']
+                shaktiCleaningTax = thakit_prop_data['chaluCleaningTax']
+        
+        # Calculate ekun (total) values
+        ekunGhar = shaktiGhar + totalHouseTax
+        ekunDiva = shaktiDiva + lightingTax
+        ekunAarogyaKar = shaktiAarogyaKar + healthTax
+        ekunSapanikar = shaktiSapanikar + sapanikar
+        ekunVpanikar = shaktiVpanikar + vpanikar
+        ekunCleaningTax = shaktiCleaningTax + cleaningTax
+        
         # Total = sum of all numeric columns except serial, property no, owner name
         total = (
-            0 + 0 + totalHouseTax + totalHouseTax + 0 + lightingTax + lightingTax + 0 + healthTax + healthTax + 0 + sapanikar + sapanikar + 0 + vpanikar + vpanikar + 0 + cleaningTax + cleaningTax + 0 + 0
+            shaktiGhar + 0 + totalHouseTax + ekunGhar + 
+            shaktiDiva + lightingTax + ekunDiva + 
+            shaktiAarogyaKar + healthTax + ekunAarogyaKar + 
+            shaktiSapanikar + sapanikar + ekunSapanikar + 
+            shaktiVpanikar + vpanikar + ekunVpanikar + 
+            shaktiCleaningTax + cleaningTax + ekunCleaningTax + 
+            warrant_fee + notice_fee
         )
+        
         row = {
             "anukramk": idx,
             "malmattaKramank": prop_data.get('malmattaKramank', ''),
             "ownerNames": owner_names,
-            "shaktiGhar": 0,
+            "shaktiGhar": shaktiGhar,
             "dand": 0,
             "chaluGhar": totalHouseTax,
-            "ekunGhar": totalHouseTax,
+            "ekunGhar": ekunGhar,
             "totalHouseTax": totalHouseTax,
-            "shaktiDiva": 0,
+            "shaktiDiva": shaktiDiva,
             "chaluDiva": lightingTax,
-            "ekunDiva": lightingTax,
-            "shaktiAarogyaKar": 0,
+            "ekunDiva": ekunDiva,
+            "shaktiAarogyaKar": shaktiAarogyaKar,
             "chaluAarogyaKar": healthTax,
-            "ekunAarogyaKar": healthTax,
-            "shaktiSapanikar": 0,
+            "ekunAarogyaKar": ekunAarogyaKar,
+            "shaktiSapanikar": shaktiSapanikar,
             "chaluSapanikar": sapanikar,
-            "ekunSapanikar": sapanikar,
-            "shaktiVpanikar": 0,
+            "ekunSapanikar": ekunSapanikar,
+            "shaktiVpanikar": shaktiVpanikar,
             "chaluVpanikar": vpanikar,
-            "ekunVpanikar": vpanikar,
-            "shaktiCleaningTax": 0,
+            "ekunVpanikar": ekunVpanikar,
+            "shaktiCleaningTax": shaktiCleaningTax,
             "chaluCleaningTax": cleaningTax,
-            "ekunCleaningTax": cleaningTax,
+            "ekunCleaningTax": ekunCleaningTax,
             "warrantFee": warrant_fee,
             "noticeFee": notice_fee,
-            "total": total
+            "total": total,
+            "doesThakit": does_thakit,
+            "thakitValues": thakit_values,
+            "thakitYear": thakit_year
         }
         rows.append(row)
     return rows 

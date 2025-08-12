@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Table, ForeignKey, UniqueConstraint, PickleType
+from sqlalchemy import Column, Integer, String, Text, DateTime, Table, ForeignKey, UniqueConstraint, PickleType, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from database import Base
@@ -30,6 +30,9 @@ class Namuna9(Base):
         UniqueConstraint("villageId", "yearslap", name="uix_village_yearslap"),
     )
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    doesThakit = Column(Boolean, default=False)
+    thakitValues = Column(String, nullable=True)
+    thakitYear = Column(String(9), nullable=True)  # yearslap for thakit
     yearslap = Column(String(9), nullable=False)
     villageId = Column(String(36), nullable=False)
     grampanchayatId = Column(String(36), nullable=False)
