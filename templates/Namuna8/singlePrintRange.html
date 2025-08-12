@@ -261,7 +261,8 @@
         <th rowspan="2">कराचे दर (पैसे)</th>
         <th colspan="7">कराची रक्कम (रुपये)</th>
         <th colspan="5">अपिलाचे निकाल आणि त्यानंतर केलेले फेरफार (रुपये)</th>
-        <th rowspan="2" colspan="2">नंतर वाढ किंवा घट आलेल्या बांधकामाचे अंदाजित क्षेत्र</th>
+        <th rowspan="2">नंतर वाढ किंवा घट आलेल्या बांधकामाचे अंदाजित क्षेत्र</th>
+        <th rowspan="2">इमारतीची प्रतिमा</th>
     </tr>
     <tr>
         <th>घरपट्टी</th>
@@ -292,10 +293,11 @@
         <td>26</td>
         <td>27</td>
         <td>28</td>
-        <td colspan="2">29</td>
+        <td>29</td>
+        <td>30</td>
     </tr>
     <tr>
-        <td>{{row.khaliJaga[0].capitalValue if row.khaliJaga and row.khaliJaga|length > 0 else ''}}<br>{{row.constructionType[0].capitalValue if row.constructionType and row.constructionType|length > 0 else ''}}<br>{{row.constructionType[1].capitalValue if row.constructionType and row.constructionType|length > 1 else ''}}</td>
+        <td>{{row.constructionType[0].capitalValue if row.constructionType and row.constructionType|length > 0 else ''}}<br>{{row.constructionType[1].capitalValue if row.constructionType and row.constructionType|length > 1 else ''}}<br>{{row.khaliJaga[0].capitalValue if row.khaliJaga and row.khaliJaga|length > 0 else ''}}</td>
         <td>{{row.constructionType[0].taxRates if row.constructionType and row.constructionType|length > 0 else ''}}<br> {{row.constructionType[1].taxRates if row.constructionType and row.constructionType|length > 1 else ''}} <br> {{row.khaliJaga[0].taxRates if row.khaliJaga and row.khaliJaga|length > 0 else ''}} </td>
         <td> {{row.constructionType[0].houseTax if row.constructionType and row.constructionType|length > 0 else ''}} <br> {{row.constructionType[1].houseTax if row.constructionType and row.constructionType|length > 1 else ''}} <br> {{row.khaliJaga[0].houseTax if row.khaliJaga and row.khaliJaga|length > 0 else ''}} </td>
         <td> {{row.lightingTax|default('')}} </td>
@@ -309,7 +311,55 @@
         <td></td>
         <td></td>
         <td></td>
-        <td colspan="2"></td>
+        <td></td>
+        <td>
+            <div style="width: 300px; height: 220px; border: 2px solid #333; background-color: white;">
+                
+                <!-- Header -->
+                <div style="height: 40px; border-bottom: 1px solid #666; display: flex; align-items: center; justify-content: center;">
+                    दक्षिण : {{row.boundarySouth|default('')}} <br>
+                    एकूण क्षेत्रफळ : 
+                    {{row.areaEast|default('')}} x {{row.areaNorth|default('')}} (फुट)
+
+                </div>
+                
+                <!-- Main Content -->
+                <div style="height: 160px; display: flex;">
+                    
+                    <!-- Left Section -->
+                    <div style="width: 30px; border-right: 1px solid #666;">
+                        
+                        <div style="height: 190px; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl;">
+                            पूर्व : {{row.boundaryEast|default('')}}
+                        </div>
+                    </div>
+                    
+                    <!-- Center Section -->
+                    <div style="flex: 1;">
+                        <div style="height: 80px; border-bottom: 1px solid #666; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;">
+                            बांधकाम <br>
+                            {{row.constructionType[0].length if row.constructionType and row.constructionType|length > 0 else ''}} x {{row.constructionType[0].width if row.constructionType and row.constructionType|length > 0 else ''}}<br>{{row.constructionType[1].length if row.constructionType and row.constructionType|length > 1 else ''}} x {{row.constructionType[1].width if row.constructionType and row.constructionType|length > 1 else ''}}<br/>
+                            
+                        </div>
+                        <div style="height: 10px; display: flex; align-items: flex-start; justify-content: center; padding-top: 5px;">
+                            खुली जागा <br>
+                            {{row.khaliJaga[0].length if row.khaliJaga and row.khaliJaga|length > 0 else ''}} x 1
+                        </div>
+                    </div>
+                    
+                    <!-- Right Section -->
+                    <div style="width: 30px; border-left: 1px solid #666; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl;">
+                        पश्चिम : {{row.boundaryWest|default('')}}
+                    </div>
+                    
+                </div>
+                
+                <!-- Footer -->
+                <div style="height: 15px; border-top: 1px solid #666; display: flex; align-items: center; justify-content: center;">
+                    उत्तर : {{row.boundaryNorth|default('')}}
+                </div>
+                
+            </div></td>
     </tr>
     <tr>
         <td > {{row.totalCapitalValue|default('')}} </td>
