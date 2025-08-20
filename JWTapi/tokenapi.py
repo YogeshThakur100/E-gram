@@ -171,13 +171,20 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
                     }
                 )
             else:
-                try:
+                    headers = {
+                        "Content-Type": "application/json",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+                    }
+
                     response = requests.post(
-                    "http://localhost:8080/api/update-usage",
-                    json={"license_key": license_key},
-                    timeout=5
-                )
-                    # print('response ---> ' , response)
+                        "https://egrampanchayat.gunadhyasoftware.com/api/update-usage",
+                        json={"license_key": license_key},
+                        headers=headers,
+                        timeout=5,
+                    )
+                    print('license_key --->'  , license_key)
+                    print('header --->' , headers)
+                    print('response ---> ' , response)
                     if response.status_code == 200:
                         encrypted_key = bcrypt.hashpw(license_key.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                         try:
@@ -216,16 +223,16 @@ def check_license_hosted(license : license , db : Session=Depends(database.get_d
                                     "data" : []
                                 }
                             )
-                except Exception as e:
-                    # print("ERROR:", e)  # Add this line for debugging
-                    return JSONResponse(
-                        status_code=503,
-                        content={
-                            "success": False,
-                            "message": "Unable to reach hosted server. Check your internet connection.",
-                            "data": []
-                        }
-                    )
+                # except Exception as e:
+                #     print("ERROR:", e)  # Add this line for debugging
+                #     return JSONResponse(
+                #         status_code=503,
+                #         content={
+                #             "success": False,
+                #             "message": "Unable to reach hosted server. Check your internet connection.",
+                #             "data": []
+                #         }
+                #     )
 
         else:
             for lic in local_licenses:
@@ -366,9 +373,13 @@ def sync_all_tables(db : Session=Depends(database.get_db)):
         # print(f"Tables successfully synced: {list(data_to_sync.keys())}")
         # print(f"Tables with no data: {[table for table in ordered_tables if table not in data_to_sync]}")
         
-        # 🔽 Send to PHP hosted server
+        # Send to PHP hosted server
         try:
-            php_server_url = "http://localhost:8080/api/sync/upload_data"
+            headers = {
+                        "Content-Type": "application/json",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+                    }
+            php_server_url = "https://egrampanchayat.gunadhyasoftware.com/api/sync/upload_data"
             sync_payload = {
                 "sync_data": data_to_sync,
                 "sync_timestamp": datetime.datetime.now().isoformat(),
@@ -376,7 +387,7 @@ def sync_all_tables(db : Session=Depends(database.get_db)):
                 "tables_synced": list(data_to_sync.keys())
             }
             # print(f"Sending data to PHP server: {php_server_url}")
-            response = requests.post(php_server_url, json=sync_payload, timeout=30)
+            response = requests.post(php_server_url,headers=headers, json=sync_payload, timeout=30)
             if response.status_code == 200:
                 response_data = response.json()
                 return {
@@ -418,8 +429,12 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
     from sqlalchemy import text
     try:
         # 1. Fetch data from hosted server
-        php_server_url = "http://localhost:8080/api/sync/download_data"  # Change to your hosted server domain if needed
-        response = requests.get(php_server_url, timeout=60)
+        headers = {
+                        "Content-Type": "application/json",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+                    }
+        php_server_url = "https://egrampanchayat.gunadhyasoftware.com/api/sync/download_data"  # Change to your hosted server domain if needed
+        response = requests.get(php_server_url ,headers=headers , timeout=60)
         if response.status_code != 200:
             return {"success": False, "message": f"Failed to fetch from hosted server: {response.status_code}"}
         sync_data = response.json().get("sync_data", {})
