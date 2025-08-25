@@ -37,7 +37,7 @@ from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
 from LogBook.ReportCreationUsingJinja import logbookPrint
 from reportstab.outward_entries_apis import router as outward_entries_router
 
-
+from location_management.models import District, Taluka, GramPanchayat
 from certificates.marriage_certificate_model import MarriageCertificate
 from certificates.widow_certificate_model import WidowCertificate
 from certificates.receipt_certificate_model import ReceiptCertificate

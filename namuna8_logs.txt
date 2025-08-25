@@ -65,3 +65,23 @@
 2025-08-08 19:01:52,695 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/no-objection/1 "HTTP/1.1 200 OK"
 2025-08-08 19:02:08,304 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/no-objection/1 "HTTP/1.1 200 OK"
 2025-08-08 19:02:33,763 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/no-objection/1 "HTTP/1.1 200 OK"
+2025-08-11 17:45:36,145 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-11 17:45:40,186 - INFO - QR code generated successfully
+2025-08-11 19:20:16,471 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/good-conduct/None "HTTP/1.1 422 Unprocessable Content"
+2025-08-11 19:20:23,886 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/life/None "HTTP/1.1 422 Unprocessable Content"
+2025-08-11 19:20:27,307 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/life/1 "HTTP/1.1 200 OK"
+2025-08-11 19:20:27,311 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/life/1 "HTTP/1.1 200 OK"
+2025-08-11 19:20:31,737 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/life/1 "HTTP/1.1 200 OK"
+2025-08-11 19:20:31,738 - INFO - HTTP Request: GET http://127.0.0.1:8000/certificates/life/1 "HTTP/1.1 200 OK"
+2025-08-12 12:25:44,326 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-12 12:25:52,252 - INFO - QR code generated successfully
+2025-08-12 12:30:14,145 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-12 12:30:17,731 - INFO - QR code generated successfully
+2025-08-12 12:54:33,406 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-12 12:54:47,008 - INFO - QR code generated successfully
+2025-08-12 13:15:33,695 - INFO - QR code generated successfully
+2025-08-12 15:46:54,154 - INFO - HTTP Request: GET http://127.0.0.1:8000/namuna8/recordresponses/property_record/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-12 15:47:50,286 - INFO - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-12 15:47:56,879 - INFO - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-12 15:48:37,593 - INFO - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-13 16:36:14,024 - INFO - HTTP Request: GET http://127.0.0.1:8000/namuna7/prints/get/3 "HTTP/1.1 200 OK"
