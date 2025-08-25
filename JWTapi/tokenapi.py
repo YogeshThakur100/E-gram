@@ -426,188 +426,156 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
     """
     import requests
     import datetime
+    import importlib
     from sqlalchemy import text
+    from sqlalchemy.types import Boolean
+
     try:
         # 1. Fetch data from hosted server
         headers = {
-                        "Content-Type": "application/json",
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-                    }
-        php_server_url = "https://egrampanchayat.gunadhyasoftware.com/api/sync/download_data"  # Change to your hosted server domain if needed
-        response = requests.get(php_server_url ,headers=headers , timeout=60)
+            "Content-Type": "application/json",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/115.0.0.0 Safari/537.36"
+            ),
+        }
+        php_server_url = "https://egrampanchayat.gunadhyasoftware.com/api/sync/download_data"
+        response = requests.get(php_server_url, headers=headers, timeout=60)
         if response.status_code != 200:
-            return {"success": False, "message": f"Failed to fetch from hosted server: {response.status_code}"}
+            return {
+                "success": False,
+                "message": f"Failed to fetch from hosted server: {response.status_code}",
+            }
         sync_data = response.json().get("sync_data", {})
 
-        # 2. Disable foreign key checks before deleting all tables
-        db.execute(text("PRAGMA foreign_keys = OFF;"))
-        db.commit()
-
-        # 3. Delete all local tables in dependency order (children first)
+        # 2. Order of deletion
         truncate_order = [
-            'constructions',
-            'property_owner_association',
-            'property_documents',
-            'owners',
-            'properties',
-            'villages',
-            'gram_panchayats',
-            'talukas',
-            'districts',
-            'construction_types',
-            'building_usage_weightage',
-            'property_transfer_logs',
-            'namuna8_setting_checklist',
-            'namuna8DropdownAddSettings',
-            'namuna8SettingTax',
-            'namuna8WaterTaxSettings',
-            'namuna8GeneralWaterTaxSlabSettings',
-            'generalSetting',
-            'newYojna',
-            'namuna9_year_setups',
-            'namuna9_settings',
-            'namuna9',
-            'namuna9_property_association',
-            'namuna7',
-            'no_arrears_certificates',
-            'birth_certificates',
-            'death_certificates',
-            'birthdeath_unavailability_certificates',
-            'resident_certificates',
-            'family_certificates',
-            'toilet_certificates',
-            'no_objection_certificates',
-            'no_benefit_certificates',
-            'life_certificates',
-            'good_conduct_certificates',
-            'niradhar_certificates',
-            'unemployment_certificates',
-            'receipt_certificates',
-            'outward_entries'
+            "constructions",
+            "property_owner_association",
+            "property_documents",
+            "owners",
+            "properties",
+            "villages",
+            "gram_panchayats",
+            "talukas",
+            "districts",
+            "construction_types",
+            "building_usage_weightage",
+            "property_transfer_logs",
+            "namuna8_setting_checklist",
+            "namuna8DropdownAddSettings",
+            "namuna8SettingTax",
+            "namuna8WaterTaxSettings",
+            "namuna8GeneralWaterTaxSlabSettings",
+            "generalSetting",
+            "newYojna",
+            "namuna9_year_setups",
+            "namuna9_settings",
+            "namuna9",
+            "namuna9_property_association",
+            "namuna7",
+            "no_arrears_certificates",
+            "birth_certificates",
+            "death_certificates",
+            "birthdeath_unavailability_certificates",
+            "resident_certificates",
+            "family_certificates",
+            "toilet_certificates",
+            "no_objection_certificates",
+            "no_benefit_certificates",
+            "life_certificates",
+            "good_conduct_certificates",
+            "niradhar_certificates",
+            "unemployment_certificates",
+            "receipt_certificates",
+            "outward_entries",
         ]
-        for table in truncate_order:
-            try:
-                db.execute(text(f'DELETE FROM {table};'))
-                # Optionally reset autoincrement (sqlite_sequence)
-                try:
-                    db.execute(text(f"DELETE FROM sqlite_sequence WHERE name='{table}';"))
-                except Exception:
-                    pass
-                db.commit()
-                # Optionally print row count for debugging
-                try:
-                    result = db.execute(text(f"SELECT COUNT(*) FROM {table};"))
-                    # print(f"{table} after delete:", result.fetchone()[0])
-                except Exception:
-                    pass
-            except Exception as e:
-                # print(f"Warning: Could not delete from {table}: {e}")
-                pass
-        db.commit()
 
-        # 3b. Debug: Check if districts is empty, force delete if not
-        try:
-            result = db.execute(text("SELECT COUNT(*) FROM districts;"))
-            districts_count = result.fetchone()[0]
-            # print("Districts after delete loop:", districts_count)
-            if districts_count != 0:
-                # print("Districts table not empty after delete loop, forcing manual delete...")
-                db.execute(text("DELETE FROM districts;"))
-                db.commit()
-                result = db.execute(text("SELECT COUNT(*) FROM districts;"))
-                # print("Districts after manual delete:", result.fetchone()[0])
-        except Exception as e:
-            pass
-            # print(f"Error checking/forcing districts delete: {e}")
-
-        # 4. Re-enable foreign key checks
-        db.execute(text("PRAGMA foreign_keys = ON;"))
-        db.commit()
-
-        # 5. Insert data in dependency order
         insert_order = [
-            'districts',
-            'talukas',
-            'gram_panchayats',
-            'villages',
-            'owners',
-            'properties',
-            'construction_types',
-            'building_usage_weightage',
-            'property_documents',
-            'property_transfer_logs',
-            'property_owner_association',
-            'constructions',
-            'namuna8_setting_checklist',
-            'namuna8DropdownAddSettings',
-            'namuna8SettingTax',
-            'namuna8WaterTaxSettings',
-            'namuna8GeneralWaterTaxSlabSettings',
-            'generalSetting',
-            'newYojna',
-            'namuna9_year_setups',
-            'namuna9_settings',
-            'namuna9',
-            'namuna9_property_association',
-            'namuna7',
-            'no_arrears_certificates',
-            'birth_certificates',
-            'death_certificates',
-            'birthdeath_unavailability_certificates',
-            'resident_certificates',
-            'family_certificates',
-            'toilet_certificates',
-            'no_objection_certificates',
-            'no_benefit_certificates',
-            'life_certificates',
-            'good_conduct_certificates',
-            'niradhar_certificates',
-            'unemployment_certificates',
-            'receipt_certificates',
-            'outward_entries'
+            "districts",
+            "talukas",
+            "gram_panchayats",
+            "villages",
+            "owners",
+            "properties",
+            "construction_types",
+            "building_usage_weightage",
+            "property_documents",
+            "property_transfer_logs",
+            "property_owner_association",
+            "constructions",
+            "namuna8_setting_checklist",
+            "namuna8DropdownAddSettings",
+            "namuna8SettingTax",
+            "namuna8WaterTaxSettings",
+            "namuna8GeneralWaterTaxSlabSettings",
+            "generalSetting",
+            "newYojna",
+            "namuna9_year_setups",
+            "namuna9_settings",
+            "namuna9",
+            "namuna9_property_association",
+            "namuna7",
+            "no_arrears_certificates",
+            "birth_certificates",
+            "death_certificates",
+            "birthdeath_unavailability_certificates",
+            "resident_certificates",
+            "family_certificates",
+            "toilet_certificates",
+            "no_objection_certificates",
+            "no_benefit_certificates",
+            "life_certificates",
+            "good_conduct_certificates",
+            "niradhar_certificates",
+            "unemployment_certificates",
+            "receipt_certificates",
+            "outward_entries",
         ]
-        # Reuse all_models from sync_all_tables
-        import importlib
+
+        # 3. Import models dynamically
         model_modules = [
-            'location_management.models',
-            'namuna8.namuna8_model',
-            'certificates.birth_certificate_model',
-            'certificates.death_certificate_model',
-            'certificates.family_certificate_model',
-            'certificates.good_conduct_certificate_model',
-            'certificates.life_certificate_model',
-            'certificates.marriage_certificate_model',
-            'certificates.niradhar_certificate_model',
-            'certificates.no_arrears_certificate_model',
-            'certificates.no_benefit_certificate_model',
-            'certificates.no_objection_certificate_model',
-            'certificates.receipt_certificate_model',
-            'certificates.resident_certificate_model',
-            'certificates.toilet_certificate_model',
-            'certificates.unemployment_certificate_model',
-            'certificates.widow_certificate_model',
-            'certificates.birthdeath_unavailability_model',
-            'namuna8.namuna7.namuna7_model',
-            'namuna8.mastertab.mastertabmodels',
-            'namuna8.PropertyDocuments.property_document_model',
-            'namuna8.owner_history_model',
-            'namuna8.property_owner_history_model',
-            'namuna8.mastertab.transfer_apis',
-            'namuna9.namuna9_model',
-            'reportstab.outward_entries_model'
+            "location_management.models",
+            "namuna8.namuna8_model",
+            "certificates.birth_certificate_model",
+            "certificates.death_certificate_model",
+            "certificates.family_certificate_model",
+            "certificates.good_conduct_certificate_model",
+            "certificates.life_certificate_model",
+            "certificates.marriage_certificate_model",
+            "certificates.niradhar_certificate_model",
+            "certificates.no_arrears_certificate_model",
+            "certificates.no_benefit_certificate_model",
+            "certificates.no_objection_certificate_model",
+            "certificates.receipt_certificate_model",
+            "certificates.resident_certificate_model",
+            "certificates.toilet_certificate_model",
+            "certificates.unemployment_certificate_model",
+            "certificates.widow_certificate_model",
+            "certificates.birthdeath_unavailability_model",
+            "namuna8.namuna7.namuna7_model",
+            "namuna8.mastertab.mastertabmodels",
+            "namuna8.PropertyDocuments.property_document_model",
+            "namuna8.owner_history_model",
+            "namuna8.property_owner_history_model",
+            "namuna8.mastertab.transfer_apis",
+            "namuna9.namuna9_model",
+            "reportstab.outward_entries_model",
         ]
+
         all_models = {}
         for module_name in model_modules:
             try:
                 module = importlib.import_module(module_name)
                 for attr_name in dir(module):
                     attr = getattr(module, attr_name)
-                    if hasattr(attr, '__tablename__') and hasattr(attr, '__table__'):
+                    if hasattr(attr, "__tablename__") and hasattr(attr, "__table__"):
                         all_models[attr.__tablename__] = attr
-            except ImportError as e:
-                # print(f"Warning: Could not import {module_name}: {e}")
+            except ImportError:
                 continue
 
+        # 4. Date/boolean parsing helper
         def parse_datetime_fields(row, model):
             for column in model.__table__.columns:
                 colname = column.name
@@ -617,9 +585,9 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
                     if isinstance(column.type, Boolean):
                         val = row[colname]
                         if isinstance(val, str):
-                            if val.strip() in ['0', 'false', 'False', '']:
+                            if val.strip() in ["0", "false", "False", ""]:
                                 row[colname] = False
-                            elif val.strip() in ['1', 'true', 'True']:
+                            elif val.strip() in ["1", "true", "True"]:
                                 row[colname] = True
                         elif isinstance(val, int):
                             row[colname] = bool(val)
@@ -630,7 +598,9 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
                                 row[colname] = datetime.datetime.fromisoformat(row[colname])
                             except Exception:
                                 try:
-                                    row[colname] = datetime.datetime.strptime(row[colname], "%Y-%m-%d %H:%M:%S")
+                                    row[colname] = datetime.datetime.strptime(
+                                        row[colname], "%Y-%m-%d %H:%M:%S"
+                                    )
                                 except Exception:
                                     pass
                         elif "DATE" in coltype.upper():
@@ -638,32 +608,48 @@ def download_and_replace_all_tables(db: Session = Depends(database.get_db)):
                                 row[colname] = datetime.date.fromisoformat(row[colname])
                             except Exception:
                                 try:
-                                    row[colname] = datetime.datetime.strptime(row[colname], "%Y-%m-%d").date()
+                                    row[colname] = datetime.datetime.strptime(
+                                        row[colname], "%Y-%m-%d"
+                                    ).date()
                                 except Exception:
                                     pass
             return row
 
-        for table in insert_order:
-            rows = sync_data.get(table, [])
-            model = all_models.get(table)
-            if not model or not rows:
-                continue
-            for row in rows:
-                # Special handling for namuna9 property_ids
-                if table == 'namuna9' and 'property_ids' in row and isinstance(row['property_ids'], str):
-                    import json
+        # 5. Transaction block: delete + insert
+        with db.begin():
+            db.execute(text("PRAGMA foreign_keys = OFF;"))
+
+            # Delete all tables
+            for table in truncate_order:
+                try:
+                    db.execute(text(f"DELETE FROM {table};"))
+                    db.execute(text(f"DELETE FROM sqlite_sequence WHERE name='{table}';"))
+                except Exception:
+                    pass
+
+            db.execute(text("PRAGMA foreign_keys = ON;"))
+
+            # Insert new data
+            for table in insert_order:
+                rows = sync_data.get(table, [])
+                model = all_models.get(table)
+                if not model or not rows:
+                    continue
+                for row in rows:
+                    if table == "namuna9" and "property_ids" in row and isinstance(row["property_ids"], str):
+                        import json
+
+                        try:
+                            row["property_ids"] = json.loads(row["property_ids"])
+                        except Exception:
+                            pass
+                    row = parse_datetime_fields(row, model)
                     try:
-                        row['property_ids'] = json.loads(row['property_ids'])
+                        db.add(model(**row))
                     except Exception:
                         pass
-                # Parse datetime/date fields
-                row = parse_datetime_fields(row, model)
-                try:
-                    db.add(model(**row))
-                except Exception as e:
-                    pass
-                    # print(f"Error inserting into {table}: {e}")
-            db.commit()
+
         return {"success": True, "message": "Local DB replaced with hosted data"}
+
     except Exception as e:
         return {"success": False, "message": str(e)}
