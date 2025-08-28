@@ -515,8 +515,12 @@ def get_property_records_by_village(
             "yearTo": 2027,
             "photoURL": None,
             "QRcodeURL": None,
-            "total_arearinfoot": prop.totalAreaSqFt,
-            "totalareainmeters": round((prop.totalAreaSqFt or 0) * 0.092903, 2),
+            "total_arearinfoot" : prop.totalAreaSqFt if prop.areaunit == 'sqft' else prop.totalAreaSqFt * 10.7639,
+
+            "totalareainmeters" : (
+                    prop.totalAreaSqFt if prop.areaunit == 'sqm' else round((prop.totalAreaSqFt or 0) * 0.092903, 2)
+                ),
+
             "occupantName": owner.occupantName if owner else None,
             "aadharNumber": owner.aadhaarNumber if owner else None,
             "ownerName": owner.name if owner else None,
@@ -526,7 +530,7 @@ def get_property_records_by_village(
             "areaWest": prop.westLength,
             "areaNorth": prop.northLength,
             "areaSouth": prop.southLength,
-            "totalArea": prop.totalAreaSqFt,
+            "totalArea": prop.totalAreaSqFt if prop.areaunit == 'sqft' else prop.totalAreaSqFt * 10.7639,
             "boundaryEast": prop.eastBoundary,
             "boundaryWest": prop.westBoundary,
             "boundaryNorth": prop.northBoundary,

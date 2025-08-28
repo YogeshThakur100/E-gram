@@ -237,9 +237,14 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 west = db_property.westLength or 0
                 north = db_property.northLength or 0
                 south = db_property.southLength or 0
-                avg_length = (east + west) / 2 if (east or west) else 0
-                avg_width = (north + south) / 2 if (north or south) else 0
-                db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+                if east == 0 and west == 0 and north == 0 and south == 0:
+            # All lengths empty, use totalArea from payload
+                     
+                     db_property.totalAreaSqFt = property_data.totalArea
+                else:
+                    avg_length = (east + west) / 2
+                    avg_width = (north + south) / 2
+                    db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
             # Only set boolean fields and toilet (not calculated tax fields)
             db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
             db_property.safaiKar = bool(property_data.safaiKar)

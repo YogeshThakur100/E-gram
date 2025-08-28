@@ -83,6 +83,7 @@ class Property(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now)
     areaUnit: Mapped[str] = mapped_column(nullable=True)
+    totalArea: Mapped[float] = mapped_column(nullable=True)
     qrcode: Mapped[str] = mapped_column(nullable=True)  # Path/URL to QR code image
     constructions = relationship("Construction", back_populates="property", cascade="all, delete-orphan")
     owners = relationship("Owner", secondary=property_owner_association, back_populates="properties")
