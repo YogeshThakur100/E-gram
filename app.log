@@ -1,0 +1,31 @@
+2025-08-26 18:43:59,991 [INFO] main - Application started
+2025-08-26 18:44:36,311 [DEBUG] httpcore.connection - connect_tcp.started host='localhost' port=8000 local_address=None timeout=5.0 socket_options=None
+2025-08-26 18:44:36,589 [DEBUG] httpcore.connection - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BF840104F0>
+2025-08-26 18:44:36,590 [DEBUG] httpcore.http11 - send_request_headers.started request=<Request [b'GET']>
+2025-08-26 18:44:36,590 [DEBUG] httpcore.http11 - send_request_headers.complete
+2025-08-26 18:44:36,590 [DEBUG] httpcore.http11 - send_request_body.started request=<Request [b'GET']>
+2025-08-26 18:44:36,590 [DEBUG] httpcore.http11 - send_request_body.complete
+2025-08-26 18:44:36,591 [DEBUG] httpcore.http11 - receive_response_headers.started request=<Request [b'GET']>
+2025-08-26 18:44:36,654 [DEBUG] httpcore.http11 - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Tue, 26 Aug 2025 13:14:35 GMT'), (b'server', b'uvicorn'), (b'content-length', b'2266'), (b'content-type', b'application/json')])
+2025-08-26 18:44:36,654 [INFO] httpx - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-26 18:44:36,655 [DEBUG] httpcore.http11 - receive_response_body.started request=<Request [b'GET']>
+2025-08-26 18:44:36,655 [DEBUG] httpcore.http11 - receive_response_body.complete
+2025-08-26 18:44:36,655 [DEBUG] httpcore.http11 - response_closed.started
+2025-08-26 18:44:36,655 [DEBUG] httpcore.http11 - response_closed.complete
+2025-08-26 18:44:36,656 [DEBUG] httpcore.connection - close.started
+2025-08-26 18:44:36,657 [DEBUG] httpcore.connection - close.complete
+2025-08-26 18:44:50,199 [DEBUG] httpcore.connection - connect_tcp.started host='localhost' port=8000 local_address=None timeout=5.0 socket_options=None
+2025-08-26 18:44:50,451 [DEBUG] httpcore.connection - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x000001BF851AFF40>
+2025-08-26 18:44:50,451 [DEBUG] httpcore.http11 - send_request_headers.started request=<Request [b'GET']>
+2025-08-26 18:44:50,451 [DEBUG] httpcore.http11 - send_request_headers.complete
+2025-08-26 18:44:50,451 [DEBUG] httpcore.http11 - send_request_body.started request=<Request [b'GET']>
+2025-08-26 18:44:50,451 [DEBUG] httpcore.http11 - send_request_body.complete
+2025-08-26 18:44:50,451 [DEBUG] httpcore.http11 - receive_response_headers.started request=<Request [b'GET']>
+2025-08-26 18:44:50,471 [DEBUG] httpcore.http11 - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'date', b'Tue, 26 Aug 2025 13:14:50 GMT'), (b'server', b'uvicorn'), (b'content-length', b'2266'), (b'content-type', b'application/json')])
+2025-08-26 18:44:50,471 [INFO] httpx - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-26 18:44:50,471 [DEBUG] httpcore.http11 - receive_response_body.started request=<Request [b'GET']>
+2025-08-26 18:44:50,472 [DEBUG] httpcore.http11 - receive_response_body.complete
+2025-08-26 18:44:50,472 [DEBUG] httpcore.http11 - response_closed.started
+2025-08-26 18:44:50,472 [DEBUG] httpcore.http11 - response_closed.complete
+2025-08-26 18:44:50,472 [DEBUG] httpcore.connection - close.started
+2025-08-26 18:44:50,472 [DEBUG] httpcore.connection - close.complete
