@@ -85,3 +85,15 @@
 2025-08-12 15:47:56,879 - INFO - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
 2025-08-12 15:48:37,593 - INFO - HTTP Request: GET http://localhost:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
 2025-08-13 16:36:14,024 - INFO - HTTP Request: GET http://127.0.0.1:8000/namuna7/prints/get/3 "HTTP/1.1 200 OK"
+2025-08-26 19:18:59,436 - INFO - HTTP Request: GET http://127.0.0.1:8000/namuna8/recordresponses/property_record/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-26 19:19:34,194 - INFO - HTTP Request: GET http://127.0.0.1:8000/namuna8/recordresponses/property_record/1?district_id=1&taluka_id=1&gram_panchayat_id=1 "HTTP/1.1 200 OK"
+2025-08-26 19:26:34,497 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-26 19:26:38,287 - INFO - QR code generated successfully
+2025-08-28 10:59:29,842 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-28 10:59:34,336 - INFO - QR code generated successfully
+2025-08-28 11:11:13,253 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-28 11:11:16,908 - INFO - QR code generated successfully
+2025-08-28 12:40:51,021 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-28 12:40:56,338 - INFO - QR code generated successfully
+2025-08-28 12:45:02,798 - ERROR - Unexpected error during property creation: 400: \u092e\u093e\u0932\u092e\u0924\u094d\u0924\u093e \u0915\u094d\u0930\u092e\u093e\u0902\u0915 \u0930\u093f\u0915\u094d\u0924 \u0905\u0938\u0942 \u0936\u0915\u0924 \u0928\u093e\u0939\u0940 / Malmatta Kramank should not be null or empty
+2025-08-28 12:45:06,571 - INFO - QR code generated successfully

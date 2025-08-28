@@ -86,6 +86,7 @@ class Property(Base):
     qrcode: Mapped[str] = mapped_column(nullable=True)  # Path/URL to QR code image
     constructions = relationship("Construction", back_populates="property", cascade="all, delete-orphan")
     owners = relationship("Owner", secondary=property_owner_association, back_populates="properties")
+    remarks: Mapped[str] = mapped_column(nullable=True)
    
 
 class ConstructionType(Base):
