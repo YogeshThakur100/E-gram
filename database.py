@@ -19,7 +19,9 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 Base = declarative_base()
-
+# from certificates.marriage_certificate_model import MarriageCertificate
+# from certificates.no_arrears_certificate_model import NoArrearsCertificate
+# from namuna8.namuna8_model import Property
 Base.metadata.create_all(bind=engine)
 def get_db():
     db = SessionLocal()

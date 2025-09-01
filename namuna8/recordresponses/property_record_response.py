@@ -238,6 +238,7 @@ def get_property_record(
         "occupantName": owner.occupantName if owner else None,
         "aadharNumber": owner.aadhaarNumber if owner else None,
         "ownerName": owner.name if owner else None,
+        "mobileNumber": owner.mobileNumber if owner else None,
         "roadName": prop.streetName,
         "cityWardGatNumber": prop.citySurveyOrGatNumber,
         "areaEast": prop.eastLength,
@@ -276,7 +277,7 @@ def get_property_record(
         "villageId": str(prop.village_id),
         "creationAt": datetime.now(),
         "updationAt": datetime.now(),
-       
+        "remarks" : prop.remarks
     }
     # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus lightingTax, healthTax, toiletTax, cleaningTax, sapanikar, and vpanikar
     house_tax_sum = response['totalHouseTax']
@@ -520,6 +521,7 @@ def get_property_records_by_village(
             "occupantName": owner.occupantName if owner else None,
             "aadharNumber": owner.aadhaarNumber if owner else None,
             "ownerName": owner.name if owner else None,
+            "mobileNumber": owner.mobileNumber if owner else None,
             "roadName": prop.streetName,
             "cityWardGatNumber": prop.citySurveyOrGatNumber,
             "areaEast": prop.eastLength,
@@ -554,6 +556,7 @@ def get_property_records_by_village(
             "sapanikar": get_water_facility_price(prop.waterFacility1),
             "vpanikar": get_water_facility_price(prop.waterFacility2),
             "totaltax": 0,
+            "remarks" : prop.remarks
         }
         # Calculate total tax as sum of houseTax in all constructions (excluding 'खाली जागा') plus lightingTax, healthTax, toiletTax, cleaningTax, sapanikar, and vpanikar
         # house_tax_sum = sum([

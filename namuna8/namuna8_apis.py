@@ -237,9 +237,14 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 west = db_property.westLength or 0
                 north = db_property.northLength or 0
                 south = db_property.southLength or 0
-                avg_length = (east + west) / 2 if (east or west) else 0
-                avg_width = (north + south) / 2 if (north or south) else 0
-                db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+                if east == 0 and west == 0 and north == 0 and south == 0:
+            # All lengths empty, use totalArea from payload
+                     
+                     db_property.totalAreaSqFt = property_data.totalArea
+                else:
+                    avg_length = (east + west) / 2
+                    avg_width = (north + south) / 2
+                    db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
             # Only set boolean fields and toilet (not calculated tax fields)
             db_property.divaArogyaKar = bool(property_data.divaArogyaKar)
             db_property.safaiKar = bool(property_data.safaiKar)
@@ -262,14 +267,8 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id, db)
                 totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
-              
-                east = db_property.eastLength or 0
-                west = db_property.westLength or 0
-                north = db_property.northLength or 0
-                south = db_property.southLength or 0
-                avg_length = (east + west) / 2 if (east or west) else 0
-                avg_width = (north + south) / 2 if (north or south) else 0
-                totalArea = avg_length * avg_width if avg_length and avg_width else 0
+                # totalArea = avg_length * avg_width if avg_length and avg_width else 0
+                totalArea = record_response.get('totalArea',0)
                 # Construction area (exclude 'खाली जागा')
                 constructionArea = sum(
                     (c['length'] or 0) * (c['width'] or 0)

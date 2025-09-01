@@ -1,41 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import logging
-import os
-import sys
-
-home_path = os.path.expanduser("~")
-logs_path = os.path.join(home_path , 'Logs')
-os.makedirs(logs_path , exist_ok=True)
-
-
-
-class LoggerWriter:
-    def __init__(self, level):
-        self.level = level
-    def write(self, message):
-        if message.strip():  # avoid empty lines
-            self.level(message.strip())
-    def flush(self):  # needed for Python compatibility
-        pass
-
-logging.basicConfig(
-    filename=f"{logs_path}/app.log",
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-# Redirect print -> logging.info
-sys.stdout = LoggerWriter(logger.info)
-sys.stderr = LoggerWriter(logger.error)
-
-# Test
-print("This is a print statement")   # Goes into app.log
-logger.info("This is a logger statement")  # Also goes into app.log
-
-
 # Import routers
 from namuna8 import namuna8_apis
 from namuna9 import namuna9_apis
@@ -72,7 +37,7 @@ from Ghoshawara.ReportCreationUsingJinja import ghoshawaraprint
 from LogBook.ReportCreationUsingJinja import logbookPrint
 from reportstab.outward_entries_apis import router as outward_entries_router
 
-
+from location_management.models import District, Taluka, GramPanchayat
 from certificates.marriage_certificate_model import MarriageCertificate
 from certificates.widow_certificate_model import WidowCertificate
 from certificates.receipt_certificate_model import ReceiptCertificate
@@ -180,6 +145,7 @@ app.mount("/", StaticFiles(directory="static", html=True), name="static")
 # def read_root():
 #     return {"message": "Welcome to E-gram Panchayat API"}
 from fastapi.responses import FileResponse
+import os
 
 @app.get("/")
 def serve_react_index():

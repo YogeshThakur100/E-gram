@@ -102,7 +102,9 @@ class PropertyBase(BaseModel):
     westLength: Optional[float] = None
     northLength: Optional[float] = None
     southLength: Optional[float] = None
+    totalArea: Optional[float] = None
     areaUnit: Optional[str] = None
+    remarks: Optional[str] = None
 
 class PropertyCreate(PropertyBase):
     owners: List[OwnerCreate]
