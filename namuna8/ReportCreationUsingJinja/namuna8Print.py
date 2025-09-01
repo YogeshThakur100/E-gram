@@ -18,6 +18,11 @@ env = Environment(loader=FileSystemLoader(namuna8_template_dir))
 
 # # Get the user home directory
 home_path = os.path.expanduser("~")
+logs_path = os.path.expanduser("~")
+logs_dir = os.path.join(logs_path, "logs")   # Create logs folder inside home
+os.makedirs(logs_dir, exist_ok=True)
+
+file_path = os.path.join(logs_dir, "logs.txt")  # Log file path
 
 # Path to: C:\Users\<User>\AppData\Local\grampanchayat\reports
 static_dir = os.path.join(home_path, 'Documents', 'grampanchayat', 'reports')
@@ -681,14 +686,19 @@ async def singlePrint(request : Request):
         print("anuKramank" , anuKramank)
 
         # Call API
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
-                'district_id': requestData.get('district_id'),
-                'taluka_id': requestData.get('taluka_id'),
-                'gram_panchayat_id': requestData.get('gram_panchayat_id')
-            })
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
+                    'district_id': requestData.get('district_id'),
+                    'taluka_id': requestData.get('taluka_id'),
+                    'gram_panchayat_id': requestData.get('gram_panchayat_id')
+                })
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+        except Exception as e:
+            print("Error" , e)
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(str(e))
 
         data = response.json()
         QRdata = {
@@ -709,6 +719,9 @@ async def singlePrint(request : Request):
         output_path = os.path.join(static_dir, 'output.html')
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(rendered_html)
+            
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write("Reports are working well")
 
         return JSONResponse(
             status_code=200,
@@ -718,8 +731,12 @@ async def singlePrint(request : Request):
                 "data": {}
             }
         )
+        
 
     except Exception as e:
+        print(e)
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(str(e))
         return JSONResponse(
             status_code=500,
             content={
