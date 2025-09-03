@@ -10,7 +10,7 @@ import uuid
 property_owner_association = Table(
     "property_owner_association",
     Base.metadata,
-    Column("property_anuKramank", Integer, ForeignKey("properties.anuKramank")),
+    Column("id", Integer, ForeignKey("properties.id")),
     Column("owner_id", Integer, ForeignKey("owners.id"))
 )
 class Village(Base):
@@ -46,7 +46,8 @@ class Owner(Base):
    
 class Property(Base):
     __tablename__ = "properties"
-    anuKramank: Mapped[int] = mapped_column(primary_key=True, index=True)
+    id : Mapped[int] = mapped_column(primary_key=True, index=True)
+    anuKramank: Mapped[int] = mapped_column(nullable=False)
     village_id: Mapped[int] = mapped_column(ForeignKey("villages.id", ondelete="CASCADE"))
     district_id: Mapped[int] = mapped_column(ForeignKey("districts.id", ondelete="CASCADE"), nullable=True)
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"), nullable=True)
@@ -112,7 +113,7 @@ class Construction(Base):
     district_id: Mapped[int] = mapped_column(ForeignKey("districts.id", ondelete="CASCADE"), nullable=True)
     taluka_id: Mapped[int] = mapped_column(ForeignKey("talukas.id", ondelete="CASCADE"), nullable=True)
     gram_panchayat_id: Mapped[int] = mapped_column(ForeignKey("gram_panchayats.id", ondelete="CASCADE"), nullable=True)
-    property_anuKramank: Mapped[int] = mapped_column(ForeignKey("properties.anuKramank"))
+    property_id: Mapped[int] = mapped_column(ForeignKey("properties.id", ondelete="CASCADE"))
     construction_type_id: Mapped[int] = mapped_column(ForeignKey("construction_types.id"))
     length: Mapped[float] = mapped_column()
     width: Mapped[float] = mapped_column()
