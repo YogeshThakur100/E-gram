@@ -9,6 +9,8 @@ import os
 from namuna8.mastertab.mastertabmodels import BuildingUsageWeightage
 from namuna8.mastertab import mastertabmodels as settingModels
 from location_management import models as location_models
+from datetime import datetime
+
 backend_url = os.environ.get('BACKEND_URL', 'http://localhost:8000')
 
 router = APIRouter()
@@ -26,6 +28,7 @@ def calc_house_tax(rate):
 @router.get("/property_record/{anuKramank}")
 def get_property_record(
     anuKramank: int, 
+    village_id:int,
     district_id: int = Query(..., description="District ID"),
     taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
@@ -49,7 +52,15 @@ def get_property_record(
     ).first()
     if not gram_panchayat:
         raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
-    prop = db.query(models.Property).filter(models.Property.anuKramank == anuKramank).first()
+    prop = (
+        db.query(models.Property)
+        .filter(
+            models.Property.anuKramank == anuKramank,
+            models.Property.village_id == village_id
+        )
+        .first()
+     )
+
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
     
@@ -217,8 +228,9 @@ def get_property_record(
     
     # Calculate total construction area in foot and meter (excluding khali jagas)
     total_construction_area_foot = sum([(c.length or 0) * (c.width or 0) for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
-    total_construction_area_meter = round(total_construction_area_foot * 0.092903, 2)
-    
+    total_construction_area_meter = round(total_construction_area_foot * 0.092903, 2)   
+    year_from = datetime.now().year
+    year_to = year_from + 3
     response = {
         "id": str(prop.anuKramank),
         "srNo": prop.anuKramank,
@@ -228,8 +240,8 @@ def get_property_record(
         "village": prop.village.name if hasattr(prop, 'village') and prop.village else None,
         "taluka": taluka.name if taluka else None,
         "jilha": district.name if district else None,
-        "yearFrom": 2024,
-        "yearTo": 2027,
+        "yearFrom": year_from,
+        "yearTo": year_to,
         "photoURL": photo_url,
         "bank_qr_code": None,
         "QRcodeURL": None,
@@ -502,6 +514,8 @@ def get_property_records_by_village(
         total_capital_value = sum([c.capitalValue or 0 for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
         total_construction_area_foot = sum([(c.length or 0) * (c.width or 0) for c in prop.constructions if not c.construction_type.name.strip().startswith("खाली जागा")])
         total_construction_area_meter = round(total_construction_area_foot * 0.092903, 2)
+        year_from = datetime.now().year
+        year_to = year_from + 3
         response = {
             "id": str(prop.anuKramank),
             "anuKramank": prop.anuKramank,
@@ -512,8 +526,8 @@ def get_property_records_by_village(
             "village": prop.village.name if hasattr(prop, 'village') and prop.village else None,
             "taluka": taluka.name if taluka else None,
             "jilha": district.name if district else None,
-            "yearFrom": 2024,
-            "yearTo": 2027,
+            "yearFrom": year_from,
+            "yearTo": year_to,
             "photoURL": None,
             "QRcodeURL": None,
             "total_arearinfoot": prop.totalAreaSqFt,
