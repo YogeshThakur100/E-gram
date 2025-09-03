@@ -390,13 +390,13 @@ def get_table_data(
     if not isinstance(property_ids, list) or len(property_ids) == 0:
         return []
     # Fetch all property details
-    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
+    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.id.in_([int(i) for i in property_ids])).all()
     rows = []
     for idx, prop in enumerate(properties, 1):
         prop_data = build_property_response(prop, db, gram_panchayat_id)
         # Query constructions directly for this property
         constructions = db.query(namuna8_model.Construction).filter(
-            namuna8_model.Construction.property_anuKramank == prop.anuKramank
+            namuna8_model.Construction.property_id == prop.id
         ).all()
         # Calculate totalHouseTax as the sum of all houseTax in constructions (excluding 'खाली जागा')
         totalHouseTax = sum([
@@ -538,7 +538,7 @@ def get_namuna9_table_data_custom(
     property_ids = getattr(rec, 'property_ids', None)
     if not isinstance(property_ids, list) or len(property_ids) == 0:
         return []
-    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.anuKramank.in_([int(i) for i in property_ids])).all()
+    properties = db.query(namuna8_model.Property).filter(namuna8_model.Property.id.in_([int(i) for i in property_ids])).all()
     rows = []
     for idx, prop in enumerate(properties, 1):
         prop_data = build_property_response(prop, db, gram_panchayat_id)
