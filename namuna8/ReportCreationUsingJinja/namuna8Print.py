@@ -680,6 +680,7 @@ async def singlePrint(request : Request):
     try:
         requestData = await request.json()
         anuKramank = requestData.get("anuKramank")
+        villageID = requestData.get("villageID")
         
         # Load template
         template = env.get_template('singlePrint1.html')
@@ -691,6 +692,7 @@ async def singlePrint(request : Request):
                 response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
                     'district_id': requestData.get('district_id'),
                     'taluka_id': requestData.get('taluka_id'),
+                    "village_id" : villageID,
                     'gram_panchayat_id': requestData.get('gram_panchayat_id')
                 })
             if response.status_code != 200:
@@ -751,6 +753,7 @@ async def singlePrint(request : Request):
     try:
         requestData = await request.json()
         anuKramank = requestData.get("anuKramank")
+        villageID = requestData.get("villageID")
         # Load template
         template = env.get_template('singlePrintP1.html')
 
@@ -759,6 +762,7 @@ async def singlePrint(request : Request):
             response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
                 'district_id': requestData.get('district_id'),
                 'taluka_id': requestData.get('taluka_id'),
+                "village_id" : villageID,
                 'gram_panchayat_id': requestData.get('gram_panchayat_id')
             })
         if response.status_code != 200:
@@ -809,6 +813,7 @@ async def singlePrint(request : Request):
         # Load template
         requestData = await request.json()
         anuKramank = requestData.get("anuKramank")
+        villageID = requestData.get("villageID")
         template = env.get_template('singlePrintP2.html')
 
         # Call API
@@ -816,6 +821,7 @@ async def singlePrint(request : Request):
             response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
                 'district_id': requestData.get('district_id'),
                 'taluka_id': requestData.get('taluka_id'),
+                "village_id" : villageID,
                 'gram_panchayat_id': requestData.get('gram_panchayat_id')
             })
         if response.status_code != 200:
@@ -1126,6 +1132,7 @@ async def singlePrint(request : Request):
         # Load template
         requestData = await request.json()
         anuKramank = requestData.get("anuKramank")
+        villageID = requestData.get("villageID")
         template = env.get_template('singlePrintForm.html')
 
         # Call API
@@ -1133,6 +1140,7 @@ async def singlePrint(request : Request):
             response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
                 'district_id': requestData.get('district_id'),
                 'taluka_id': requestData.get('taluka_id'),
+                "village_id" : villageID,
                 'gram_panchayat_id': requestData.get('gram_panchayat_id')
             })
         if response.status_code != 200:
@@ -1174,12 +1182,14 @@ async def singlePrint(request : Request):
         # Load template
         requestData = await request.json()
         anuKramank = requestData.get("anuKramank")
+        villageID = requestData.get("villageID")
         template = env.get_template('singlePrintVishehPani.html')
 
         # Call API
         async with httpx.AsyncClient() as client:
             response = await client.get(f'{localhost}/namuna8/recordresponses/property_record/{anuKramank}', params={
                 'district_id': requestData.get('district_id'),
+                "village_id" : villageID,
                 'taluka_id': requestData.get('taluka_id'),
                 'gram_panchayat_id': requestData.get('gram_panchayat_id')
             })
