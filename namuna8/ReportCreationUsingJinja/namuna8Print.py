@@ -55,20 +55,225 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar1.html')
+        
+        checkbox = requestData.get("checkbox")
+        print("checkbox" , checkbox)
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
-        )
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8Prakar1copy.html')
+            # async with httpx.AsyncClient() as client:
+            #     response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+            #     params={"district_id" : district_id , "taluka_id" : taluka_id}
+            # )
+            # if response.status_code != 200:
+            #     raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
-        if not isinstance(data, list):
-            data = [data]
+            # data = response.json()
+            response = {
+                "village1": [
+                    {
+                        "id": "1",
+                        "srNo": 1,
+                        "propertyNumber": "असददसदसदसअ",
+                        "propertyDescription": "दगड विटा मातीची इमारत",
+                        "gramPanchayat": "lolla",
+                        "village": "village1",
+                        "taluka": "atp",
+                        "jilha": "eg",
+                        "yearFrom": 2025,
+                        "yearTo": 2028,
+                        "todays_date": "04-09-2025",
+                        "photoURL": "",
+                        "bank_qr_code": "",
+                        "QRcodeURL": "http://localhost:8000/namuna8/property_qrcode/1?district_id=1&taluka_id=1&gram_panchayat_id=1",
+                        "total_arearinfoot": 2222.0,
+                        "totalareainmeters": 206.43,
+                        "occupantName": "स्वतः",
+                        "aadharNumber": "",
+                        "ownerName": "दअसदसअदसअदसअद",
+                        "ownerWifeName": "",
+                        "mobileNumber": "",
+                        "roadName": "",
+                        "cityWardGatNumber": "",
+                        "areaEast": 0.0,
+                        "areaWest": 0.0,
+                        "areaNorth": 0.0,
+                        "areaSouth": 0.0,
+                        "totalArea": 2222.0,
+                        "boundaryEast": "",
+                        "boundaryWest": "",
+                        "boundaryNorth": "",
+                        "boundarySouth": "",
+                        "removeLightHealthTax": False,
+                        "applyCleaningTax": False,
+                        "applyToiletTax": False,
+                        "taxNotApplicable": False,
+                        "khaliJaga": [],
+                        "constructionType": [
+                            {
+                                "type": "दगड विटा मातीची इमारत",
+                                "length": 222.0,
+                                "width": 2.0,
+                                "year": "22",
+                                "rate": 9979.0,
+                                "floor": "सहावा मजला",
+                                "usage": "निवासी",
+                                "capitalValue": 41.25,
+                                "houseTax": 0.02,
+                                "depreciation_rate": 0,
+                                "usageBasedBuildingWeightageFactor": 1,
+                                "taxRates": 0.5
+                            }
+                        ],
+                        "waterFacility1": "सामान्य पाणीकर",
+                        "waterFacility2": "सामान्य पाणीकर",
+                        "toilet": "आहे",
+                        "house": "",
+                        "totalCapitalValue": 41,
+                        "totalHouseTax": 242,
+                        "totalconstructionareainfoot": 444,
+                        "totalconstructionareainmeter": 41.25,
+                        "housingUnit": "sqft",
+                        "lightingTax": 100,
+                        "healthTax": 100,
+                        "waterTax": 100,
+                        "cleaningTax": 100,
+                        "toiletTax": 100,
+                        "sapanikar": 100,
+                        "vpanikar": 0,
+                        "totaltax": 0,
+                        "userId": [
+                            1
+                        ],
+                        "villageId": "1",
+                        "creationAt": "2025-09-04T11:45:54.425352",
+                        "updationAt": "2025-09-04T11:45:54.425354",
+                        "remarks": ""
+                    }
+                ],
+                "village2": [
+                    {
+                        "id": "1",
+                        "srNo": 1,
+                        "propertyNumber": "फदसफसदफसदफ",
+                        "propertyDescription": "दगड विटा मातीची इमारत",
+                        "gramPanchayat": "lolla",
+                        "village": "village2",
+                        "taluka": "atp",
+                        "jilha": "eg",
+                        "yearFrom": 2025,
+                        "yearTo": 2028,
+                        "todays_date": "04-09-2025",
+                        "photoURL": "",
+                        "bank_qr_code": "",
+                        "QRcodeURL": "http://localhost:8000/namuna8/property_qrcode/1?district_id=1&taluka_id=1&gram_panchayat_id=1",
+                        "total_arearinfoot": 4444.0,
+                        "totalareainmeters": 412.86,
+                        "occupantName": "स्वतः",
+                        "aadharNumber": "",
+                        "ownerName": "दसफसदफसदफएवरएवरवएर",
+                        "ownerWifeName": "",
+                        "mobileNumber": "",
+                        "roadName": "",
+                        "cityWardGatNumber": "",
+                        "areaEast": 0.0,
+                        "areaWest": 0.0,
+                        "areaNorth": 0.0,
+                        "areaSouth": 0.0,
+                        "totalArea": 4444.0,
+                        "boundaryEast": "",
+                        "boundaryWest": "",
+                        "boundaryNorth": "",
+                        "boundarySouth": "",
+                        "removeLightHealthTax": False,
+                        "applyCleaningTax": True,
+                        "applyToiletTax": True,
+                        "taxNotApplicable": False,
+                        "khaliJaga": [
+                            {
+                                "constructiontype": "खाली जागा",
+                                "length": 4000.0,
+                                "width": 1,
+                                "year": 2025,
+                                "rate": 450.0,
+                                "floor": "तळमजला",
+                                "usage": "खाली जागा 1",
+                                "capitalValue": 371.612,
+                                "houseTax": 1,
+                                "usageBasedBuildingWeightageFactor": 1,
+                                "taxRates": 3.0,
+                                "totalkhalijagaareainfoot": 4000.0,
+                                "totalkhalijagaareainmeters": 371.61
+                            }
+                        ],
+                        "constructionType": [
+                            {
+                                "type": "दगड विटा मातीची इमारत",
+                                "length": 222.0,
+                                "width": 2.0,
+                                "year": "2222",
+                                "rate": 9979.0,
+                                "floor": "दुसरा मजला",
+                                "usage": "",
+                                "capitalValue": 41.25,
+                                "houseTax": 0.03,
+                                "depreciation_rate": 0,
+                                "usageBasedBuildingWeightageFactor": 1,
+                                "taxRates": 0.5
+                            }
+                        ],
+                        "waterFacility1": "",
+                        "waterFacility2": "",
+                        "toilet": "",
+                        "house": "",
+                        "totalCapitalValue": 41,
+                        "totalHouseTax": 541,
+                        "totalconstructionareainfoot": 444,
+                        "totalconstructionareainmeter": 41.25,
+                        "housingUnit": "sqft",
+                        "lightingTax": 100,
+                        "healthTax": 100,
+                        "waterTax": 100,
+                        "cleaningTax": 100,
+                        "toiletTax": 0,
+                        "sapanikar": 0,
+                        "vpanikar": 0,
+                        "totaltax": 0,
+                        "userId": [
+                            2
+                        ],
+                        "villageId": "2",
+                        "creationAt": "2025-09-04T11:45:54.440594",
+                        "updationAt": "2025-09-04T11:45:54.440596",
+                        "remarks": ""
+                    }
+                ]
+            }
+
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]    
+        else:
+            template = env.get_template('namuna8Prakar1.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]
 
         if not data:
             return JSONResponse(
@@ -126,17 +331,51 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar2.html')
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8Prakar2copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]    
+        else:
+            template = env.get_template('namuna8Prakar2.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -188,17 +427,51 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar3.html')
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+        if checkbox:
+            template = env.get_template('namuna8Prakar3copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8Prakar3.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -250,17 +523,50 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar4bhag1.html')
-
+        checkbox = requestData.get("checkbox")
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8Prakar4bhag1copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+
+        else:
+            template = env.get_template('namuna8Prakar4bhag1.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -312,17 +618,50 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar4bhag2.html')
-
+        
+        checkbox = requestData.get("checkbox")
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8Prakar4bhag2copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8Prakar4bhag2.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -374,17 +713,51 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar5bhag1.html')
+        
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8Prakar5bhag1copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8Prakar5bhag1.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]                                                
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -436,17 +809,51 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8Prakar5bhag2.html')
+        
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8Prakar5bhag2copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8Prakar5bhag2.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -498,17 +905,51 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8VishehPaniPrakar1.html')
+        
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8VishehPaniPrakar1copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8VishehPaniPrakar1.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -560,17 +1001,50 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8VishehPaniPrakar2.html')
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8VishehPaniPrakar2copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8VishehPaniPrakar2.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
@@ -622,17 +1096,50 @@ async def prakar1(request : Request):
         district_id = requestData.get("district_id")
         taluka_id = requestData.get("taluka_id")
         gram_panchayat_id = requestData.get("gram_panchayat_id")
-        template = env.get_template('namuna8VishehPaniPrakar3.html')
+        checkbox = requestData.get("checkbox")
 
         # Call API - use base URL from request to avoid localhost issues in installer
         base_url = str(request.base_url).rstrip('/')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
-            params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
-        if response.status_code != 200:
-            raise Exception(f"API error {response.status_code}: {response.text}")
+        if checkbox:
+            template = env.get_template('namuna8VishehPaniPrakar3copy.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_gram_panchayat/1' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id}
+            )
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
 
-        data = response.json()
+            data = []
+
+            for village_name , records in response.items():
+                data.append({
+                    "villageName" : village_name,
+                    "records" : records
+                })
+
+            if not isinstance(data, list):
+                data = [data]  
+        else:
+            template = env.get_template('namuna8VishehPaniPrakar3.html')
+            async with httpx.AsyncClient() as client:
+                response = await client.get(f'{base_url}/namuna8/recordresponses/property_records_by_village/{villageId}' ,
+                params={"district_id" : district_id , "taluka_id" : taluka_id , "gram_panchayat_id" : gram_panchayat_id})
+            if response.status_code != 200:
+                raise Exception(f"API error {response.status_code}: {response.text}")
+
+            data = response.json()
+            if not isinstance(data, list):
+                data = [data]  
+
+        if not data:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "No records found for the given villageID.",
+                    "data": {}
+                }
+            )
 
         # Render template
         if not isinstance(data, list):
