@@ -17,22 +17,6 @@ def get_all_districts(db: Session = Depends(get_db)):
     districts = db.query(models.District).all()
     return districts
 
-# --- Update the existing (single) district without ID ---
-@router.put("/districts/existing", response_model=schemas.DistrictRead)
-def update_existing_district(district: schemas.DistrictUpdate, db: Session = Depends(get_db)):
-    """Update the only existing district (no ID in path)."""
-    db_district = db.query(models.District).first()
-    if not db_district:
-        raise HTTPException(status_code=404, detail="District not found")
-
-    update_data = district.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_district, field, value)
-
-    db.commit()
-    db.refresh(db_district)
-    return db_district
-
 @router.get("/districts/{district_id}", response_model=schemas.DistrictRead)
 def get_district(district_id: int, db: Session = Depends(get_db)):
     """Get a specific district by ID"""
@@ -86,8 +70,6 @@ def delete_district(district_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "District deleted successfully"}
 
- 
-
 # ==================== TALUKA APIs ====================
 
 @router.get("/talukas", response_model=List[schemas.TalukaRead])
@@ -101,22 +83,6 @@ def get_talukas_by_district(district_id: int, db: Session = Depends(get_db)):
     """Get all talukas for a specific district"""
     talukas = db.query(models.Taluka).filter(models.Taluka.district_id == district_id).all()
     return talukas
-
-# --- Update the existing (single) taluka without ID ---
-@router.put("/talukas/existing", response_model=schemas.TalukaRead)
-def update_existing_taluka(taluka: schemas.TalukaUpdate, db: Session = Depends(get_db)):
-    """Update the only existing taluka (no ID in path)."""
-    db_taluka = db.query(models.Taluka).first()
-    if not db_taluka:
-        raise HTTPException(status_code=404, detail="Taluka not found")
-
-    update_data = taluka.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_taluka, field, value)
-
-    db.commit()
-    db.refresh(db_taluka)
-    return db_taluka
 
 @router.get("/talukas/{taluka_id}", response_model=schemas.TalukaRead)
 def get_taluka(taluka_id: int, db: Session = Depends(get_db)):
@@ -179,8 +145,6 @@ def delete_taluka(taluka_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Taluka deleted successfully"}
 
- 
-
 # ==================== GRAM PANCHAYAT APIs ====================
 
 @router.get("/gram-panchayats", response_model=List[schemas.GramPanchayatRead])
@@ -194,22 +158,6 @@ def get_gram_panchayats_by_taluka(taluka_id: int, db: Session = Depends(get_db))
     """Get all gram panchayats for a specific taluka"""
     gram_panchayats = db.query(models.GramPanchayat).filter(models.GramPanchayat.taluka_id == taluka_id).all()
     return gram_panchayats
-
-# --- Update the existing (single) gram panchayat without ID ---
-@router.put("/gram-panchayats/existing", response_model=schemas.GramPanchayatRead)
-def update_existing_gram_panchayat(gram_panchayat: schemas.GramPanchayatUpdate, db: Session = Depends(get_db)):
-    """Update the only existing gram panchayat (no ID in path)."""
-    db_gp = db.query(models.GramPanchayat).first()
-    if not db_gp:
-        raise HTTPException(status_code=404, detail="Gram Panchayat not found")
-
-    update_data = gram_panchayat.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(db_gp, field, value)
-
-    db.commit()
-    db.refresh(db_gp)
-    return db_gp
 
 @router.get("/gram-panchayats/{gram_panchayat_id}", response_model=schemas.GramPanchayatRead)
 def get_gram_panchayat(gram_panchayat_id: int, request: Request, db: Session = Depends(get_db)):
@@ -296,8 +244,6 @@ def delete_gram_panchayat(gram_panchayat_id: int, db: Session = Depends(get_db))
     db.delete(db_gram_panchayat)
     db.commit()
     return {"message": "Gram Panchayat deleted successfully"}
-
- 
 
 
 # ==================== GRAM PANCHAYAT IMAGE APIs ====================

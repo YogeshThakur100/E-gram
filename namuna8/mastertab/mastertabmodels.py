@@ -11,7 +11,7 @@ class GeneralSetting(Base):
 
     id = Column(String, primary_key=True, unique=True, nullable=False)
     typingLanguage = Column(String, nullable=True)
-    capitalFormula1 = Column(Boolean, nullable=True, default=True)
+    capitalFormula1 = Column(Boolean, nullable=True, default=False)
     capitalFormula2 = Column(Boolean, nullable=True, default=False)
     district_id = Column(Integer, ForeignKey("districts.id"), nullable=True)
     taluka_id = Column(Integer, ForeignKey("talukas.id"), nullable=True)
