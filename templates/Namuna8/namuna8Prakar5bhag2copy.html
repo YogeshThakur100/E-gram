@@ -261,27 +261,32 @@
         }
       }
       function updateFooterSummary() {
-        // Calculate totals for all records (not just visible ones)
-        const allRecords = Array.from(document.querySelectorAll('.record-table-wrapper'));
-        let house = 0, lighting = 0, health = 0, water = 0, total = 0;
-        allRecords.forEach(row => {
-          house += parseFloat(row.dataset.houseTax) || 0;
-          lighting += parseFloat(row.dataset.lightingTax) || 0;
-          health += parseFloat(row.dataset.healthTax) || 0;
-          water += parseFloat(row.dataset.waterTax) || 0;
-          total += parseFloat(row.dataset.totalTax) || 0;
-        });
-        // Update each cell in the main footer table
-        if(document.getElementById('footerHouseTax'))
-          document.getElementById('footerHouseTax').innerText = `घर : ${house.toFixed(2)}`;
-        if(document.getElementById('footerLightingTax'))
-          document.getElementById('footerLightingTax').innerText = `दिवा : ${lighting.toFixed(2)}`;
-        if(document.getElementById('footerHealthTax'))
-          document.getElementById('footerHealthTax').innerText = `आरोग्य : ${health.toFixed(2)}`;
-        if(document.getElementById('footerWaterTax'))
-          document.getElementById('footerWaterTax').innerText = `पाणी : ${water.toFixed(2)}`;
-        if(document.getElementById('footerTotalTax'))
-          document.getElementById('footerTotalTax').innerText = `एकूण : ${total.toFixed(2)}`;
+          // Calculate totals for all records (not just visible ones)
+          const allRows = Array.from(document.querySelectorAll('.record-row'));
+          let house = 0, lighting = 0, health = 0, water = 0, cleaning = 0, toilet = 0, total = 0;
+          allRows.forEach(row => {
+              house += parseFloat(row.dataset.houseTax) || 0;
+              lighting += parseFloat(row.dataset.lightingTax) || 0;
+              health += parseFloat(row.dataset.healthTax) || 0;
+              water += parseFloat(row.dataset.waterTax) || 0;
+              cleaning += parseFloat(row.dataset.cleaningTax) || 0;
+              toilet += parseFloat(row.dataset.toiletTax) || 0;
+              total += parseFloat(row.dataset.totalTax) || 0;
+          });
+          if(document.getElementById('footerHouseTax'))
+              document.getElementById('footerHouseTax').innerText = `घर : ${house.toFixed(2)}`;
+          if(document.getElementById('footerLightingTax'))
+              document.getElementById('footerLightingTax').innerText = `दिवा : ${lighting.toFixed(2)}`;
+          if(document.getElementById('footerHealthTax'))
+              document.getElementById('footerHealthTax').innerText = `आरोग्य : ${health.toFixed(2)}`;
+          if(document.getElementById('footerWaterTax'))
+              document.getElementById('footerWaterTax').innerText = `पाणी : ${water.toFixed(2)}`;
+          if(document.getElementById('footerCleaningTax'))
+              document.getElementById('footerCleaningTax').innerText = `सफाई : ${cleaning.toFixed(2)}`;
+          if(document.getElementById('footerToiletTax'))
+              document.getElementById('footerToiletTax').innerText = `शौ. कर : ${toilet.toFixed(2)}`;
+          if(document.getElementById('footerTotalTax'))
+              document.getElementById('footerTotalTax').innerText = `एकूण : ${total.toFixed(2)}`;
       }
       function showPage(page) {
         const recordPages = Array.from(
@@ -350,67 +355,36 @@
       };
     </script>
     <div id="mainContent">
+      {% for village in data %}
       {% set num_records = data|length %}
-      {% set num_pages = (num_records // 3) + (1 if num_records % 3 else 0) %}
+      {% set num_pages = (num_records // 2) + (1 if num_records % 2 else 0) %}
       {% for page in range(num_pages) %}
         <!-- Header Section: Place this at the top of your HTML file -->
-        <div class="record-page" style="page-break-after: always">
-          <!-- Info block: appears once per page -->
-          <div class="report-header">
-            {% if tip %}
-            <div
-              class="report-warning"
-              style="
-                color: red;
-                text-align: center;
-                font-weight: bold;
-                font-size: 14px;
-              "
-            >
-            (टीप: सदरचा उत्तारा हा मालकी हक्काचा नसून कर आकारणी साठी आहे. सदरच्या उताऱ्यावरून खरेदी विक्रीचा व्यवहार झाल्यास  त्यास ग्रामपंचायत जबाबदार राहणार नाही. शासन परिपत्रक क्र.पं.रा.स.2016 पं.क्र.17 पं.रा-4 तारीख 18 जुलै 2016.) <br>
-            (*टीप:* शासन परिपत्रक क. VTM२६०३/प्र.क्र.२०६८/पं.रा.४ दि २० नोव्हेंबर २००३ नुसार ग्रामीण भागातील घरांची नोंदणी पती-पत्नी यांच्या संयुक्त नावे करण्यात आलेले आहे.)
+        <div class="record-page" style="page-break-after: always;">
+            <!-- Info block: appears once per page -->
+            <div class="report-header">
+                {% if village.records[0].tip %}
+              <div class="report-warning" style="color: red; text-align: center; font-weight: bold; font-size: 14px;">
+                (टीप: सदरचा उत्तारा हा मालकी हक्काचा नसून कर आकारणी साठी आहे. सदरच्या उताऱ्यावरून खरेदी विक्रीचा व्यवहार झाल्यास  त्यास ग्रामपंचायत जबाबदार राहणार नाही. शासन परिपत्रक क्र.पं.रा.स.2016 पं.क्र.17 पं.रा-4 तारीख 18 जुलै 2016.) <br>
+                (*टीप:* शासन परिपत्रक क. VTM२६०३/प्र.क्र.२०६८/पं.रा.४ दि २० नोव्हेंबर २००३ नुसार ग्रामीण भागातील घरांची नोंदणी पती-पत्नी यांच्या संयुक्त नावे करण्यात आलेले आहे.)
+              </div>
+              {% else %}
+              <div class="report-warning" style="color: red; text-align: center; font-weight: bold; font-size: 14px;">
+              </div>
+              {% endif %}
+              <div class="report-info" style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; flex-wrap: wrap;">
+                <span>ग्राम पंचायत : {{village.records[0].gramPanchayat|default('')}} </span>
+                <span> गाव/ मोहल्ला : {{village.records[0].village|default('')}} </span>
+                <span style="color: green; font-weight: bold; font-size: 16px;">नमुना 8</span>
+                <span>नियम 32 ( 1 ) </span>
+                <span> तालुका: {{village.records[0].taluka|default('')}} </span>
+                <span> जिल्हा : {{village.records[0].jilha|default('')}} </span>
+              </div>
+              <div class="fontSizeData " style="margin-top: 5px; font-size: 12px;text-align: center;">
+                <span>सन {{village.records[0].yearFrom|default('')}} ते {{village.records[0].yearTo|default('')}} </span>
+                <span style="padding-left: 100px;">या वर्षासाठी कर आकारणी नोंदवही</span>
+              </div>
             </div>
-            {% else %}
-            <div
-              class="report-warning"
-              style="
-                color: red;
-                text-align: center;
-                font-weight: bold;
-                font-size: 14px;
-              "
-            >
-            </div>
-            {% endif %}
-            <div
-              class="report-info"
-              style="
-                display: flex;
-                justify-content: space-between;
-                margin-top: 10px;
-                font-size: 14px;
-                flex-wrap: wrap;
-              "
-            >
-              <span>ग्राम पंचायत : {{ gramPanchayat | default('') }} </span>
-              <span> गाव/ मोहल्ला : {{ village | default('') }} </span>
-              <span style="color: green; font-weight: bold; font-size: 16px"
-                >नमुना 8</span
-              >
-              <span>नियम 32 ( 1 ) </span>
-              <span> तालुका: {{ taluka | default('') }} </span>
-              <span> जिल्हा : {{ jilha | default('') }} </span>
-            </div>
-            <div
-              class="fontSizeData"
-              style="margin-top: 5px; font-size: 12px; text-align: center"
-            >
-              <span>सन {{ yearFrom | default('') }} ते {{ yearTo | default('') }} </span>
-              <span style="padding-left: 100px"
-                >या वर्षासाठी कर आकारणी नोंदवही</span
-              >
-            </div>
-          </div>
 
           <style>
             table th,
@@ -420,17 +394,11 @@
             }
           </style>
 
-          {% for i in range(3) %}
-            {% set idx = page * 3 + i %}
+          {% for i in range(2) %}
+            {% set idx = page * 2 + i %}
             {% if idx < num_records %}
-              {% set row = data[idx] %}
-              <div class="record-table-wrapper"
-                data-house-tax="{{ row.totalHouseTax | default('0') }}"
-                data-lighting-tax="{{ row.lightingTax | default('0') }}"
-                data-health-tax="{{ row.healthTax | default('0') }}"
-                data-water-tax="{{ row.waterTax | default('0') }}"
-                data-total-tax="{{ row.totaltax | default('0') }}"
-                style="margin-bottom: 16px">
+              {% set row = village.records[idx] %}
+              <div style="margin-bottom: 16px">
                 <table
                   style="
                     text-align: center;
@@ -465,21 +433,28 @@
                     <th>एकूण</th>
                   </tr>
                   <tr style="text-align: center; font-weight: 700">
-                    <td>15</td>
-                    <td>16</td>
-                    <td>17</td>
-                    <td>18</td>
-                    <td>19</td>
-                    <td>20</td>
-                    <td>21</td>
-                    <td>22</td>
-                    <td>23</td>
-                    <td>24</td>
-                    <td>25</td>
-                    <td>26</td>
-                    <td colspan="2">27</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                    <td>7</td>
+                    <td>8</td>
+                    <td>9</td>
+                    <td>10</td>
+                    <td>11</td>
+                    <td>12</td>
+                    <td colspan="2">13</td>
                   </tr>
-                  <tr>
+                  <tr class="record-row"
+                      data-house-tax="{{ row.totalHouseTax | default('0') }}"
+                      data-lighting-tax="{{ row.lightingTax | default('0') }}"
+                      data-health-tax="{{ row.healthTax | default('0') }}"
+                      data-water-tax="{{ row.waterTax | default('0') }}"
+                      data-cleaning-tax="{{ row.cleaningTax | default('0') }}"
+                      data-toilet-tax="{{ row.toiletTax | default('0') }}"
+                      data-total-tax="{{ row.totaltax | default('0') }}">
                     <td>
                       {% if row.constructionType is defined and row.constructionType|length > 0 %}
                           {{ row.constructionType[0].capitalValue | default('') }}<br>
@@ -641,16 +616,19 @@
           </style>
         </div>
       {% endfor %}
+      {% endfor %}
     </div>
 
     <!-- Footer Summary - Outside main content to avoid repetition -->
-    <table class="footer-summary" id="footerSummary" style="width:100%; border-collapse: collapse; border: 2px solid #000; font-size: 15px; margin-top:20px; font-weight:bold;">
+    <table class="footer-summary" id="footerSummary" style="width: 100%; border-collapse: collapse; border: 2px solid #000; font-size: 14px; margin-top: 20px;">
         <tr>
           <td style="border: 1px solid #000; text-align: left; width: 15%;">एकूण कर :</td>
           <td id="footerHouseTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
           <td id="footerLightingTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
           <td id="footerHealthTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
           <td id="footerWaterTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerCleaningTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
+          <td id="footerToiletTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
           <td id="footerTotalTax" style="border: 1px solid #000; text-align: left; width: 10%;"></td>
         </tr>
     </table>
