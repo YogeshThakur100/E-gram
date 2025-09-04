@@ -45,10 +45,15 @@ def transfer_owners(request: OwnerTransferRequest, db: Session = Depends(get_db)
     if not owners:
         raise HTTPException(status_code=404, detail="No owners found for transfer.")
 
-    # Get all properties associated with these owners through the association table
+    # Get all existing anuKramank values in the target village
+    existing_anukramanks = set(
+        p.anuKramank for p in db.query(Property).filter(
+            Property.village_id == request.to_village_id
+        ).all()
+    )
+
     properties = []
     for owner in owners:
-        # Access properties through the relationship
         properties.extend(owner.properties)
 
     # Update owners
@@ -61,9 +66,29 @@ def transfer_owners(request: OwnerTransferRequest, db: Session = Depends(get_db)
         if request.gram_panchayat_id is not None:
             owner.gram_panchayat_id = request.gram_panchayat_id
 
+    # Dictionary to track anukramank changes for reporting
+    anukramank_changes = {}
+    
     # Update properties
     for property in properties:
-        if property.village_id == request.from_village_id:  # Only update if from source village
+        if property.village_id == request.from_village_id:
+            # Check if anuKramank exists in target village
+            original_anukramank = property.anuKramank
+            new_anukramank = original_anukramank
+            
+            # Keep incrementing until we find an unused anuKramank
+            while new_anukramank in existing_anukramanks:
+                new_anukramank += 1
+            
+            # Update the property's anuKramank if it changed
+            if new_anukramank != original_anukramank:
+                anukramank_changes[original_anukramank] = new_anukramank
+                property.anuKramank = new_anukramank
+            
+            # Add the new anuKramank to existing set
+            existing_anukramanks.add(new_anukramank)
+            
+            # Update location fields
             property.village_id = request.to_village_id
             if request.district_id is not None:
                 property.district_id = request.district_id
@@ -77,5 +102,6 @@ def transfer_owners(request: OwnerTransferRequest, db: Session = Depends(get_db)
     return {
         "success": True, 
         "transferred_owner_ids": [owner.id for owner in owners],
-        "transferred_property_count": len(properties)
+        "transferred_property_count": len(properties),
+        "anukramank_changes": anukramank_changes  # Report which anuKramank values were changed
     }
