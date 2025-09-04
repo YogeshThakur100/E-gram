@@ -272,11 +272,13 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
           
             try:
                 # Use get_property_record to get accurate total tax
-                record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id, db)
+                record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id,db_property.village_id, db)
                 totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
                 # totalArea = avg_length * avg_width if avg_length and avg_width else 0
                 totalArea = record_response.get('totalArea',0)
+                owner_name = owners[0].name if owners else None
+                wife_name = owners[0].wifeName if owners and getattr(owners[0], "wifeName", None) else None
                 # Construction area (exclude 'खाली जागा')
                 constructionArea = sum(
                     (c['length'] or 0) * (c['width'] or 0)
@@ -287,13 +289,16 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 openArea = totalArea - constructionArea
                 qr_data = {
                     "srNo": srNo,
+                    "ownername": owner_name,
                     "totalArea": totalArea,
                     "constructionArea": constructionArea,
                     "openArea": openArea,
                     "totalTax": totalTax,
                 }
+                if wife_name:
+                    qr_data["wifename"] = wife_name
                 # Create location-based QR directory structure
-                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
+                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id),str(db_property.village_id),str(db_property.anuKramank))
                 # print(f"DEBUG: Creating QR directory: {qr_dir}")
                 os.makedirs(qr_dir, exist_ok=True)
                 qr_path = os.path.join(qr_dir, "qrcode.png")
@@ -623,7 +628,7 @@ def update_namuna8_entry(
     # --- QR CODE GENERATION (after update, using calculated values) ---
     try:
         # Use get_property_record to get accurate total tax
-        record_response = get_property_record(db_property.anuKramank, district_id, taluka_id, gram_panchayat_id, db)
+        record_response = get_property_record(db_property.anuKramank,village_id, district_id, taluka_id, gram_panchayat_id, db)
         totalTax = record_response.get('totaltax', 0)
         srNo = response.get('anuKramank') or response.get('srNo') or ''
         # print(f"DEBUG UPDATE: totalTax: {totalTax}")
@@ -642,15 +647,22 @@ def update_namuna8_entry(
             if not (c.get('constructionType', '').strip().startswith('खाली जागा'))
         )
         openArea = totalArea - constructionArea
+        owner_name = record_response.get('ownerName', 0)
+        wife_name = record_response.get('ownerWifeName', 0)
+        
         qr_data = {
             "srNo": srNo,
+            "ownername": owner_name,
             "totalArea": totalArea,
             "constructionArea": constructionArea,
             "openArea": openArea,
             "totalTax": totalTax,
         }
+        if wife_name:
+            qr_data["wifename"] = wife_name
+        
         # Create location-based QR directory structure
-        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
+        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id),str(db_property.village_id), str(db_property.anuKramank))
         # print(f"DEBUG UPDATE: Creating QR directory: {qr_dir}")
         os.makedirs(qr_dir, exist_ok=True)
         qr_path = os.path.join(qr_dir, "qrcode.png")
@@ -1981,7 +1993,7 @@ def get_property_qrcode(
         raise HTTPException(status_code=404, detail="Property not found in the specified location")
     
     # Use location-based QR path
-    qr_path = os.path.join("uploaded_images", "qrcode", str(district_id), str(taluka_id), str(gram_panchayat_id), str(anu_kramank), "qrcode.png")
+    qr_path = os.path.join("uploaded_images", "qrcode", str(district_id), str(taluka_id), str(gram_panchayat_id),str(village_id), str(anu_kramank), "qrcode.png")
     if not os.path.exists(qr_path):
         raise HTTPException(status_code=404, detail="QR code not found")
     return FileResponse(qr_path, media_type="image/png")
