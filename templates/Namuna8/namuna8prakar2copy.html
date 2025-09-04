@@ -180,12 +180,13 @@
     </script>
     <!-- Main Data Table -->
     <div id="mainContent">
+    {% for village in data %}
     <table class="main-table" style="margin-top:0; width:100%;">
         <!-- Page Header - Repeats on every page -->
         <thead class="page-header">
             <tr>
                 <td colspan="21" style="border:none; padding:0;">
-                    {% if tip %}
+                    {% if village.records[0].tip %}
                     <p style="margin-bottom: 2px;">
                         (टीप: सदरचा उत्तारा हा मालकी हक्काचा नसून कर आकारणी साठी आहे. सदरच्या उताऱ्यावरून खरेदी विक्रीचा व्यवहार झाल्यास  त्यास ग्रामपंचायत जबाबदार राहणार नाही. शासन परिपत्रक क्र.पं.रा.स.2016 पं.क्र.17 पं.रा-4 तारीख 18 जुलै 2016.) <br>
                         (*टीप:* शासन परिपत्रक क. VTM२६०३/प्र.क्र.२०६८/पं.रा.४ दि २० नोव्हेंबर २००३ नुसार ग्रामीण भागातील घरांची नोंदणी पती-पत्नी यांच्या संयुक्त नावे करण्यात आलेले आहे.)
@@ -195,9 +196,9 @@
                     {% endif %}
                     <table class="header-table" style="width:100%; margin:0;">
                         <tr>
-                            <td class="left" style="width:33%">ग्रामपंचायत : {{ gramPanchayat | default('') }} <br>गाव/मोहोल्ला : {{ village | default('') }} </td>
-                            <td class="center bold" style="font-size:22px; width:34%">नमुना ८<br><span style="font-size:15px; font-weight:normal;">सन {{ yearFrom | default('') }} <b>ते</b> {{ yearTo | default('') }} </span></td>
-                            <td class="right" style="width:33%">नियम 32 (1)<br>तालुका : {{ taluka | default('') }}  <br>जिल्हा : {{ jilha | default('') }} </td>
+                            <td class="left" style="width:33%">ग्रामपंचायत : {{ village.records[0].gramPanchayat  | default('') }} <br>गाव/मोहोल्ला : {{ village.records[0].village | default('') }} </td>
+                            <td class="center bold" style="font-size:22px; width:34%">नमुना ८<br><span style="font-size:15px; font-weight:normal;">सन {{ village.records[0].yearFrom | default('') }} <b>ते</b> {{ village.records[0].yearTo  | default('') }} </span></td>
+                            <td class="right" style="width:33%">नियम 32 (1)<br>तालुका : {{ village.records[0].taluka  | default('') }} <br>जिल्हा : {{ village.records[0].jilha  | default('') }} </td>
                         </tr>
                     </table>
                 </td>
@@ -265,7 +266,7 @@
             </tr>
         </tfoot>
         <tbody>
-            {% for row in data %}
+            {% for row in village.records %}
             <tr class="record-row"
                 data-house-tax="{{ row.totalHouseTax | default('0') }}"
                 data-lighting-tax="{{ row.lightingTax | default('0') }}"
@@ -418,6 +419,7 @@
             </tr>
             {% endfor %}
         </tbody>
+         {% endfor %}
     </table>
     
     <!-- Footer Summary - Outside table to avoid repetition -->

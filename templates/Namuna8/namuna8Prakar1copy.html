@@ -15,7 +15,6 @@
         th { background: #f0f0f0; }
         .footer-summary {
             border: 3px solid #000;
-            border-top: none;
             font-size: 13px;
             font-weight: bold;
             margin-top: 0;
@@ -49,6 +48,9 @@
             }
             #toolbar {
                 display: none !important;
+            }
+            .page-footer {
+                display: none !important; /* Just in case some remnants are left */
             }
             /* Ensure footer appears at the end during print */
             .footer-summary {
@@ -108,9 +110,7 @@
         }
         function updateFooterSummary() {
             // Calculate totals for all records (not just visible ones)
-            const allRows = Array.from(document.querySelectorAll('.record-row')).filter(
-                row => row.hasAttribute('data-house-tax')
-            );
+            const allRows = Array.from(document.querySelectorAll('.record-row'));
             let house = 0, lighting = 0, health = 0, water = 0, cleaning = 0, toilet = 0, total = 0;
             allRows.forEach(row => {
                 house += parseFloat(row.dataset.houseTax) || 0;
@@ -138,6 +138,7 @@
             if(document.getElementById('pageTotal'))
                 document.getElementById('pageTotal').innerText = '/' + totalPages;
             updateFooterSummary(); // <-- Add this line
+
             const footerElement = document.getElementById('footerSummary');
             if (currentPage === totalPages) {
                 footerElement.style.display = 'block';
@@ -178,26 +179,19 @@
             document.querySelector('button[title="Last Page"]').onclick = lastPage;
         };
     </script>
-    <!-- Main Data Table -->
     <div id="mainContent">
+    {% for village in data %}
+    <!-- Main Data Table -->
     <table class="main-table" style="margin-top:0; width:100%;">
         <!-- Page Header - Repeats on every page -->
         <thead class="page-header">
             <tr>
                 <td colspan="21" style="border:none; padding:0;">
-                    {% if tip %}
-                    <p style="margin-bottom: 2px;">
-                        (टीप: सदरचा उत्तारा हा मालकी हक्काचा नसून कर आकारणी साठी आहे. सदरच्या उताऱ्यावरून खरेदी विक्रीचा व्यवहार झाल्यास  त्यास ग्रामपंचायत जबाबदार राहणार नाही. शासन परिपत्रक क्र.पं.रा.स.2016 पं.क्र.17 पं.रा-4 तारीख 18 जुलै 2016.) <br>
-                        (*टीप:* शासन परिपत्रक क. VTM२६०३/प्र.क्र.२०६८/पं.रा.४ दि २० नोव्हेंबर २००३ नुसार ग्रामीण भागातील घरांची नोंदणी पती-पत्नी यांच्या संयुक्त नावे करण्यात आलेले आहे.)
-                    </p>
-                    {% else %}
-                    <p style="margin-bottom: 2px;"></p>
-                    {% endif %}
                     <table class="header-table" style="width:100%; margin:0;">
                         <tr>
-                            <td class="left" style="width:33%">ग्रामपंचायत : {{ gramPanchayat | default('') }} <br>गाव/मोहोल्ला : {{ village | default('') }} </td>
-                            <td class="center bold" style="font-size:22px; width:34%">नमुना ८<br><span style="font-size:15px; font-weight:normal;">सन {{ yearFrom | default('') }} <b>ते</b> {{ yearTo | default('') }} </span></td>
-                            <td class="right" style="width:33%">नियम 32 (1)<br>तालुका : {{ taluka | default('') }}  <br>जिल्हा : {{ jilha | default('') }} </td>
+                            <td class="left" style="width:33%">ग्रामपंचायत : {{ village.records[0].gramPanchayat  | default('') }} <br>गाव/मोहोल्ला : {{ village.records[0].village | default('') }} </td>
+                            <td class="center bold" style="font-size:22px; width:34%">नमुना ८<br><span style="font-size:15px; font-weight:normal;">सन {{ village.records[0].yearFrom | default('') }} <b>ते</b> {{ village.records[0].yearTo  | default('') }} </span></td>
+                            <td class="right" style="width:33%">नियम 32 (1)<br>तालुका : {{ village.records[0].taluka  | default('') }} <br>जिल्हा : {{ village.records[0].jilha  | default('') }} </td>
                         </tr>
                     </table>
                 </td>
@@ -216,7 +210,6 @@
                 <th rowspan="2">भांडवली मूल्य (रु.)</th>
                 <th rowspan="2">कराचे दर (पैसे)</th>
                 <th colspan="7">कराची रक्कम (रु.)</th>
-                <th rowspan="2">शेरा</th>
             </tr>
             <tr>
                 <th rowspan="1" style="width: 100px;">जमीन</th>
@@ -249,23 +242,22 @@
                 <th rowspan="1">18</th>
                 <th rowspan="1">19</th>
                 <th rowspan="1">20</th>
+                <th rowspan="1"></th>
+                <th rowspan="1"></th>
                 <th rowspan="1">21</th>
-                <th rowspan="1">22</th>
-                <th rowspan="1">23</th>
-                <th rowspan="1">24</th>
             </tr>
         </thead>
         
         <!-- Page Footer - Repeats on every page -->
         <tfoot class="page-footer">
             <tr>
-                <td colspan="24" style="border:none; padding:0;">
+                <td colspan="21" style="border:none; padding:0;">
                     <!-- Footer content moved outside tfoot -->
                 </td>
             </tr>
         </tfoot>
         <tbody>
-            {% for row in data %}
+            {% for row in village.records %}
             <tr class="record-row"
                 data-house-tax="{{ row.totalHouseTax | default('0') }}"
                 data-lighting-tax="{{ row.lightingTax | default('0') }}"
@@ -327,7 +319,9 @@
                                 {% endif %}
                             </td>
                             <td style="width: 87px;"></td>
-                            <td style="width: 87px;">{{ row.totalconstructionareainfoot | default('') }}</td>
+                            <td style="width: 87px;">
+                                {{ row.totalconstructionareainfoot | default('') }}
+                            </td>
                         </tr>
                         <tr>
                             <td style="width: 87px;">एकूण चौ. मीटर</td>
@@ -338,7 +332,9 @@
                                 {% endif %}
                             </td>
                             <td style="width: 87px;"></td>
-                            <td style="width: 87px;">{{ row.totalconstructionareainmeter | default('') }}</td>
+                            <td style="width: 87px;">
+                                {{ row.totalconstructionareainmeter | default('') }}
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -405,19 +401,10 @@
                 <td>{{ row.cleaningTax | default('') }}</td>
                 <td>{{ row.toiletTax | default('') }}</td>
                 <td>{{ row.totaltax | default('') }}</td>
-                <td>{{ row.remarks | default('') }}</td>
-            </tr>
-            <tr class="record-row">
-                <td colspan="22" style="text-align:center; font-size:15px; font-weight:bold; border-top:none;padding: 3px;">
-                    <span style="font-weight:bold;padding-right: 5px;">चातुर्सिमा </span>
-                    <span style="font-weight:bold;">पूर्व:</span> <span style="padding-right:20px;"> {{ row.boundaryEast | default('') }} </span>
-                    <span style="font-weight:bold;">पश्चिम:</span> <span style="padding-right: 20px;"> {{ row.boundaryWest | default('') }} </span>
-                    <span style="font-weight:bold;">उत्तर:</span> <span style="padding-right: 20px;"> {{ row.boundaryNorth | default('') }} </span>
-                    <span style="font-weight:bold;">दक्षिण:</span> <span style="padding-right: 20px;"> {{ row.boundarySouth | default('') }} </span>
-                </td>
             </tr>
             {% endfor %}
         </tbody>
+        {% endfor %}
     </table>
     
     <!-- Footer Summary - Outside table to avoid repetition -->

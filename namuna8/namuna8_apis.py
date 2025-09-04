@@ -40,8 +40,16 @@ router = APIRouter(
 def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = Depends(database.get_db)):
 
     try:
-       
+    
         with db.begin():
+            if db.query(models.Property).filter(
+                models.Property.village_id == property_data.village_id,
+                models.Property.anuKramank == property_data.anuKramank
+            ).first():
+                raise HTTPException(
+                    status_code=400,
+                    detail="या गावात हा अनुक्रमांक आधीच अस्तित्वात आहे / This anuKramank already exists for this village"
+                )
             owners = []
             for owner_data in property_data.owners:
                 # Convert dict to Pydantic model if needed
@@ -264,11 +272,13 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
           
             try:
                 # Use get_property_record to get accurate total tax
-                record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id, db)
+                record_response = get_property_record(db_property.anuKramank, db_property.district_id, db_property.taluka_id, db_property.gram_panchayat_id,db_property.village_id, db)
                 totalTax = record_response.get('totaltax', 0)
                 srNo = response.get('anuKramank') or response.get('srNo') or ''
                 # totalArea = avg_length * avg_width if avg_length and avg_width else 0
                 totalArea = record_response.get('totalArea',0)
+                owner_name = owners[0].name if owners else None
+                wife_name = owners[0].wifeName if owners and getattr(owners[0], "wifeName", None) else None
                 # Construction area (exclude 'खाली जागा')
                 constructionArea = sum(
                     (c['length'] or 0) * (c['width'] or 0)
@@ -279,13 +289,16 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
                 openArea = totalArea - constructionArea
                 qr_data = {
                     "srNo": srNo,
+                    "ownername": owner_name,
                     "totalArea": totalArea,
                     "constructionArea": constructionArea,
                     "openArea": openArea,
                     "totalTax": totalTax,
                 }
+                if wife_name:
+                    qr_data["wifename"] = wife_name
                 # Create location-based QR directory structure
-                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
+                qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id),str(db_property.village_id),str(db_property.anuKramank))
                 # print(f"DEBUG: Creating QR directory: {qr_dir}")
                 os.makedirs(qr_dir, exist_ok=True)
                 qr_path = os.path.join(qr_dir, "qrcode.png")
@@ -357,6 +370,7 @@ def get_all_construction_types(
 @router.get("/{anu_kramank}", response_model=schemas.PropertyRead)
 def get_property_details(
     anu_kramank: int,
+    village_id:int,
     district_id: int = Query(..., description="District ID"),
     taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
@@ -382,6 +396,7 @@ def get_property_details(
         raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     
     db_property = db.query(models.Property).filter(
+        models.Property.village_id == village_id,
         models.Property.anuKramank == anu_kramank,
         models.Property.district_id == district_id,
         models.Property.taluka_id == taluka_id,
@@ -394,7 +409,8 @@ def get_property_details(
 @router.put("/{anu_kramank}", response_model=schemas.PropertyRead)
 def update_namuna8_entry(
     anu_kramank: int, 
-    property_data: schemas.PropertyUpdate, 
+    property_data: schemas.PropertyUpdate,
+    village_id: int, 
     district_id: int = Query(..., description="District ID"),
     taluka_id: int = Query(..., description="Taluka ID"),
     gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
@@ -402,6 +418,7 @@ def update_namuna8_entry(
 ):
     # Map totalArea to totalAreaSqFt if provided
     property_update_data = property_data.dict(exclude={'owners', 'constructions'})
+    print(property_data.totalArea);
     if "totalArea" in property_update_data and property_update_data["totalArea"] is not None:
         property_update_data["totalAreaSqFt"] = property_update_data["totalArea"]
     # Validate location hierarchy
@@ -424,6 +441,7 @@ def update_namuna8_entry(
         raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     
     db_property = db.query(models.Property).filter(
+        models.Property.village_id == village_id,
         models.Property.anuKramank == anu_kramank,
         models.Property.district_id == district_id,
         models.Property.taluka_id == taluka_id,
@@ -441,11 +459,18 @@ def update_namuna8_entry(
         west = float(db_property.westLength) if db_property.westLength is not None else 0
         north = float(db_property.northLength) if db_property.northLength is not None else 0
         south = float(db_property.southLength) if db_property.southLength is not None else 0
-        avg_length = (east + west) / 2 if (east or west) else 0
-        avg_width = (north + south) / 2 if (north or south) else 0
-        db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+
+        if east == 0 and west == 0 and north == 0 and south == 0:
+            # Fallback to totalArea when no side lengths are available
+            db_property.totalAreaSqFt = db_property.totalArea if db_property.totalArea else 0
+        else:
+            avg_length = (east + west) / 2 if (east or west) else 0
+            avg_width = (north + south) / 2 if (north or south) else 0
+            db_property.totalAreaSqFt = avg_length * avg_width if avg_length and avg_width else 0
+
     except Exception:
-        db_property.totalAreaSqFt = 0
+        db_property.totalAreaSqFt = db_property.totalArea if db_property.totalArea else 0
+
 
     if property_data.owners:
         new_owners = []
@@ -603,7 +628,7 @@ def update_namuna8_entry(
     # --- QR CODE GENERATION (after update, using calculated values) ---
     try:
         # Use get_property_record to get accurate total tax
-        record_response = get_property_record(db_property.anuKramank, district_id, taluka_id, gram_panchayat_id, db)
+        record_response = get_property_record(db_property.anuKramank,village_id, district_id, taluka_id, gram_panchayat_id, db)
         totalTax = record_response.get('totaltax', 0)
         srNo = response.get('anuKramank') or response.get('srNo') or ''
         # print(f"DEBUG UPDATE: totalTax: {totalTax}")
@@ -622,15 +647,22 @@ def update_namuna8_entry(
             if not (c.get('constructionType', '').strip().startswith('खाली जागा'))
         )
         openArea = totalArea - constructionArea
+        owner_name = record_response.get('ownerName', 0)
+        wife_name = record_response.get('ownerWifeName', 0)
+        
         qr_data = {
-            "srNo": srNo,
-            "totalArea": totalArea,
-            "constructionArea": constructionArea,
-            "openArea": openArea,
-            "totalTax": totalTax,
+            "अनुक्रमांक": srNo,
+            "मालकाचे नाव": owner_name,
+            "एकूण क्षेत्रफळ": totalArea,
+            "बांधकाम क्षेत्रफळ": constructionArea,
+            "खुली जागा": openArea,
+            "एकूण कर": totalTax,
         }
+        if wife_name:
+            qr_data["wifename"] = wife_name
+        
         # Create location-based QR directory structure
-        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id), str(db_property.anuKramank))
+        qr_dir = os.path.join("uploaded_images", "qrcode", str(db_property.district_id), str(db_property.taluka_id), str(db_property.gram_panchayat_id),str(db_property.village_id), str(db_property.anuKramank))
         # print(f"DEBUG UPDATE: Creating QR directory: {qr_dir}")
         os.makedirs(qr_dir, exist_ok=True)
         qr_path = os.path.join(qr_dir, "qrcode.png")
@@ -1019,6 +1051,7 @@ def build_property_response(db_property, db, gram_panchayat_id: int):
         "vpanikar": get_water_facility_price(getattr(db_property, 'waterFacility2', None)),
     }
     return property_dict
+
 
 # --- Namuna8SettingChecklist CRUD ---
 @router.post("/settings/checklist/save", response_model=schemas.Namuna8SettingChecklistRead)
@@ -1656,6 +1689,47 @@ def get_all_owners(
 def get_owners_by_village(village_id: int, db: Session = Depends(database.get_db)):
     return db.query(models.Owner).filter(models.Owner.village_id == village_id).all()
 
+@router.get("/properties_by_owner_village/", response_model=List[schemas.PropertyRead])
+def get_properties_by_owner_village(
+    village_id: int,
+    district_id: int = Query(..., description="District ID"),
+    taluka_id: int = Query(..., description="Taluka ID"),
+    gram_panchayat_id: int = Query(..., description="Gram Panchayat ID"),
+    db: Session = Depends(database.get_db)
+):
+    district = db.query(location_models.District).filter(location_models.District.id == district_id).first()
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+
+    taluka = db.query(location_models.Taluka).filter(
+        location_models.Taluka.id == taluka_id,
+        location_models.Taluka.district_id == district_id
+    ).first()
+    if not taluka:
+        raise HTTPException(status_code=400, detail="Taluka does not belong to the specified district")
+
+    gram_panchayat = db.query(location_models.GramPanchayat).filter(
+        location_models.GramPanchayat.id == gram_panchayat_id,
+        location_models.GramPanchayat.taluka_id == taluka_id
+    ).first()
+    if not gram_panchayat:
+        raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
+
+    properties = (
+        db.query(models.Property)
+        .join(models.Property.owners)
+        .filter(models.Owner.village_id == village_id)
+        .all()
+    )
+
+    for p in properties:
+        print(f"Property ID={p.id}, anuKramank={p.anuKramank}, malmattaKramank={p.malmattaKramank}")
+        for o in p.owners:
+            print(f"   Owner ID={o.id}, Name={o.name}, Village={o.village_id}, Aadhaar={o.aadhaarNumber}")
+
+    return [build_property_response(p, db, gram_panchayat_id) for p in properties]
+
+
 @router.get("/properties_by_village/", response_model=List[schemas.PropertyRead])
 def get_properties_by_village(
     village_id: int, 
@@ -1684,7 +1758,17 @@ def get_properties_by_village(
         raise HTTPException(status_code=400, detail="Gram Panchayat does not belong to the specified taluka")
     
     properties = db.query(models.Property).filter(models.Property.village_id == village_id).all()
+
+    for p in properties:
+        print(f"Property ID={p.id}, anuKramank={p.anuKramank}, malmattaKramank={p.malmattaKramank}")
+        for o in p.owners:
+            print(f"   Owner ID={o.id}, Name={o.name}, Aadhaar={o.aadhaarNumber}, Mobile={o.mobileNumber}")
+
     return [build_property_response(p, db, gram_panchayat_id) for p in properties]
+
+
+
+
 
 @router.get("/properties_by_owner/", response_model=List[schemas.PropertyRead])
 def get_properties_by_owner(
@@ -1828,10 +1912,19 @@ def get_all_properties(
         query = query.filter(models.Property.gram_panchayat_id == gram_panchayat_id)
     
     return query.all()
-
-@router.delete("/{anu_kramank}", status_code=200)
-def delete_property(anu_kramank: int, db: Session = Depends(database.get_db)):
-    prop = db.query(models.Property).filter(models.Property.anuKramank == anu_kramank).first()
+from sqlalchemy import and_
+@router.delete("/{anu_kramank}/{village_id}", status_code=200)
+def delete_property(anu_kramank: int,village_id:int, db: Session = Depends(database.get_db)):
+    prop = (
+    db.query(models.Property)
+    .filter(
+        and_(
+            models.Property.anuKramank == anu_kramank,
+            models.Property.village_id == village_id
+        )
+    )
+    .first()
+)
     if not prop:
         raise HTTPException(status_code=404, detail="Property not found")
     # Remove associations with owners (many-to-many)
@@ -1862,6 +1955,7 @@ def set_holdernos(assignments: List[HolderNoAssignment], db: Session = Depends(d
 
 @router.get("/property_qrcode/{anu_kramank}")
 def get_property_qrcode(
+    village_id:int,
     anu_kramank: int,
     district_id: int = Query(..., description="District ID"),
     taluka_id: int = Query(..., description="Taluka ID"),
@@ -1889,6 +1983,7 @@ def get_property_qrcode(
     
     # Validate that the property belongs to the specified location hierarchy
     property_obj = db.query(models.Property).filter(
+        models.Property.village_id == village_id,
         models.Property.anuKramank == anu_kramank,
         models.Property.district_id == district_id,
         models.Property.taluka_id == taluka_id,
@@ -1898,7 +1993,7 @@ def get_property_qrcode(
         raise HTTPException(status_code=404, detail="Property not found in the specified location")
     
     # Use location-based QR path
-    qr_path = os.path.join("uploaded_images", "qrcode", str(district_id), str(taluka_id), str(gram_panchayat_id), str(anu_kramank), "qrcode.png")
+    qr_path = os.path.join("uploaded_images", "qrcode", str(district_id), str(taluka_id), str(gram_panchayat_id),str(village_id), str(anu_kramank), "qrcode.png")
     if not os.path.exists(qr_path):
         raise HTTPException(status_code=404, detail="QR code not found")
     return FileResponse(qr_path, media_type="image/png")
