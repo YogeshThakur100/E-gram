@@ -57,10 +57,7 @@ except Exception:
 
 app = FastAPI()
 
-# Remove or comment out the old static mount
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
-app.mount("/ReportImages" , StaticFiles(directory="ReportImages") , name="ReportImages")
+# Remove early static mounts that can crash if folders are missing (handled later safely)
 # CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
@@ -135,11 +132,26 @@ for package_name in api_packages:
         print(f"[Auto-register] Skipped {package_name}: {e}")
 
 # After all routers are included, mount static at root
-app.mount("/reports", StaticFiles(directory="reports"), name="reports")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
-app.mount("/ReportImages", StaticFiles(directory="ReportImages"), name="ReportImages")
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+try:
+    app.mount("/reports", StaticFiles(directory="reports"), name="reports")
+except Exception:
+    pass
+try:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+except Exception:
+    pass
+try:
+    app.mount("/uploaded_images", StaticFiles(directory="uploaded_images"), name="uploaded_images")
+except Exception:
+    pass
+try:
+    app.mount("/ReportImages", StaticFiles(directory="ReportImages"), name="ReportImages")
+except Exception:
+    pass
+try:
+    app.mount("/", StaticFiles(directory="static", html=True), name="static")
+except Exception:
+    pass
 
 # @app.get("/")
 # def read_root():
