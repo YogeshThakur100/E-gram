@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Request, HTTPException, Query
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 from .death_certificate_model import DeathCertificate
@@ -62,7 +63,7 @@ def create_death_certificate(data: DeathCertificateCreate, db: Session = Depends
         print(f"QR code generation failed: {e}")
     return cert
 
-@router.get("/death", response_model=list[DeathCertificateRead])
+@router.get("/death", response_model=List[DeathCertificateRead])
 def list_death_certificates(
     district_id: int = Query(None, description="Filter by district ID"),
     taluka_id: int = Query(None, description="Filter by taluka ID"),

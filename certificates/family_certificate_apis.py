@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 import os
 from sqlalchemy.orm import Session
@@ -82,7 +83,7 @@ def create_family_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/family", response_model=list[FamilyCertificateRead])
+@router.get("/family", response_model=List[FamilyCertificateRead])
 def list_family_certificates(
     district_id: int = None,
     taluka_id: int = None,

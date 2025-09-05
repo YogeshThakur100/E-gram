@@ -17,7 +17,7 @@ class DistrictRead(DistrictBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class DistrictUpdate(BaseModel):
     name: Optional[str] = None
@@ -39,7 +39,7 @@ class TalukaRead(TalukaBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class TalukaUpdate(BaseModel):
     name: Optional[str] = None
@@ -65,7 +65,7 @@ class GramPanchayatRead(GramPanchayatBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class GramPanchayatUpdate(BaseModel):
     name: Optional[str] = None

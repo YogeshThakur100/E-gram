@@ -5,6 +5,7 @@ from ..namuna8_model import Owner
 from ..namuna8_apis import build_property_response
 from .. import namuna8_model
 from location_management import models
+from typing import List
 
 router = APIRouter()
 
@@ -52,7 +53,7 @@ def owners_with_properties_by_village(
     return result
 
 @router.delete("/owners/delete/")
-def delete_owners(owner_ids: list[int] = Body(...), db: Session = Depends(get_db)):
+def delete_owners(owner_ids: List[int] = Body(...), db: Session = Depends(get_db)):
     for owner_id in owner_ids:
         owner = db.query(namuna8_model.Owner).filter(namuna8_model.Owner.id == owner_id).first()
         if not owner:

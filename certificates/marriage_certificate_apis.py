@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, Request, HTTPException, Query
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 from .marriage_certificate_model import MarriageCertificate
@@ -125,7 +126,7 @@ def create_marriage_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/marriage", response_model=list[MarriageCertificateRead])
+@router.get("/marriage", response_model=List[MarriageCertificateRead])
 def list_marriage_certificates(
     district_id: int = Query(None, description="Filter by district ID"),
     taluka_id: int = Query(None, description="Filter by taluka ID"),

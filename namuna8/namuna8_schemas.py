@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Tuple, Any
 from pydantic import BaseModel
 from datetime import datetime
 # --- Owner Schemas ---
@@ -152,7 +152,7 @@ class BulkEditPropertyRow(BaseModel):
         orm_mode = True
 
 class BulkEditUpdateRequest(BaseModel):
-    property_ids: list[str]
+    property_ids: List[str]
     waterFacility1: Optional[str] = None
     waterFacility2: Optional[str] = None
     toilet: Optional[str] = None
@@ -172,8 +172,8 @@ class PropertyReportDTO(BaseModel):
     village_info: Optional[str] = None
     owner_name: Optional[str] = None
     occupant_name: Optional[str] = None
-    property_description: Optional[tuple[list, int]] = None  # (list of constructions, remaining area)
-    dimension: Optional[tuple[float, float]] = None  # (length, width)
+    property_description: Optional[Tuple[List[Any], int]] = None  # (list of constructions, remaining area)
+    dimension: Optional[Tuple[float, float]] = None  # (length, width)
             
 class ConstructionTypeBase(BaseModel):
     name: str
@@ -192,7 +192,7 @@ class ConstructionTypeCreate(ConstructionTypeBase):
 class ConstructionType(ConstructionTypeBase):
     id: int
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class ConstructionTypeUpsert(BaseModel):
     id: Optional[int] = None
@@ -207,7 +207,7 @@ class ConstructionTypeUpsert(BaseModel):
     gram_panchayat_id: Optional[int] = None
 
 class BulkConstructionTypeUpsertRequest(BaseModel):
-    construction_types: list[ConstructionTypeUpsert]
+    construction_types: List[ConstructionTypeUpsert]
 
 class VillageBase(BaseModel):
     name: str
@@ -221,7 +221,7 @@ class VillageCreate(VillageBase):
 class VillageRead(VillageBase):
     id: int
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class Namuna8SettingChecklistBase(BaseModel):
     tip: bool = False
@@ -452,7 +452,7 @@ class BulkNamuna8SettingsRequest(BaseModel):
     tax: Optional[Namuna8SettingTaxUpdate] = None
     watertax: Optional[Namuna8WaterTaxSettingsUpdate] = None
     watertaxslab: Optional[Namuna8GeneralWaterTaxSlabSettingsUpdate] = None
-    construction_types: Optional[list[ConstructionTypeUpsert]] = None
+    construction_types: Optional[List[ConstructionTypeUpsert]] = None
     building_usage_weightage: Optional[List[BuildingUsageWeightageItem]] = None
     class Config:
         orm_mode = True

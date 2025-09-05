@@ -25,10 +25,10 @@ class NiradharCertificateCreate(NiradharCertificateBase):
 
 class NiradharCertificateRead(NiradharCertificateBase):
     id: int
-    barcode: str | None = None
-    barcode_url: str | None = None
-    gramPanchayat: str | None = None
-    taluka: str | None = None
-    jilha: str | None = None
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
     class Config:
         from_attributes = True 

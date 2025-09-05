@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 import os
 import shutil
@@ -80,7 +81,7 @@ def create_no_arrears_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/no_arrears", response_model=list[NoArrearsCertificateRead])
+@router.get("/no_arrears", response_model=List[NoArrearsCertificateRead])
 def list_no_arrears_certificates(
     district_id: int = None,
     taluka_id: int = None,

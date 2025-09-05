@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Request, HTTPException, Query
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 from .resident_certificate_model import ResidentCertificate
@@ -93,7 +94,7 @@ def create_resident_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/resident", response_model=list[ResidentCertificateRead])
+@router.get("/resident", response_model=List[ResidentCertificateRead])
 def list_resident_certificates(
     district_id: int = Query(None, description="Filter by district ID"),
     taluka_id: int = Query(None, description="Filter by taluka ID"),

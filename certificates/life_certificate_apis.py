@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from database import get_db
@@ -80,7 +81,7 @@ def create_life_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/life", response_model=list[LifeCertificateRead])
+@router.get("/life", response_model=List[LifeCertificateRead])
 def list_life_certificates(
     district_id: int = None,
     taluka_id: int = None,

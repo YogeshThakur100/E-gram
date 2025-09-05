@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 import os
 from sqlalchemy.orm import Session
@@ -71,7 +72,7 @@ def create_toilet_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/toilet", response_model=list[ToiletCertificateRead])
+@router.get("/toilet", response_model=List[ToiletCertificateRead])
 def list_toilet_certificates(
     district_id: int = None,
     taluka_id: int = None,

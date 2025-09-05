@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 venv/   # If you use a virtual environment, typically named 'venv' or 'env'
 env/    # Another common virtual environment name
+windows7env/
 
 # Database files
 *.db

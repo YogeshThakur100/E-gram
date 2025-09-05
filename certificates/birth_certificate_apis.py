@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 from .birth_certificate_model import BirthCertificate
@@ -67,7 +68,7 @@ def create_birth_certificate(data: BirthCertificateCreate, db: Session = Depends
         print(f"QR code generation failed: {e}")
     return cert
 
-@router.get("/birth", response_model=list[BirthCertificateRead])
+@router.get("/birth", response_model=List[BirthCertificateRead])
 def list_birth_certificates(
     district_id: int = Query(None, description="Filter by district ID"),
     taluka_id: int = Query(None, description="Filter by taluka ID"),

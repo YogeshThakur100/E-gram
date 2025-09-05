@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, UploadFile, File, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from database import get_db
@@ -105,7 +106,7 @@ def create_no_benefit_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/no-benefit", response_model=list[NoBenefitCertificateRead])
+@router.get("/no-benefit", response_model=List[NoBenefitCertificateRead])
 def list_no_benefit_certificates(
     district_id: int = None,
     taluka_id: int = None,
@@ -177,7 +178,7 @@ def list_no_benefit_certificates(
         result.append(cert_data)
     return result
 
-@router.get("/no-benefit-all", response_model=list[NoBenefitCertificateRead])
+@router.get("/no-benefit-all", response_model=List[NoBenefitCertificateRead])
 def list_all_no_benefit_certificates(
     request: Request = None,
     db: Session = Depends(get_db)

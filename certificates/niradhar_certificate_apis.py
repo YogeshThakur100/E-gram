@@ -10,6 +10,7 @@ import os
 import shutil
 from fastapi.responses import FileResponse
 from location_management.models import District, Taluka, GramPanchayat
+from typing import List
 
 router = APIRouter(prefix="/certificates", tags=["certificates"])
 
@@ -80,7 +81,7 @@ def create_niradhar_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/niradhar", response_model=list[NiradharCertificateRead])
+@router.get("/niradhar", response_model=List[NiradharCertificateRead])
 def list_niradhar_certificates(
     district_id: int = None,
     taluka_id: int = None,
@@ -118,22 +119,16 @@ def list_niradhar_certificates(
             jilha = gram_panchayat.name if gram_panchayat else None
         
         # Handle barcode URL
-        barcode_val = getattr(cert, 'barcode', None)
-        if barcode_val:
-            if str(barcode_val).startswith("http"):
-                cert_data.barcode_url = barcode_val
-            else:
-                # Construct barcode URL with location query parameters if available
-                if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
-                    cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/niradhar_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
-                else:
-                    cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/niradhar_barcode/{cert.id}"
+        if cert.district_id and cert.taluka_id and cert.gram_panchayat_id:
+            cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/niradhar_barcode/{cert.id}?district_id={cert.district_id}&taluka_id={cert.taluka_id}&gram_panchayat_id={cert.gram_panchayat_id}"
         else:
-            cert_data.barcode_url = None
+            cert_data.barcode_url = str(request.base_url)[:-1] + f"/certificates/niradhar_barcode/{cert.id}"
         
-        cert_data.gramPanchayat = gramPanchayat
-        cert_data.taluka = taluka
-        cert_data.jilha = jilha
+        # Attach readable names
+        setattr(cert_data, 'gramPanchayat', gramPanchayat)
+        setattr(cert_data, 'taluka', taluka)
+        setattr(cert_data, 'jilha', jilha)
+        
         result.append(cert_data)
     
     return result

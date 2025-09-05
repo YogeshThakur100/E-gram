@@ -325,7 +325,7 @@ def create_namuna8_entry(property_data: schemas.PropertyCreate, db: Session = De
         # print(f"DEBUG: Unexpected error details: {e}")
         raise HTTPException(status_code=500, detail="Failed to save property and owners: " + str(e))
 
-@router.get("/property_list/", response_model=list[schemas.PropertyList])
+@router.get("/property_list/", response_model=List[schemas.PropertyList])
 def get_property_list(village: str, db: Session = Depends(database.get_db)):
     # Find the village by name
     village_obj = db.query(models.Village).filter(models.Village.name == village).first()
@@ -677,7 +677,7 @@ def update_namuna8_entry(
         logging.error(f"QR code update failed: {e}")
     return response
 
-@router.get("/bulk_edit_list/", response_model=list[schemas.BulkEditPropertyRow])
+@router.get("/bulk_edit_list/", response_model=List[schemas.BulkEditPropertyRow])
 def get_bulk_edit_property_list(
     village: str, 
     district_id: int = Query(..., description="District ID"),
@@ -1070,7 +1070,7 @@ def create_checklist(data: schemas.Namuna8SettingChecklistCreate, db: Session = 
     db.refresh(obj)
     return obj
 
-@router.get("/settings/checklist/getall", response_model=list[schemas.Namuna8SettingChecklistRead])
+@router.get("/settings/checklist/getall", response_model=List[schemas.Namuna8SettingChecklistRead])
 def get_all_checklists(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8SettingChecklist).all()
 
@@ -1118,7 +1118,7 @@ def create_dropdown(data: schemas.Namuna8DropdownAddSettingsCreate, db: Session 
     db.refresh(obj)
     return obj
 
-@router.get("/settings/dropdown/getall", response_model=list[schemas.Namuna8DropdownAddSettingsRead])
+@router.get("/settings/dropdown/getall", response_model=List[schemas.Namuna8DropdownAddSettingsRead])
 def get_all_dropdowns(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8DropdownAddSettings).all()
 
@@ -1166,7 +1166,7 @@ def create_tax(data: schemas.Namuna8SettingTaxCreate, db: Session = Depends(data
     db.refresh(obj)
     return obj
 
-@router.get("/settings/tax/getall", response_model=list[schemas.Namuna8SettingTaxRead])
+@router.get("/settings/tax/getall", response_model=List[schemas.Namuna8SettingTaxRead])
 def get_all_taxes(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8SettingTax).all()
 
@@ -1228,7 +1228,7 @@ def create_watertax(data: schemas.Namuna8WaterTaxSettingsCreate, db: Session = D
     db.refresh(obj)
     return obj
 
-@router.get("/settings/watertax/getall", response_model=list[schemas.Namuna8WaterTaxSettingsRead])
+@router.get("/settings/watertax/getall", response_model=List[schemas.Namuna8WaterTaxSettingsRead])
 def get_all_watertax(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8WaterTaxSettings).all()
 
@@ -1276,7 +1276,7 @@ def create_watertaxslab(data: schemas.Namuna8GeneralWaterTaxSlabSettingsCreate, 
     db.refresh(obj)
     return obj
 
-@router.get("/settings/watertaxslab/getall", response_model=list[schemas.Namuna8GeneralWaterTaxSlabSettingsRead])
+@router.get("/settings/watertaxslab/getall", response_model=List[schemas.Namuna8GeneralWaterTaxSlabSettingsRead])
 def get_all_watertaxslab(db: Session = Depends(database.get_db)):
     return db.query(models.Namuna8GeneralWaterTaxSlabSettings).all()
 
@@ -1802,7 +1802,7 @@ def get_properties_by_owner(
         return []
     return [build_property_response(p, db, gram_panchayat_id) for p in owner.properties]
 
-@router.get("/properties/bulk", response_model=list[schemas.PropertyRead])
+@router.get("/properties/bulk", response_model=List[schemas.PropertyRead])
 def get_properties_bulk(
     ids: str = Query(...), 
     district_id: int = Query(..., description="District ID"),

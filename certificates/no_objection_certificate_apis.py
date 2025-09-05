@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, UploadFile, File, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from database import get_db
@@ -124,7 +125,7 @@ def create_no_objection_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/no-objection", response_model=list[NoObjectionCertificateRead])
+@router.get("/no-objection", response_model=List[NoObjectionCertificateRead])
 def list_no_objection_certificates(
     district_id: int = None,
     taluka_id: int = None,

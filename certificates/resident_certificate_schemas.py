@@ -24,9 +24,9 @@ class ResidentCertificateRead(ResidentCertificateBase):
     id: int
     image_url: Optional[str] = None
     barcode_url: Optional[str] = None
-    gramPanchayat: str | None = None
-    taluka: str | None = None
-    jilha: str | None = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
     model_config = {
         "from_attributes": True
     } 

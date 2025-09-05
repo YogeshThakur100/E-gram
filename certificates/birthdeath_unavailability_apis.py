@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Request, HTTPException, Query
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 from .birthdeath_unavailability_model import BirthDeathUnavailabilityCertificate
@@ -39,7 +40,7 @@ def create_certificate(data: BirthDeathUnavailabilityCertificateCreate, db: Sess
     db.refresh(cert)
     return cert
 
-@router.get("/birthdeath-unavailability", response_model=list[BirthDeathUnavailabilityCertificateRead])
+@router.get("/birthdeath-unavailability", response_model=List[BirthDeathUnavailabilityCertificateRead])
 def list_certificates(
     district_id: int = None,
     taluka_id: int = None,

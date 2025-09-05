@@ -24,7 +24,7 @@ class BirthCertificateBase(BaseModel):
     permanent_address_en: str
     remark: Optional[str]
     remark_en: str
-    barcode: str | None = None
+    barcode: Optional[str] = None
     district_id: Optional[int] = None
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
@@ -34,12 +34,12 @@ class BirthCertificateCreate(BirthCertificateBase):
 
 class BirthCertificateRead(BirthCertificateBase):
     id: int
-    qrcode: str | None = None
-    barcode: str | None = None
-    barcode_url: str | None = None
-    gramPanchayat: str | None = None
-    taluka: str | None = None
-    jilha: str | None = None
+    qrcode: Optional[str] = None
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
     model_config = {
         "from_attributes": True
     } 

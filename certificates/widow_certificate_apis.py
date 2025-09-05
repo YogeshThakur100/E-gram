@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 import os
 import shutil
@@ -84,7 +85,7 @@ def create_widow_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/widow", response_model=list[WidowCertificateRead])
+@router.get("/widow", response_model=List[WidowCertificateRead])
 def list_widow_certificates(
     district_id: int = None,
     taluka_id: int = None,

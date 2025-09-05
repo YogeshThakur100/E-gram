@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, Query
+from typing import List
 from fastapi.responses import FileResponse
 import os
 import shutil
@@ -86,7 +87,7 @@ def create_receipt_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/receipt", response_model=list[ReceiptCertificateRead])
+@router.get("/receipt", response_model=List[ReceiptCertificateRead])
 def list_receipt_certificates(
     district_id: int = Query(None, description="Filter by district ID"),
     taluka_id: int = Query(None, description="Filter by taluka ID"),

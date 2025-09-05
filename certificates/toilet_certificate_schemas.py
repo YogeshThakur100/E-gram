@@ -1,5 +1,5 @@
 from pydantic import BaseModel, constr, validator
-from typing import Annotated, Optional
+from typing import Optional
 from datetime import date
 
 class ToiletCertificateBase(BaseModel):

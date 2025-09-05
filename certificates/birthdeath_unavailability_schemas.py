@@ -14,7 +14,7 @@ class BirthDeathUnavailabilityCertificateBase(BaseModel):
     certificate_name_en: Optional[str]
     subject: Optional[str]
     subject_en: Optional[str]
-    barcode: str | None = None
+    barcode: Optional[str] = None
     district_id: Optional[int] = None
     taluka_id: Optional[int] = None
     gram_panchayat_id: Optional[int] = None
@@ -24,11 +24,11 @@ class BirthDeathUnavailabilityCertificateCreate(BirthDeathUnavailabilityCertific
 
 class BirthDeathUnavailabilityCertificateRead(BirthDeathUnavailabilityCertificateBase):
     id: int
-    barcode: str | None = None
-    barcode_url: str | None = None
-    gramPanchayat: str | None = None
-    taluka: str | None = None
-    jilha: str | None = None
+    barcode: Optional[str] = None
+    barcode_url: Optional[str] = None
+    gramPanchayat: Optional[str] = None
+    taluka: Optional[str] = None
+    jilha: Optional[str] = None
     model_config = {
         "from_attributes": True
     } 

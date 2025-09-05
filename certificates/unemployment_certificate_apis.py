@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, HTTPException, Request, File, UploadFile, Query
+from typing import List
 from fastapi.responses import FileResponse
 import os
 import shutil
@@ -93,7 +94,7 @@ def create_unemployment_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/unemployment", response_model=list[UnemploymentCertificateRead])
+@router.get("/unemployment", response_model=List[UnemploymentCertificateRead])
 def list_unemployment_certificates(
     district_id: int = None,
     taluka_id: int = None,

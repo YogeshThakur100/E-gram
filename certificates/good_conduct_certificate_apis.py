@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, Form, UploadFile, File, HTTPException, Query
+from typing import List
 from sqlalchemy.orm import Session
 from database import get_db
 from .good_conduct_certificate_model import GoodConductCertificate
@@ -120,7 +121,7 @@ def create_good_conduct_certificate(
     db.refresh(cert)
     return cert
 
-@router.get("/good-conduct", response_model=list[GoodConductCertificateRead])
+@router.get("/good-conduct", response_model=List[GoodConductCertificateRead])
 def list_good_conduct_certificates(
     district_id: int = None,
     taluka_id: int = None,
