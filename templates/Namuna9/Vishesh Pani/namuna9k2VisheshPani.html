@@ -251,11 +251,28 @@
                             <td>दिनांक : {{ data[i].currentDate or '' }}</td>
                             <td class="right" colspan="4">एकूण : 
                                 {{ 
-                                    (data[i].totalTaxwithoutvipanitoilet or 0) 
+                                    (data[i].totalTaxwithoutsafaitoilet or 0) 
                                  }} 
                                 </td>
                         </tr>
                     </table>
+                    {% set kmap = (data[i]['कराचे नाव'] if data[i]['कराचे नाव'] is defined else {}) %}
+                    {% set _sum = (kmap.get('घरकर',0) + kmap.get('दिवाबत्ती कर',0) + kmap.get('आरोग्य कर',0) + kmap.get('सा.पाणीकर',0) + kmap.get('वि.पाणीकर',0) + kmap.get('नोटीस फी',0) + kmap.get('वारंट फी',0)) %}
+                    {% if _sum > 0 %}
+                    <table style="margin-top: 6px; width:100%; border-collapse:collapse;">
+                        <tr class="center bold">
+                            <td>कराचे नाव</td>
+                            <td>रक्कम</td>
+                        </tr>
+                        {% set taxes = ['घरकर','दिवाबत्ती कर','आरोग्य कर','सा.पाणीकर','वि.पाणीकर','नोटीस फी','वारंट फी'] %}
+                        {% for t in taxes %}
+                        <tr>
+                            <td>{{ t }}</td>
+                            <td class="right">{{ kmap.get(t, 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
                     <div style="font-size: 13px; margin-top: 4px;">
                         हे बिल आपणास प्राप्त झाल्यापासून देय रकमांचा भरणा १५ दिवसांचे आत करावा
                         अन्यथा ग्रामपंचायत अधिनियमच्या कलम क्र.१२९(२) अन्वये आपल्यावर मागणी बजावण्यात येईल
@@ -335,11 +352,28 @@
                             <td>दिनांक : {{ data[i].currentDate or '' }}</td>
                             <td class="right" colspan="4">एकूण : 
                                 {{ 
-                                    (data[i].totalTaxwithoutvipanitoilet or 0)
+                                    (data[i].totalTaxwithoutsafaitoilet or 0)
                                  }} 
                                 </td>
                         </tr>
                     </table>
+                    {% set kmap2 = (data[i]['कराचे नाव'] if data[i]['कराचे नाव'] is defined else {}) %}
+                    {% set _sum2 = (kmap2.get('घरकर',0) + kmap2.get('दिवाबत्ती कर',0) + kmap2.get('आरोग्य कर',0) + kmap2.get('सा.पाणीकर',0) + kmap2.get('वि.पाणीकर',0) + kmap2.get('नोटीस फी',0) + kmap2.get('वारंट फी',0)) %}
+                    {% if _sum2 > 0 %}
+                    <table style="margin-top: 6px; width:100%; border-collapse:collapse;">
+                        <tr class="center bold">
+                            <td>कराचे नाव</td>
+                            <td>रक्कम</td>
+                        </tr>
+                        {% set taxes = ['घरकर','दिवाबत्ती कर','आरोग्य कर','सा.पाणीकर','वि.पाणीकर','नोटीस फी','वारंट फी'] %}
+                        {% for t in taxes %}
+                        <tr>
+                            <td>{{ t }}</td>
+                            <td class="right">{{ kmap2.get(t, 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
                     <div style="font-size: 13px; margin-top: 4px;">
                         हे बिल आपणास प्राप्त झाल्यापासून देय रकमांचा भरणा १५ दिवसांचे आत करावा
                         अन्यथा ग्रामपंचायत अधिनियमच्या कलम क्र.१२९(२) अन्वये आपल्यावर मागणी बजावण्यात येईल
@@ -420,11 +454,28 @@
                             <td>दिनांक : {{ data[i+1].currentDate or '' }}</td>
                             <td class="right" colspan="4">एकूण : 
                                 {{ 
-                                    (data[i+1].totalTaxwithoutvipanitoilet or 0)
+                                    (data[i+1].totalTaxwithoutsafaitoilet or 0)
                                  }} 
                                 </td>
                         </tr>
                     </table>
+                    {% set kmap3 = (data[i+1]['कराचे नाव'] if data[i+1]['कराचे नाव'] is defined else {}) %}
+                    {% set _sum3 = (kmap3.get('घरकर',0) + kmap3.get('दिवाबत्ती कर',0) + kmap3.get('आरोग्य कर',0) + kmap3.get('सा.पाणीकर',0) + kmap3.get('वि.पाणीकर',0) + kmap3.get('नोटीस फी',0) + kmap3.get('वारंट फी',0)) %}
+                    {% if _sum3 > 0 %}
+                    <table style="margin-top: 6px; width:100%; border-collapse:collapse;">
+                        <tr class="center bold">
+                            <td>कराचे नाव</td>
+                            <td>रक्कम</td>
+                        </tr>
+                        {% set taxes = ['घरकर','दिवाबत्ती कर','आरोग्य कर','सा.पाणीकर','वि.पाणीकर','नोटीस फी','वारंट फी'] %}
+                        {% for t in taxes %}
+                        <tr>
+                            <td>{{ t }}</td>
+                            <td class="right">{{ kmap3.get(t, 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% endif %}
                     <div style="font-size: 13px; margin-top: 4px;">
                         हे बिल आपणास प्राप्त झाल्यापासून देय रकमांचा भरणा १५ दिवसांचे आत करावा
                         अन्यथा ग्रामपंचायत अधिनियमच्या कलम क्र.१२९(२) अन्वये आपल्यावर मागणी बजावण्यात येईल
