@@ -1,0 +1,2662 @@
+{
+  "info": {
+    "_postman_id": "69a41d65-ea69-497f-9099-0b448f33a544",
+    "name": "Gram Panchayat",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40514136"
+  },
+  "item": [
+    {
+      "name": "Namuna 8",
+      "item": [
+        {
+          "name": "get the user based on id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/recordresponses/property_record/1?district_id=1&taluka_id=1&village_id=1&gram_panchayat_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "recordresponses",
+                "property_record",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "village_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get the user based on village id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/recordresponses/property_records_by_village/1?district_id=1&taluka_id=1&gram_panchayat_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "recordresponses",
+                "property_records_by_village",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get all records of all villages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/recordresponses/property_record/8?district_id=1&taluka_id=1&gram_panchayat_id=1&village_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "recordresponses",
+                "property_record",
+                "8"
+              ],
+              "query": [
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                },
+                {
+                  "key": "village_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "singlePrint1 output file",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"villageID\": 1,\r\n  \"district_id\": 1,\r\n  \"taluka_id\": 1,\r\n  \"gram_panchayat_id\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/single_print_range",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "single_print_range"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar2",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar3",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar4bhag1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar5bhag1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar4bhag2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar5bhag2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar1VisheshPani",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar2VisheshPani",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar3VisheshPani",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna8/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna8",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "language",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Yadi",
+      "item": [
+        {
+          "name": "vertical report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000//yadi/print/verticalreport",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "",
+                "yadi",
+                "print",
+                "verticalreport"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "horizontal report",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000//yadi/print/verticalreport",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "",
+                "yadi",
+                "print",
+                "verticalreport"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000//yadi/print/verticalreport",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "",
+                "yadi",
+                "print",
+                "verticalreport"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000//yadi/print/verticalreport",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "",
+                "yadi",
+                "print",
+                "verticalreport"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Namuna 9",
+      "item": [
+        {
+          "name": "Regular",
+          "item": [
+            {
+              "name": "printall9",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/regular/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "regular",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9Gen",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "print9GenPG2",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "print9Pani",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "print9Pani Copy",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "print9allpg2",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/regular/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "regular",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "vasuli1",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "vasuli2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/regular/namuna9Vasuli1",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "regular",
+                    "namuna9Vasuli1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "vasuli3",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/regular/namuna9Vasuli1",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "regular",
+                    "namuna9Vasuli1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Sut Saha",
+          "item": [
+            {
+              "name": "print9All",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/sutsaha/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "sutsaha",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9Gen",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/sutsaha/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "sutsaha",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Vishesh Pani",
+          "item": [
+            {
+              "name": "print9All",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9AllPG2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9Gen",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9GenPG2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9Pani",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9Pani",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9Pani"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9PaniPG2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9Pani",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9Pani"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Vasuli1",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9Vasuli",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9Vasuli"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Vasuli2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPani/namuna9Vasuli2",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPani",
+                    "namuna9Vasuli2"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Vishesh Pani with Safai",
+          "item": [
+            {
+              "name": "print9All",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPaniSafai/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPaniSafai",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9AllPG2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPaniSafai/namuna9All",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPaniSafai",
+                    "namuna9All"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9Gen",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPaniSafai/namuna9Gen",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPaniSafai",
+                    "namuna9Gen"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "print9GenPG2",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/namuna9/print/visheshPaniSafai/namuna9Gen",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "print",
+                    "visheshPaniSafai",
+                    "namuna9Gen"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"villageId\" : 1,\r\n    \"from_year\" : \"2016-2017\",\r\n    \"to_year\" : \"2024-2025\",\r\n    \"thakit_values\" : \"chaluGhar\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://localhost:8000/namuna9/copy-from-year?villageId=1",
+                  "protocol": "http",
+                  "host": [
+                    "localhost"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "namuna9",
+                    "copy-from-year"
+                  ],
+                  "query": [
+                    {
+                      "key": "villageId",
+                      "value": "1",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "geta api",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna9/recordresponses/property_records_by_village?villageId=1&yearslap=2026-2027&district_id=1&taluka_id=1&gram_panchayat_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna9",
+                "recordresponses",
+                "property_records_by_village"
+              ],
+              "query": [
+                {
+                  "key": "villageId",
+                  "value": "1"
+                },
+                {
+                  "key": "yearslap",
+                  "value": "2026-2027"
+                },
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9k api",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna9/recordresponses/property_records_by_village/regular/?villageId=1&yearslap=2025-2026&district_id=1&taluka_id=1&gram_panchayat_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna9",
+                "recordresponses",
+                "property_records_by_village",
+                "regular",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "villageId",
+                  "value": "1"
+                },
+                {
+                  "key": "yearslap",
+                  "value": "2025-2026"
+                },
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "9k api Copy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna9/recordresponses/property_records_by_village/visheshpani/?villageId=1&yearslap=2025-2026&district_id=1&taluka_id=1&gram_panchayat_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna9",
+                "recordresponses",
+                "property_records_by_village",
+                "visheshpani",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "villageId",
+                  "value": "1"
+                },
+                {
+                  "key": "yearslap",
+                  "value": "2025-2026"
+                },
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "namuna9 receipt",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna9/receipt/27?district_id=1&taluka_id=1&village_id=1&gram_panchayat_id=1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna9",
+                "receipt",
+                "27"
+              ],
+              "query": [
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "village_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "for report by vilageID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna9/receipts/by-date-village?gram_panchayat_id=1&village_id=1&from_date=2025-09-29&to_date=2025-09-29",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna9",
+                "receipts",
+                "by-date-village"
+              ],
+              "query": [
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                },
+                {
+                  "key": "village_id",
+                  "value": "1"
+                },
+                {
+                  "key": "from_date",
+                  "value": "2025-09-29"
+                },
+                {
+                  "key": "to_date",
+                  "value": "2025-09-29"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get table data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna9/table-data?villageId=1&yearslap=2024-2025&district_id=1&taluka_id=1&gram_panchayat_id=1&applyWarrantFee=false&applyNoticeFee=false&applyPenalty=false",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna9",
+                "table-data"
+              ],
+              "query": [
+                {
+                  "key": "villageId",
+                  "value": "1"
+                },
+                {
+                  "key": "yearslap",
+                  "value": "2024-2025"
+                },
+                {
+                  "key": "district_id",
+                  "value": "1"
+                },
+                {
+                  "key": "taluka_id",
+                  "value": "1"
+                },
+                {
+                  "key": "gram_panchayat_id",
+                  "value": "1"
+                },
+                {
+                  "key": "applyWarrantFee",
+                  "value": "false"
+                },
+                {
+                  "key": "applyNoticeFee",
+                  "value": "false"
+                },
+                {
+                  "key": "applyPenalty",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Namuna 7",
+      "item": [
+        {
+          "name": "get data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna7/prints/get/4",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna7",
+                "prints",
+                "get",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "receipt print",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna7/receipt",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna7",
+                "receipt"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "register print",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/namuna7/receipt",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "namuna7",
+                "receipt"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "by date",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "logbook print",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "get data based on date",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ghoshawara",
+      "item": [
+        {
+          "name": "prakar1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ghoshawara/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ghoshawara",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ghoshawara/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ghoshawara",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Vishesh Pani prakar1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ghoshawara/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ghoshawara",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Vishesh Pani prakar2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ghoshawara/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ghoshawara",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "LogBook",
+      "item": [
+        {
+          "name": "print",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "namuna10",
+      "item": [
+        {
+          "name": "print",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Certificate",
+      "item": [
+        {
+          "name": "birth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/birth/2",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "birth",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "birth",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/birth",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "birth"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "death",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/death/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "death",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "death",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/death",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "death"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "birth/death",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/birthdeath-unavailability/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "birthdeath-unavailability",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "birthdeath",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userID\" : 6\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/birthdeath",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "birthdeath"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resident",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/resident/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "resident",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resident",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userID\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/resident",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "resident"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "family",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "family",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userID\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/print/family",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "print",
+                "family"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "no-objection",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "no-objection",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/no-objection",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "no-objection"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "toilet",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "toilet",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/no-objection",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "no-objection"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "no-benefit",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/no-benefit/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "no-benefit",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "no-benefit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/print/no-benefit",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "print",
+                "no-benefit"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "life",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "life",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userID\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/print/life",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "print",
+                "life"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "good-conduct",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/good-conduct/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "good-conduct",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "good-conduct",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/good-conduct",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "good-conduct"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "niradhar",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "niradhar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/niradhar",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "niradhar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "marriage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/marriage/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "marriage",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "marriage",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/marriage",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "marriage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "no_arrears",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "no_arreaes",
+          "request": {
+            "method": "POST",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "widow",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/widow/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "widow",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "widow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/widow",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "widow"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "unemployment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/unemployment/1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "unemployment",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "unemployment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/unemployment",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "unemployment"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "receipt",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "receipt",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/receipt",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "receipt"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificates/all?from_date=2025-09-03&to_date=2025-09-29",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificates",
+                "all"
+              ],
+              "query": [
+                {
+                  "key": "from_date",
+                  "value": "2025-09-03"
+                },
+                {
+                  "key": "to_date",
+                  "value": "2025-09-29"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "all",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userID\" : 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/certificate/print/all",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "certificate",
+                "print",
+                "all"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "license",
+      "item": [
+        {
+          "name": "php code",
+          "item": [
+            {
+              "name": "add license usage",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "create credentails",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "check-license-hosted",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "sync from local to hosted db",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/license/sync/upload",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "license",
+                    "sync",
+                    "upload"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "sync from hosted to local",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "http://127.0.0.1:8000/license/sync/download",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "license",
+                    "sync",
+                    "download"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "get data from hosted db",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "generate-license",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/license/generate-license",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "license",
+                "generate-license"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-license",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/license/verify-license?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWQiOnRydWUsImV4cCI6MTc1NTkyOTE3OH0.CfchTOe0j__NwdChrTejG8nfNMobypHgBOhMEQrh1bo",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "license",
+                "verify-license"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZWQiOnRydWUsImV4cCI6MTc1NTkyOTE3OH0.CfchTOe0j__NwdChrTejG8nfNMobypHgBOhMEQrh1bo"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "store-encypted-license",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"license_key\":\"X9B4T7W2MZQ5\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/license/store-encrypted-license",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "license",
+                "store-encrypted-license"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-encrypted-license",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/license/store-encrypted-license",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "license",
+                "store-encrypted-license"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ferfar",
+      "item": [
+        {
+          "name": "prakar1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ferfar/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ferfar",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "prakar2",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/ferfar/print/prakar1",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "ferfar",
+                "print",
+                "prakar1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "javak nodhwani",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
